@@ -19,7 +19,7 @@ namespace EjoyFramework.Tests
 {
     public static class MonoBehaviourSnapshotSampleResourceBuilder
     {
-        public const string ResourceDir = "Packages/com.ejoy.framework/Tests/Runtime/EjoyFramework.Core.Tests.PlayMode/CodeGenSamples/MonoBehaviourSnapshots/Resources";
+        public const string ResourceDir = "Packages/com.ejoy.framework/Tests/Runtime/Core.Tests.PlayMode/CodeGenSamples/MonoBehaviourSnapshots/Resources";
         public const string PrefabName = "SnapshotSampleArena";
         public const string PrefabPath = ResourceDir + "/" + PrefabName + ".prefab";
         public const string GoldenPath = ResourceDir + "/" + PrefabName + ".golden.json";

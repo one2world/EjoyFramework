@@ -33,7 +33,7 @@ namespace EjoyFramework.Tests
 
             Assert.That(ok, Is.True, reason);
             Assert.That(path.Replace('\\', '/'), Is.EqualTo(CodeGenPath.Resolve(
-                "Packages/com.ejoy.framework/Tests/Editor/EjoyFramework.Core.Tests/Generated/Serialization/Sample.g.cs")));
+                "Packages/com.ejoy.framework/Tests/Editor/Core.Tests/Generated/Serialization/Sample.g.cs")));
         }
 
         [Test]

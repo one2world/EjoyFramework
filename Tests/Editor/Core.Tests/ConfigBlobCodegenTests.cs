@@ -30,7 +30,7 @@ namespace EjoyFramework.Tests
     {
         private static string MonstersTablePath => Path.Combine(
             UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(ConfigBlobCodegenTests).Assembly).resolvedPath,
-            "Tests/Editor/EjoyFramework.Core.Tests/Fixtures/Monsters.txt");
+            "Tests/Editor/Core.Tests/Fixtures/Monsters.txt");
 
         /// <summary>覆盖全部字段种类的合成表（真实表里没有 long/double/bool 的组合）。</summary>
         private const string SyntheticTableText =

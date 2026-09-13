@@ -466,14 +466,14 @@ Intentional — they are `sealed`. Use `CreateViewModel`, `OnViewModelBound`, `O
 
 ```
 Packages/com.ejoy.framework/
-├─ Runtime/EjoyFramework.Core/UI/                  core: manager, stack, controller, form-def
+├─ Runtime/Core/UI/                  core: manager, stack, controller, form-def
 │  └─ Mvvm/                                         observable, command, accessor, path, converter
-├─ Runtime/EjoyFramework.Core.Unity/UI/             Unity adapters: UIComponent (+ scene helpers)
+├─ Runtime/Core.Unity/UI/             Unity adapters: UIComponent (+ scene helpers)
 │  │                                                 safe-area, aspect-fitter, group canvas
 │  └─ Mvvm/                                         MvvmView, 13 binders, MvvmContext, IListItemBinder
 │     └─ Converters/                                4 built-in value converters
-├─ Editor/EjoyFramework.Core.Unity.Editor/UI/             UIFormId generator, UIRoot setup
+├─ Editor/Core.Unity.Editor/UI/             UIFormId generator, UIRoot setup
 │  └─ Mvvm/                                         scaffold + auto-wire generator
-└─ Tests/Editor/EjoyFramework.Tests/                MvvmCoreTests — 23 NUnit cases
-   └─ ../Runtime/EjoyFramework.Tests.PlayMode/      MvvmBinderTests — PlayMode binder lifecycle
+└─ Tests/Editor/Core.Tests/                MvvmCoreTests — 23 NUnit cases
+   └─ ../Runtime/Core.Tests.PlayMode/      MvvmBinderTests — PlayMode binder lifecycle
 ```

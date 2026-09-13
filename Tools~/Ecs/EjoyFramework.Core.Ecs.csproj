@@ -7,6 +7,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../Runtime/EjoyFramework.Core/Ecs/**/*.cs" />
+    <Compile Include="../../Runtime/Core/Ecs/**/*.cs" />
   </ItemGroup>
 </Project>

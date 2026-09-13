@@ -13,6 +13,9 @@ $guids = @{}
 foreach ($file in $files) {
     $path = Join-Path $root $file
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing tracked input: $file" }
+    if ($file -match '^(Runtime|Editor|Tests/(Editor|Runtime))/EjoyFramework\.[^/]+(/|\.meta$)') {
+        throw "Redundant package prefix in directory: $file"
+    }
     if ($file -match '(^|/)(Library|Temp|Logs|UserSettings|bin|obj|TestResults)/|\.(zip|7z|bundle|log)$') {
         throw "Generated or downloaded artifact in package: $file"
     }

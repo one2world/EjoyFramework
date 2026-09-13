@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Removed the redundant package prefix from Runtime, Editor and Tests layer directories
+  (for example, `Runtime/Core`). Namespace and assembly names and Unity GUIDs are preserved;
+  source paths, test fixtures, standalone tools and current documentation follow the new layout.
+
 ## [2.1.0] - 2026-08-23
 
 ### Added - Runtime performance counters

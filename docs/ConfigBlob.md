@@ -57,8 +57,8 @@ StringPool   : 文件尾部，{ utf8Len | utf8 bytes }，构建期全局去重�
 
 | 层 | 位置 | 内容 |
 |---|---|---|
-| Core.Blobs（纯 C#） | `Runtime/EjoyFramework.Core/Blobs/` | `ConfigBlob`（容器+读原语+引用计数）、`ConfigTableView`、`BlobString`、`ConfigBlobWriter`（写侧）、`ConfigBlobHash`（FNV1a64）、来源：`NativeAllocBlobSource` / `MmapBlobSource` / `ApkOffsetBlobSource` + `ZipEntryLocator`、门面 `ConfigBlobFile` |
-| Core.Unity | `Runtime/EjoyFramework.Core.Unity/ConfigBlob/` | `ConfigBlobStreamingAssets`（平台选源） |
+| Core.Blobs（纯 C#） | `Runtime/Core/Blobs/` | `ConfigBlob`（容器+读原语+引用计数）、`ConfigTableView`、`BlobString`、`ConfigBlobWriter`（写侧）、`ConfigBlobHash`（FNV1a64）、来源：`NativeAllocBlobSource` / `MmapBlobSource` / `ApkOffsetBlobSource` + `ZipEntryLocator`、门面 `ConfigBlobFile` |
+| Core.Unity | `Runtime/Core.Unity/ConfigBlob/` | `ConfigBlobStreamingAssets`（平台选源） |
 | Editor codegen | `Editor/.../CodeGen/ConfigBlob/` | `ConfigBlobGenerator`（第 7 条 codegen 线）、`ConfigBlobSchemaSource`（TAB/CSV 读入 + 类型推断）、`ConfigBlobLayout`（布局/对齐/schemaHash）、Reader/Builder 两个 Emitter、`ConfigBlobTypeSidecar` |
 | 生成产物（运行时） | 对应 asmdef 目录下的 `Generated/ConfigBlob/`；DLL、预定义程序集或无 asmdef 时回退到 `Assets/Generated/ConfigBlob/` | 每表 `XxxRow`（readonly struct）+ `XxxTable`（GetById/TryGetById/索引器/struct 枚举器）+ `ConfigBlobSchema.g.cs`（全部偏移常量） |
 | 生成产物（编辑器） | 对应 Editor asmdef 目录下的 `Generated/ConfigBlob/`；无法定位 asmdef 时回退到 `Assets/Editor/Generated/ConfigBlob/` | 每表 `XxxTableBuilder` + 总装 `ConfigBlobBuild`（Build/WriteToFile） |

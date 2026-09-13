@@ -6,15 +6,15 @@ and the per-release log in [`../CHANGELOG.md`](../CHANGELOG.md).
 
 ## Module Inventory
 
-The core lives under `Runtime/EjoyFramework.Core/`. There are **37 directories**: one `Base`
+The core lives under `Runtime/Core/`. There are **37 directories**: one `Base`
 infrastructure directory plus **36 functional modules** (17 core managers + 8 expansion
 modules + 11 live-ops/platform modules). Each module exposes an `IXxxManager`-style interface
 in the engine-agnostic layer and (where it needs runtime/scene integration) a matching
-`XxxComponent` MonoBehaviour adapter under `Runtime/EjoyFramework.Core.Unity/`.
+`XxxComponent` MonoBehaviour adapter under `Runtime/Core.Unity/`.
 
-A second engine-agnostic layer, `Runtime/EjoyFramework.GamePlay/` (`noEngineReferences: true`),
+A second engine-agnostic layer, `Runtime/GamePlay/` (`noEngineReferences: true`),
 adds **31 cross-genre gameplay systems** plus a shared `Core` (GameMath) directory; seven of
-those systems have Unity adapters under `Runtime/EjoyFramework.GamePlay.Unity/`.
+those systems have Unity adapters under `Runtime/GamePlay.Unity/`.
 
 ### Core managers (Phase 0–11) — shipped
 
@@ -102,9 +102,9 @@ honest about what exists versus what is aspirational.
 Module and test counts in this plan, the README, and the CHANGELOG are kept in sync with
 the source tree. As of the latest recount:
 
-- Core module directories: `Runtime/EjoyFramework/` — 37 dirs (`Base` + 36 functional modules).
-- GamePlay layer: `Runtime/EjoyFramework.GamePlay/` — 32 dirs (`Core` + 31 gameplay systems);
-  `Runtime/EjoyFramework.GamePlay.Unity/` — 7 adapter directories.
+- Core module directories: `Runtime/Core/` — 37 dirs (`Base` + 36 functional modules).
+- GamePlay layer: `Runtime/GamePlay/` — 32 dirs (`Core` + 31 gameplay systems);
+  `Runtime/GamePlay.Unity/` — 7 adapter directories.
 - Test methods / cases (recomputed from the tree):
   - `EjoyFramework.Tests` (EditMode): 549 (536 `[Test]` + 13 `[TestCase]`)
   - `EjoyFramework.GamePlay.Tests` (EditMode): 1253 (1230 `[Test]` + 23 `[TestCase]`)
@@ -112,4 +112,4 @@ the source tree. As of the latest recount:
   - 1817 total.
 
 Recompute with: `[Test]` / `[TestCase]` / `[UnityTest]` attribute counts under each `Tests/`
-assembly directory, and `find -maxdepth 1 -type d` under each `Runtime/EjoyFramework*` layer.
+assembly directory, and `find -maxdepth 1 -type d` under each `Runtime/*` layer.

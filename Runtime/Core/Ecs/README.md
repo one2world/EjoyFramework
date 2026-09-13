@@ -119,13 +119,13 @@ Update 收到的命令缓冲由 SystemGroup 拥有，系统可以记录或 Clear
 在项目根目录运行（测试依赖 NUnit 等测试工具；运行时不依赖它们）：
 
 ```powershell
-rtk dotnet test Tools/Ecs/EjoyFramework.Core.Ecs.Tests.csproj --configuration Release
-rtk dotnet run --project Tools/Ecs/EjoyFramework.Core.Ecs.Benchmark.csproj --configuration Release
+rtk dotnet test Tools~/Ecs/EjoyFramework.Core.Ecs.Tests.csproj --configuration Release
+rtk dotnet run --project Tools~/Ecs/EjoyFramework.Core.Ecs.Benchmark.csproj --configuration Release
 ```
 
-Unity EditMode 测试位于 `Tests/Editor/EjoyFramework.Core.Tests/Ecs/`，并入 `EjoyFramework.Tests`，按 `EjoyFramework.Tests.Ecs` 过滤。
-Unity PlayMode 测试位于 `Tests/Runtime/EjoyFramework.Core.Tests.PlayMode/Ecs/`，并入 `EjoyFramework.Tests.PlayMode`，按 `EjoyFramework.Tests.PlayMode.Ecs` 过滤。
-独立 .NET 测试还会直接编译 `Assets/GameMain/Scripts/Samples/EcsDemo/ProjectileScenario.cs`，验证移动、命中、伤害、死亡和预热后的分配。
+Unity EditMode 测试位于 `Tests/Editor/Core.Tests/Ecs/`，并入 `EjoyFramework.Tests`，按 `EjoyFramework.Tests.Ecs` 过滤。
+Unity PlayMode 测试位于 `Tests/Runtime/Core.Tests.PlayMode/Ecs/`，并入 `EjoyFramework.Tests.PlayMode`，按 `EjoyFramework.Tests.PlayMode.Ecs` 过滤。
+独立 .NET 测试还会直接编译 `Samples~/EcsDemo/ProjectileScenario.cs`，验证移动、命中、伤害、死亡和预热后的分配。
 
 基准测试使用 1千/1万/10万个实体，仅测串行标量移动，输出 200 次更新的中位数、P95 和当前线程托管分配；不包含初始化、渲染、物理或结构变更。该结果不能代替 Unity Mono/IL2CPP、移动设备或实际游戏性能验证。
 
