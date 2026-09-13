@@ -1,0 +1,27 @@
+{
+    "name": "EjoyFramework.GamePlay.Unity.Editor",
+    "rootNamespace": "EjoyFramework.GamePlay.Unity.Editor",
+    "references": [
+        "EjoyFramework.Core",
+        "EjoyFramework.Core.Unity",
+        "EjoyFramework.Core.Unity.Editor",
+        "EjoyFramework.GamePlay.Core",
+        "EjoyFramework.GamePlay.Combat",
+        "EjoyFramework.GamePlay.Netcode",
+        "EjoyFramework.GamePlay.Pathfinding",
+        "EjoyFramework.GamePlay.Units",
+        "EjoyFramework.GamePlay.LiveOps",
+        "EjoyFramework.GamePlay.Unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

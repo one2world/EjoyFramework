@@ -1,0 +1,28 @@
+{
+    "name": "EjoyFramework.Core.Jobs.Unity.Tests",
+    "rootNamespace": "EjoyFramework.Core.Jobs.Unity.Tests",
+    "references": [
+        "EjoyFramework.Core",
+        "EjoyFramework.Core.Jobs.Unity",
+        "Unity.Collections",
+        "Unity.Burst",
+        "Unity.Mathematics",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

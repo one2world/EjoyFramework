@@ -1,0 +1,640 @@
+﻿{
+    "prefab": "AssemblyCSharpSnapshotArena",
+    "snapshot": {
+        "length": 2467,
+        "sha256": "24b89dc8d1a70c0d3bc0f08454733556b52a61ee31ada93a2f4fffd3ab671a7d"
+    },
+    "hero": {
+        "actorId": 501,
+        "actorName": "DefaultAssemblyHero",
+        "faction": "Guard",
+        "spawnPoint": "1.25,2.25,3.25",
+        "baseStats": {
+            "level": 50,
+            "health": "501.5",
+            "label": "default-base-hero",
+            "faction": "Guard"
+        },
+        "baseBuffIds": [
+            13,
+            21,
+            34
+        ],
+        "abilityFlags": "Melee, Shield, Ultimate",
+        "isElite": true,
+        "grade": "A",
+        "slot": 0,
+        "alignment": -3,
+        "armor": 170,
+        "armorPierce": 100,
+        "scoreSeed": "70007",
+        "spawnToken": "7000099",
+        "moveInput": "70.125,70.875",
+        "tuning": "71,72,73,74",
+        "aimRotation": "0.1,0.2,0.3,0.9",
+        "auraColor": "0.2,0.4,0.6,0.8",
+        "teamColor": "12,34,56,78",
+        "patrolRect": "71,72,73,74",
+        "patrolBounds": "75,76,77|8,9,10",
+        "gridRect": "71,72,73,74",
+        "gridBounds": "75,76,77|8,9,10",
+        "targetMask": 136,
+        "localMatrix": "1,0,0,0,0,1,0,0,0,0,1,0,81,82,83,1",
+        "gridCell": "84,85",
+        "gridVolume": "86,87,88",
+        "damageHistory": [
+            71,
+            72,
+            73
+        ],
+        "patrolPath": [
+            "89,90,91",
+            "92,93,94"
+        ],
+        "tags": [
+            "default",
+            "",
+            "seed-70"
+        ],
+        "namedPoints": [
+            {
+                "key": "Alpha",
+                "value": "95,96,97"
+            },
+            {
+                "key": "beta",
+                "value": "98,99,100"
+            }
+        ],
+        "uniqueBuffIds": [
+            101,
+            102,
+            103
+        ],
+        "pendingCells": [
+            "104,105",
+            "106,107"
+        ],
+        "reservedRects": [
+            "110,111,4,5",
+            "108,109,2,3"
+        ],
+        "attackRange": {
+            "min": 71,
+            "max": 79
+        },
+        "skillRanges": [
+            {
+                "min": 72,
+                "max": 76
+            },
+            {
+                "min": 77,
+                "max": 81
+            }
+        ],
+        "weaponPrefab": "gameobject:weapon",
+        "aimTarget": "transform:anchor-a",
+        "assistTarget": "component:boss",
+        "primaryEffect": {
+            "type": "damage",
+            "id": 112,
+            "damage": 113,
+            "element": "fire",
+            "multiplier": "",
+            "duration": {
+                "min": 0,
+                "max": 0
+            },
+            "value": 0,
+            "extra": 0,
+            "baseValue": 0,
+            "derivedValue": 0
+        },
+        "effectTimeline": [
+            {
+                "type": "buff",
+                "id": 114,
+                "damage": 0,
+                "element": "",
+                "multiplier": "1.5",
+                "duration": {
+                    "min": 115,
+                    "max": 116
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 0,
+                "derivedValue": 0
+            },
+            {
+                "type": "",
+                "id": 0,
+                "damage": 0,
+                "element": "",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 0,
+                "derivedValue": 0
+            },
+            {
+                "type": "damage",
+                "id": 117,
+                "damage": 118,
+                "element": "water",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 0,
+                "derivedValue": 0
+            }
+        ],
+        "genericEffect": {
+            "type": "int",
+            "id": 0,
+            "damage": 0,
+            "element": "",
+            "multiplier": "",
+            "duration": {
+                "min": 0,
+                "max": 0
+            },
+            "value": 119,
+            "extra": 120,
+            "baseValue": 0,
+            "derivedValue": 0
+        },
+        "concreteEffect": {
+            "type": "concrete-derived",
+            "id": 0,
+            "damage": 0,
+            "element": "",
+            "multiplier": "",
+            "duration": {
+                "min": 0,
+                "max": 0
+            },
+            "value": 0,
+            "extra": 0,
+            "baseValue": 121,
+            "derivedValue": 122
+        },
+        "concreteEffects": [
+            {
+                "type": "concrete",
+                "id": 0,
+                "damage": 0,
+                "element": "",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 123,
+                "derivedValue": 0
+            },
+            {
+                "type": "concrete-derived",
+                "id": 0,
+                "damage": 0,
+                "element": "",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 124,
+                "derivedValue": 125
+            }
+        ],
+        "combatStats": {
+            "level": 70,
+            "health": "70.5",
+            "label": "combat-70",
+            "faction": "Guard"
+        },
+        "loadoutStats": [
+            {
+                "level": 71,
+                "health": "71.5",
+                "label": "loadout-a",
+                "faction": "Guard"
+            },
+            {
+                "level": 0,
+                "health": "",
+                "label": "",
+                "faction": ""
+            },
+            {
+                "level": 72,
+                "health": "72.5",
+                "label": "loadout-b",
+                "faction": "Guard"
+            }
+        ],
+        "controlCells": [
+            "126,127",
+            "128,129"
+        ],
+        "heroKey": "assembly-csharp-hero",
+        "cooldownMultiplier": "3.5",
+        "equipmentSlots": [
+            "gameobject:marker-a",
+            "",
+            "gameobject:marker-b"
+        ],
+        "upgradeStats": [
+            {
+                "level": 71,
+                "health": "711.5",
+                "label": "hero-upgrade-a",
+                "faction": "Guard"
+            },
+            {
+                "level": 0,
+                "health": "",
+                "label": "",
+                "faction": ""
+            },
+            {
+                "level": 72,
+                "health": "721.5",
+                "label": "hero-upgrade-b",
+                "faction": "Guard"
+            }
+        ],
+        "privateGrowthStats": {
+            "level": 73,
+            "health": "731.5",
+            "label": "hero-private-growth",
+            "faction": "Guard"
+        },
+        "privateTalentIds": [
+            55,
+            89,
+            144
+        ]
+    },
+    "boss": {
+        "actorId": 601,
+        "actorName": "DefaultAssemblyBoss",
+        "faction": "Demon",
+        "spawnPoint": "4.25,5.25,6.25",
+        "baseStats": {
+            "level": 60,
+            "health": "601.5",
+            "label": "default-base-boss",
+            "faction": "Demon"
+        },
+        "baseBuffIds": [
+            233,
+            377,
+            610
+        ],
+        "abilityFlags": "Melee, Shield, Ultimate",
+        "isElite": true,
+        "grade": "A",
+        "slot": 0,
+        "alignment": 3,
+        "armor": 190,
+        "armorPierce": 120,
+        "scoreSeed": "90007",
+        "spawnToken": "9000099",
+        "moveInput": "90.125,90.875",
+        "tuning": "91,92,93,94",
+        "aimRotation": "0.1,0.2,0.3,0.9",
+        "auraColor": "0.2,0.4,0.6,0.8",
+        "teamColor": "12,34,56,78",
+        "patrolRect": "91,92,93,94",
+        "patrolBounds": "95,96,97|8,9,10",
+        "gridRect": "91,92,93,94",
+        "gridBounds": "95,96,97|8,9,10",
+        "targetMask": 136,
+        "localMatrix": "1,0,0,0,0,1,0,0,0,0,1,0,101,102,103,1",
+        "gridCell": "104,105",
+        "gridVolume": "106,107,108",
+        "damageHistory": [
+            91,
+            92,
+            93
+        ],
+        "patrolPath": [
+            "109,110,111",
+            "112,113,114"
+        ],
+        "tags": [
+            "default",
+            "",
+            "seed-90"
+        ],
+        "namedPoints": [
+            {
+                "key": "Alpha",
+                "value": "115,116,117"
+            },
+            {
+                "key": "beta",
+                "value": "118,119,120"
+            }
+        ],
+        "uniqueBuffIds": [
+            121,
+            122,
+            123
+        ],
+        "pendingCells": [
+            "124,125",
+            "126,127"
+        ],
+        "reservedRects": [
+            "130,131,4,5",
+            "128,129,2,3"
+        ],
+        "attackRange": {
+            "min": 91,
+            "max": 99
+        },
+        "skillRanges": [
+            {
+                "min": 92,
+                "max": 96
+            },
+            {
+                "min": 97,
+                "max": 101
+            }
+        ],
+        "weaponPrefab": "gameobject:weapon",
+        "aimTarget": "transform:anchor-b",
+        "assistTarget": "component:hero",
+        "primaryEffect": {
+            "type": "damage",
+            "id": 132,
+            "damage": 133,
+            "element": "fire",
+            "multiplier": "",
+            "duration": {
+                "min": 0,
+                "max": 0
+            },
+            "value": 0,
+            "extra": 0,
+            "baseValue": 0,
+            "derivedValue": 0
+        },
+        "effectTimeline": [
+            {
+                "type": "buff",
+                "id": 134,
+                "damage": 0,
+                "element": "",
+                "multiplier": "1.5",
+                "duration": {
+                    "min": 135,
+                    "max": 136
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 0,
+                "derivedValue": 0
+            },
+            {
+                "type": "",
+                "id": 0,
+                "damage": 0,
+                "element": "",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 0,
+                "derivedValue": 0
+            },
+            {
+                "type": "damage",
+                "id": 137,
+                "damage": 138,
+                "element": "water",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 0,
+                "derivedValue": 0
+            }
+        ],
+        "genericEffect": {
+            "type": "int",
+            "id": 0,
+            "damage": 0,
+            "element": "",
+            "multiplier": "",
+            "duration": {
+                "min": 0,
+                "max": 0
+            },
+            "value": 139,
+            "extra": 140,
+            "baseValue": 0,
+            "derivedValue": 0
+        },
+        "concreteEffect": {
+            "type": "concrete-derived",
+            "id": 0,
+            "damage": 0,
+            "element": "",
+            "multiplier": "",
+            "duration": {
+                "min": 0,
+                "max": 0
+            },
+            "value": 0,
+            "extra": 0,
+            "baseValue": 141,
+            "derivedValue": 142
+        },
+        "concreteEffects": [
+            {
+                "type": "concrete",
+                "id": 0,
+                "damage": 0,
+                "element": "",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 143,
+                "derivedValue": 0
+            },
+            {
+                "type": "concrete-derived",
+                "id": 0,
+                "damage": 0,
+                "element": "",
+                "multiplier": "",
+                "duration": {
+                    "min": 0,
+                    "max": 0
+                },
+                "value": 0,
+                "extra": 0,
+                "baseValue": 144,
+                "derivedValue": 145
+            }
+        ],
+        "combatStats": {
+            "level": 90,
+            "health": "90.5",
+            "label": "combat-90",
+            "faction": "Demon"
+        },
+        "loadoutStats": [
+            {
+                "level": 91,
+                "health": "91.5",
+                "label": "loadout-a",
+                "faction": "Demon"
+            },
+            {
+                "level": 0,
+                "health": "",
+                "label": "",
+                "faction": ""
+            },
+            {
+                "level": 92,
+                "health": "92.5",
+                "label": "loadout-b",
+                "faction": "Demon"
+            }
+        ],
+        "controlCells": [
+            "146,147",
+            "148,149"
+        ],
+        "heroKey": "",
+        "cooldownMultiplier": "",
+        "equipmentSlots": [],
+        "upgradeStats": [],
+        "privateGrowthStats": {
+            "level": 0,
+            "health": "",
+            "label": "",
+            "faction": ""
+        },
+        "privateTalentIds": [],
+        "phase": 5,
+        "enrageSeconds": "88.125",
+        "summons": [
+            "component:hero",
+            ""
+        ],
+        "reserveSummons": [
+            "",
+            "component:hero"
+        ],
+        "threatTable": [
+            "component:boss",
+            "component:hero"
+        ],
+        "threatList": [
+            "component:hero",
+            "",
+            "component:boss"
+        ],
+        "phaseColors": [
+            "0.35,0.45,0.55,0.65",
+            "0,1,1,1"
+        ],
+        "arenaCells": [
+            "101,102",
+            "103,104"
+        ],
+        "phaseStats": [
+            {
+                "level": 91,
+                "health": "911.5",
+                "label": "boss-phase-a",
+                "faction": "Demon"
+            },
+            {
+                "level": 92,
+                "health": "921.5",
+                "label": "boss-phase-b",
+                "faction": "Demon"
+            }
+        ],
+        "bossStats": {
+            "level": 93,
+            "health": "931.5",
+            "label": "boss-private",
+            "faction": "Demon"
+        },
+        "enrageRanges": [
+            {
+                "min": 35,
+                "max": 45
+            },
+            {
+                "min": 55,
+                "max": 65
+            }
+        ],
+        "privateArenaMarker": "gameobject:marker-b"
+    },
+    "hub": {
+        "primaryActor": "component:boss",
+        "actors": [
+            "component:hero",
+            "",
+            "component:boss"
+        ],
+        "heroes": [
+            "component:hero",
+            ""
+        ],
+        "boss": "component:boss",
+        "markers": [
+            "gameobject:marker-a",
+            "",
+            "gameobject:marker-b"
+        ],
+        "markerList": [
+            "gameobject:marker-b",
+            "gameobject:marker-a"
+        ],
+        "anchors": [
+            "transform:anchor-a",
+            "transform:anchor-b"
+        ],
+        "cameraRef": "component:camera",
+        "privateActor": "component:hero",
+        "privateBosses": [
+            "component:boss",
+            ""
+        ]
+    }
+}

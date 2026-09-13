@@ -1,0 +1,7 @@
+# 守卫陈塘关 — Monsters table.
+# Id	Code	Name	Tier	ColorHex	Hp	Speed
+1	yaksha	夜叉	pawn	#5a8a3a	140	1.0
+2	fish	鱼妖	pawn	#5ad2ff	110	1.4
+3	imp	罗刹	elite	#b372ff	380	0.9
+4	stone	石魔	elite	#8a7456	680	0.6
+5	dragon	敖丙	boss	#b51d10	14000	0.55

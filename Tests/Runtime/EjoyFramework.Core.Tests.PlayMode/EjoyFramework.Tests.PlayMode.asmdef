@@ -1,0 +1,26 @@
+{
+    "name": "EjoyFramework.Tests.PlayMode",
+    "rootNamespace": "EjoyFramework.Tests.PlayMode",
+    "references": [
+        "EjoyFramework.Core",
+        "EjoyFramework.Core.Ecs",
+        "EjoyFramework.Core.Unity",
+        "EjoyFramework.GamePlay.Core",
+        "EjoyFramework.GamePlay.Unity",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

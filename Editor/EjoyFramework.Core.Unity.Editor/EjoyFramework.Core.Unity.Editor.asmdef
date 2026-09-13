@@ -1,0 +1,20 @@
+{
+    "name": "EjoyFramework.Core.Unity.Editor",
+    "rootNamespace": "EjoyFramework.Core.Unity.Editor",
+    "references": [
+        "EjoyFramework.Core",
+        "EjoyFramework.Core.Blobs",
+        "EjoyFramework.Core.Unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,2 +1,22 @@
-# Auto detect text files and perform LF normalization
 * text=auto
+*.cs text eol=lf
+*.asmdef text eol=lf
+*.asmref text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.ps1 text eol=lf
+# Unity serializes empty YAML values with trailing spaces; preserve its output.
+*.meta text eol=lf whitespace=-blank-at-eol
+*.prefab text eol=lf whitespace=-blank-at-eol
+*.asset text eol=lf whitespace=-blank-at-eol
+*.unity text eol=lf whitespace=-blank-at-eol
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ttf binary
+*.otf binary
+*.fbx binary
+*.dll binary
+*.pdf binary

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsTestProject>true</IsTestProject>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="EjoyFramework.Core.Ecs.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <Compile Include="../../Tests/Editor/EjoyFramework.Core.Tests/Ecs/**/*.cs" />
+    <Compile Include="../../Samples~/EcsDemo/ProjectileScenario.cs" />
+    <Compile Include="ScenarioTests.cs" />
+    <Compile Include="DisposalTests.cs" />
+  </ItemGroup>
+</Project>

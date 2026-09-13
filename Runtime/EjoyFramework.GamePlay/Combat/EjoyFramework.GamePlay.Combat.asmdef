@@ -1,0 +1,17 @@
+{
+    "name": "EjoyFramework.GamePlay.Combat",
+    "rootNamespace": "EjoyFramework.GamePlay",
+    "references": [
+        "EjoyFramework.Core",
+        "EjoyFramework.GamePlay.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

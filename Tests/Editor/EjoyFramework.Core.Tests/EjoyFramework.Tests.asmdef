@@ -1,0 +1,29 @@
+{
+    "name": "EjoyFramework.Tests",
+    "rootNamespace": "EjoyFramework.Tests",
+    "references": [
+        "EjoyFramework.Core",
+        "EjoyFramework.Core.Blobs",
+        "EjoyFramework.Core.Ecs",
+        "EjoyFramework.Core.Unity",
+        "EjoyFramework.Core.Unity.Editor",
+        "EjoyFramework.Tests.PlayMode",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

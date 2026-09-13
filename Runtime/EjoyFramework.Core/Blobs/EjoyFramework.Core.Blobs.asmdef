@@ -1,0 +1,16 @@
+{
+    "name": "EjoyFramework.Core.Blobs",
+    "rootNamespace": "EjoyFramework.Core.Blobs",
+    "references": [
+        "EjoyFramework.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

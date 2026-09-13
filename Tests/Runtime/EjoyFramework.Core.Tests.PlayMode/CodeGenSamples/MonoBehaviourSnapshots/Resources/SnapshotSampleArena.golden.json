@@ -1,0 +1,311 @@
+﻿{
+    "prefab": "SnapshotSampleArena",
+    "snapshot": {
+        "length": 1781,
+        "sha256": "5d206b443466cf017eecb88a653db88426c3ccc421f970e8d8e9a651c1e9b34c"
+    },
+    "hero": {
+        "actorId": 301,
+        "actorName": "AssetNezha",
+        "spawnPoint": "1.5,2.5,3.5",
+        "baseStats": {
+            "level": 30,
+            "health": "301.5",
+            "title": "asset-base-hero",
+            "faction": "Guard"
+        },
+        "baseBuffIds": [
+            101,
+            103,
+            107
+        ],
+        "faction": "Guard",
+        "abilityFlags": "Melee, Control, Ultimate",
+        "isElite": true,
+        "grade": "H",
+        "slot": 7,
+        "alignment": -8,
+        "armor": 222,
+        "armorPierce": 45,
+        "scoreSeed": "345678",
+        "spawnToken": "3456789012",
+        "moveInput": "0.125,0.875",
+        "tuning": "2,4,6,8",
+        "aimRotation": "0.11,0.22,0.33,0.88",
+        "auraColor": "0.7,0.25,0.15,0.95",
+        "teamColor": "11,22,33,44",
+        "patrolRect": "15,16,17,18",
+        "gridCell": "19,20",
+        "gridVolume": "21,22,23",
+        "damageHistory": [
+            34,
+            55,
+            89
+        ],
+        "patrolPath": [
+            "24,25,26",
+            "27,28,29"
+        ],
+        "tags": [
+            "asset-front",
+            "",
+            "asset-fire"
+        ],
+        "attackRange": {
+            "min": 4,
+            "max": 14
+        },
+        "skillRanges": [
+            {
+                "min": 5,
+                "max": 9
+            },
+            {
+                "min": 10,
+                "max": 15
+            }
+        ],
+        "weaponPrefab": "gameobject:weapon",
+        "aimTarget": "transform:anchor-a",
+        "assistTarget": "component:boss",
+        "combatStats": {
+            "level": 31,
+            "health": "311.5",
+            "title": "asset-combat-hero",
+            "faction": "Guard"
+        },
+        "loadoutStats": [
+            {
+                "level": 32,
+                "health": "321.5",
+                "title": "asset-loadout-a",
+                "faction": "Guard"
+            },
+            {
+                "level": 0,
+                "health": "0",
+                "title": "",
+                "faction": "Neutral"
+            },
+            {
+                "level": 33,
+                "health": "331.5",
+                "title": "asset-loadout-b",
+                "faction": "Guard"
+            }
+        ],
+        "controlCells": [
+            "40,41",
+            "42,43"
+        ],
+        "heroKey": "asset-hero-nezhaguard",
+        "cooldownMultiplier": "2.25",
+        "equipmentSlots": [
+            "gameobject:marker-a",
+            "",
+            "gameobject:marker-b"
+        ],
+        "upgradeStats": [
+            {
+                "level": 34,
+                "health": "341.5",
+                "title": "asset-upgrade-a",
+                "faction": "Guard"
+            },
+            {
+                "level": 0,
+                "health": "0",
+                "title": "",
+                "faction": "Neutral"
+            },
+            {
+                "level": 35,
+                "health": "351.5",
+                "title": "asset-upgrade-b",
+                "faction": "Guard"
+            }
+        ],
+        "privateGrowthStats": {
+            "level": 36,
+            "health": "361.5",
+            "title": "asset-private-growth",
+            "faction": "Guard"
+        },
+        "privateTalentIds": [
+            144,
+            233,
+            377
+        ]
+    },
+    "boss": {
+        "actorId": 401,
+        "actorName": "AssetDragonKing",
+        "spawnPoint": "41,42,43",
+        "baseStats": {
+            "level": 40,
+            "health": "401.5",
+            "title": "asset-base-boss",
+            "faction": "Demon"
+        },
+        "baseBuffIds": [
+            159,
+            265,
+            358
+        ],
+        "faction": "Demon",
+        "abilityFlags": "Ranged, Control",
+        "isElite": false,
+        "grade": "B",
+        "slot": 11,
+        "alignment": 9,
+        "armor": 444,
+        "armorPierce": 88,
+        "scoreSeed": "876543",
+        "spawnToken": "2109876543",
+        "moveInput": "0.625,0.375",
+        "tuning": "12,14,16,18",
+        "aimRotation": "0.44,0.33,0.22,0.77",
+        "auraColor": "0.15,0.35,0.85,0.9",
+        "teamColor": "55,66,77,88",
+        "patrolRect": "51,52,53,54",
+        "gridCell": "55,56",
+        "gridVolume": "57,58,59",
+        "damageHistory": [
+            610,
+            987
+        ],
+        "patrolPath": [
+            "60,61,62",
+            "63,64,65"
+        ],
+        "tags": [
+            "asset-boss",
+            "asset-water"
+        ],
+        "attackRange": {
+            "min": 16,
+            "max": 29
+        },
+        "skillRanges": [
+            {
+                "min": 17,
+                "max": 23
+            },
+            {
+                "min": 24,
+                "max": 30
+            }
+        ],
+        "weaponPrefab": "gameobject:weapon",
+        "aimTarget": "transform:anchor-b",
+        "assistTarget": "component:hero",
+        "combatStats": {
+            "level": 41,
+            "health": "411.5",
+            "title": "asset-combat-boss",
+            "faction": "Demon"
+        },
+        "loadoutStats": [
+            {
+                "level": 42,
+                "health": "421.5",
+                "title": "asset-boss-loadout",
+                "faction": "Demon"
+            }
+        ],
+        "controlCells": [
+            "70,71",
+            "72,73"
+        ],
+        "phase": 6,
+        "enrageSeconds": "123.5",
+        "summons": [
+            "component:hero",
+            ""
+        ],
+        "reserveSummons": [
+            "",
+            "component:hero"
+        ],
+        "threatTable": [
+            "component:boss",
+            "component:hero"
+        ],
+        "threatList": [
+            "component:hero",
+            "",
+            "component:boss"
+        ],
+        "phaseColors": [
+            "0.25,0.45,0.65,0.85",
+            "1,0,1,1"
+        ],
+        "arenaCells": [
+            "74,75",
+            "76,77"
+        ],
+        "phaseStats": [
+            {
+                "level": 43,
+                "health": "431.5",
+                "title": "asset-phase-a",
+                "faction": "Demon"
+            },
+            {
+                "level": 44,
+                "health": "441.5",
+                "title": "asset-phase-b",
+                "faction": "Demon"
+            }
+        ],
+        "bossStats": {
+            "level": 45,
+            "health": "451.5",
+            "title": "asset-private-boss",
+            "faction": "Demon"
+        },
+        "enrageRanges": [
+            {
+                "min": 31,
+                "max": 37
+            },
+            {
+                "min": 41,
+                "max": 47
+            }
+        ],
+        "privateArenaMarker": "gameobject:marker-b"
+    },
+    "hub": {
+        "primaryActor": "component:boss",
+        "actors": [
+            "component:hero",
+            "",
+            "component:boss"
+        ],
+        "heroes": [
+            "component:hero",
+            ""
+        ],
+        "boss": "component:boss",
+        "markers": [
+            "gameobject:marker-a",
+            "",
+            "gameobject:marker-b"
+        ],
+        "markerList": [
+            "gameobject:marker-b",
+            "gameobject:marker-a"
+        ],
+        "anchors": [
+            "transform:anchor-a",
+            "transform:anchor-b"
+        ],
+        "cameraRef": "component:camera",
+        "privateActor": "component:hero",
+        "privateBosses": [
+            "component:boss",
+            ""
+        ]
+    }
+}

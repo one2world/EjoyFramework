@@ -1,0 +1,29 @@
+{
+    "name": "EjoyFramework.GamePlay.Unity",
+    "rootNamespace": "EjoyFramework.GamePlay",
+    "references": [
+        "EjoyFramework.Core",
+        "EjoyFramework.Core.Unity",
+        "Unity.InputSystem",
+        "EjoyFramework.GamePlay.Core",
+        "EjoyFramework.GamePlay.Combat",
+        "EjoyFramework.GamePlay.Netcode",
+        "EjoyFramework.GamePlay.Units",
+        "EjoyFramework.GamePlay.LiveOps"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "EJOY_INPUTSYSTEM"
+        }
+    ],
+    "noEngineReferences": false
+}

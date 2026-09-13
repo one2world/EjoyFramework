@@ -1,0 +1,42 @@
+<!--
+  IL2CPP managed-code-stripping preservation for EjoyFramework.
+
+  WHY THIS FILE EXISTS
+  ====================
+  Framework modules are never referenced statically. They are discovered by
+  *name* at runtime and instantiated reflectively:
+
+      Framework.GetModule<T>()                          (Base/Framework.cs)
+        -> Utility.Assembly.GetType("EjoyFramework.Core.EventManager")
+        -> Activator.CreateInstance(moduleType)
+
+  The IL2CPP managed linker (always enabled for iOS, and for Android, builds)
+  performs static reachability analysis. Because nothing statically references
+  the FrameworkModule implementation classes, the linker strips them from the
+  player build. At runtime GetType then returns null and the framework throws
+
+      "Can not find framework module type 'EjoyFramework.Core.XxxManager'."
+
+  for every module, which is the flood of startup errors seen on iOS. The Unity
+  Editor uses Mono with no stripping, so it never reproduces there.
+
+  THE FIX
+  =======
+  preserve="all" forces the linker to keep every type in these assemblies,
+  along with their (parameterless) constructors, so reflection still resolves
+  them on device. This file ships with the package so any project that consumes
+  EjoyFramework works on IL2CPP platforms without extra setup.
+
+  See Assets/link.xml for the game-side counterpart (procedures, UI forms, etc.).
+-->
+<linker>
+  <assembly fullname="EjoyFramework.Core" preserve="all" />
+  <assembly fullname="EjoyFramework.Core.Unity" preserve="all" />
+  <assembly fullname="EjoyFramework.GamePlay.Core" preserve="all" />
+  <assembly fullname="EjoyFramework.GamePlay.Combat" preserve="all" />
+  <assembly fullname="EjoyFramework.GamePlay.LiveOps" preserve="all" />
+  <assembly fullname="EjoyFramework.GamePlay.Netcode" preserve="all" />
+  <assembly fullname="EjoyFramework.GamePlay.Pathfinding" preserve="all" />
+  <assembly fullname="EjoyFramework.GamePlay.Units" preserve="all" />
+  <assembly fullname="EjoyFramework.GamePlay.Unity" preserve="all" />
+</linker>

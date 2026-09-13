@@ -1,0 +1,40 @@
+{
+  "name": "com.ejoy.framework",
+  "version": "2.1.0",
+  "displayName": "EjoyFramework",
+  "description": "A modular Unity 6 game framework with engine-agnostic Core and GamePlay assemblies, Unity-specific Core.Unity, Core.Jobs.Unity, and GamePlay.Unity adapters, plus Editor tooling.",
+  "unity": "6000.4",
+  "documentationUrl": "https://github.com/one2world/EjoyFramework",
+  "changelogUrl": "https://github.com/one2world/EjoyFramework/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/one2world/EjoyFramework/blob/main/LICENSE.md",
+  "author": {
+    "name": "EjoyGame",
+    "email": "longyg@ejoy.com",
+    "url": "https://github.com/one2world/EjoyFramework"
+  },
+  "keywords": [
+    "framework",
+    "game",
+    "modular",
+    "assetbundle",
+    "fsm",
+    "procedure",
+    "behavior-tree"
+  ],
+  "dependencies": {
+    "com.unity.burst": "1.8.29",
+    "com.unity.collections": "6.4.0",
+    "com.unity.inputsystem": "1.19.0",
+    "com.unity.mathematics": "1.3.3",
+    "com.unity.nuget.newtonsoft-json": "3.2.2",
+    "com.unity.test-framework": "1.6.0",
+    "com.unity.ugui": "2.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "ECS Demo",
+      "description": "Self-authored ECS movement, collision and lifecycle sample.",
+      "path": "Samples~/EcsDemo"
+    }
+  ]
+}

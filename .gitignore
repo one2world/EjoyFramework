@@ -1,0 +1,41 @@
+# The repository root is itself a Unity package; only source and package metadata are versioned.
+Library/
+Temp/
+Obj/
+Logs/
+UserSettings/
+Build/
+Builds/
+BuildArtifacts/
+AssetBundles/
+TestResults/
+bin/
+obj/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.log
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.tmp
+
+# Standalone framework validation projects are intentional repository inputs.
+!Tools~/Ecs/*.csproj
+!Tools~/Ecs/Directory.Build.props
+!Tools~/Ecs/*.cs
+!Tools~/Ecs/*.md
+
+# Local editor state, downloaded archives and credentials are not package inputs.
+.vs/
+.idea/
+.DS_Store
+*.zip
+*.7z
+*.bundle
+.env
+.env.*
+!.env.example

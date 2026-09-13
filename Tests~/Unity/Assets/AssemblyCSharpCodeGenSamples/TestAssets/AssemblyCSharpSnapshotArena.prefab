@@ -1,0 +1,796 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1809599527832802552
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7696756565804936109}
+  m_Layer: 0
+  m_Name: MarkerA
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7696756565804936109
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809599527832802552}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2329459829723275361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6912964037567512600}
+  m_Layer: 0
+  m_Name: AnchorA
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6912964037567512600
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2329459829723275361}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2678611638349975906
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8220380266594840059}
+  - component: {fileID: 5392857846604498778}
+  m_Layer: 0
+  m_Name: AssemblyCSharpSnapshotArena
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8220380266594840059
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2678611638349975906}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 312637704023658834}
+  - {fileID: 1126327580199698849}
+  - {fileID: 3968226691127459203}
+  - {fileID: 7696756565804936109}
+  - {fileID: 395172806657819795}
+  - {fileID: 6912964037567512600}
+  - {fileID: 7078487288967874864}
+  - {fileID: 3935601344730073784}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5392857846604498778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2678611638349975906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7395138fe9cab9c45892e3ffb40ef6ad, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::EjoyFramework.Tests.AssemblyCSharpCodeGenSamples.AssemblyCSharpSnapshotHub
+  PrimaryActor: {fileID: 1257397698371118203}
+  Actors:
+  - {fileID: 6879090557671854905}
+  - {fileID: 0}
+  - {fileID: 1257397698371118203}
+  Heroes:
+  - {fileID: 6879090557671854905}
+  - {fileID: 0}
+  Boss: {fileID: 1257397698371118203}
+  Markers:
+  - {fileID: 1809599527832802552}
+  - {fileID: 0}
+  - {fileID: 4467037981361381299}
+  MarkerList:
+  - {fileID: 4467037981361381299}
+  - {fileID: 1809599527832802552}
+  Anchors:
+  - {fileID: 6912964037567512600}
+  - {fileID: 7078487288967874864}
+  CameraRef: {fileID: 6007758045803077936}
+  m_PrivateActor: {fileID: 6879090557671854905}
+  m_PrivateBosses:
+  - {fileID: 1257397698371118203}
+  - {fileID: 0}
+--- !u!1 &4467037981361381299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 395172806657819795}
+  m_Layer: 0
+  m_Name: MarkerB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &395172806657819795
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4467037981361381299}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6022856213244737643
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7078487288967874864}
+  m_Layer: 0
+  m_Name: AnchorB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7078487288967874864
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6022856213244737643}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6344314306205322544
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 312637704023658834}
+  - component: {fileID: 6879090557671854905}
+  m_Layer: 0
+  m_Name: Hero
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &312637704023658834
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6344314306205322544}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6879090557671854905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6344314306205322544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d119ec212aba2d46b3d8453d5625534, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::EjoyFramework.Tests.AssemblyCSharpCodeGenSamples.AssemblyCSharpSnapshotHero
+  ActorId: 501
+  ActorName: DefaultAssemblyHero
+  Faction: 1
+  m_SpawnPoint: {x: 1.25, y: 2.25, z: 3.25}
+  m_BaseStats:
+    Level: 50
+    Health: 501.5
+    Label: default-base-hero
+    Faction: 1
+  m_BaseBuffIds: 0d0000001500000022000000
+  RuntimeCacheVersion: 5101
+  AbilityFlags: 13
+  IsElite: 1
+  Grade: 65
+  Slot: 0
+  Alignment: -3
+  Armor: 170
+  ArmorPierce: 100
+  ScoreSeed: 70007
+  SpawnToken: 7000099
+  MoveInput: {x: 70.125, y: 70.875}
+  Tuning: {x: 71, y: 72, z: 73, w: 74}
+  AimRotation: {x: 0.1, y: 0.2, z: 0.3, w: 0.9}
+  AuraColor: {r: 0.2, g: 0.4, b: 0.6, a: 0.8}
+  TeamColor:
+    serializedVersion: 2
+    rgba: 1312301580
+  PatrolRect:
+    serializedVersion: 2
+    x: 71
+    y: 72
+    width: 73
+    height: 74
+  PatrolBounds:
+    m_Center: {x: 75, y: 76, z: 77}
+    m_Extent: {x: 4, y: 4.5, z: 5}
+  GridRect:
+    x: 71
+    y: 72
+    width: 73
+    height: 74
+  GridBounds:
+    m_Position: {x: 75, y: 76, z: 77}
+    m_Size: {x: 8, y: 9, z: 10}
+  TargetMask:
+    serializedVersion: 2
+    m_Bits: 136
+  LocalMatrix:
+    e00: 1
+    e01: 0
+    e02: 0
+    e03: 81
+    e10: 0
+    e11: 1
+    e12: 0
+    e13: 82
+    e20: 0
+    e21: 0
+    e22: 1
+    e23: 83
+    e30: 0
+    e31: 0
+    e32: 0
+    e33: 1
+  GridCell: {x: 84, y: 85}
+  GridVolume: {x: 86, y: 87, z: 88}
+  DamageHistory: 470000004800000049000000
+  PatrolPath:
+  - {x: 89, y: 90, z: 91}
+  - {x: 92, y: 93, z: 94}
+  Tags:
+  - default
+  -
+  - seed-70
+  AttackRange:
+    Min: 71
+    Max: 79
+  SkillRanges:
+  - Min: 72
+    Max: 76
+  - Min: 77
+    Max: 81
+  WeaponPrefab: {fileID: 8306978200530885928}
+  AimTarget: {fileID: 6912964037567512600}
+  AssistTarget: {fileID: 1257397698371118203}
+  PrimaryEffect:
+    rid: 3467224248452644864
+  EffectTimeline:
+  - rid: 3467224248452644865
+  - rid: -2
+  - rid: 3467224248452644866
+  GenericEffect:
+    rid: 3467224248452644867
+  ConcreteEffect:
+    rid: 3467224248452644868
+  ConcreteEffects:
+  - rid: 3467224248452644869
+  - rid: 3467224248452644870
+  m_CombatStats:
+    Level: 70
+    Health: 70.5
+    Label: combat-70
+    Faction: 1
+  m_LoadoutStats:
+  - Level: 71
+    Health: 71.5
+    Label: loadout-a
+    Faction: 1
+  - Level: 0
+    Health: 0
+    Label:
+    Faction: 0
+  - Level: 72
+    Health: 72.5
+    Label: loadout-b
+    Faction: 1
+  m_ControlCells:
+  - {x: 126, y: 127}
+  - {x: 128, y: 129}
+  HeroKey: assembly-csharp-hero
+  CooldownMultiplier: 3.5
+  EquipmentSlots:
+  - {fileID: 1809599527832802552}
+  - {fileID: 0}
+  - {fileID: 4467037981361381299}
+  UpgradeStats:
+  - Level: 71
+    Health: 711.5
+    Label: hero-upgrade-a
+    Faction: 1
+  - Level: 0
+    Health: 0
+    Label:
+    Faction: 0
+  - Level: 72
+    Health: 721.5
+    Label: hero-upgrade-b
+    Faction: 1
+  m_PrivateGrowthStats:
+    Level: 73
+    Health: 731.5
+    Label: hero-private-growth
+    Faction: 1
+  m_PrivateTalentIds: 370000005900000090000000
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3467224248452644864
+      type: {class: AssemblyCSharpSnapshotDamageEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Id: 112
+        Damage: 113
+        Element: fire
+    - rid: 3467224248452644865
+      type: {class: AssemblyCSharpSnapshotBuffEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Id: 114
+        Multiplier: 1.5
+        Duration:
+          Min: 115
+          Max: 116
+    - rid: 3467224248452644866
+      type: {class: AssemblyCSharpSnapshotDamageEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Id: 117
+        Damage: 118
+        Element: water
+    - rid: 3467224248452644867
+      type: {class: AssemblyCSharpSnapshotIntEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Value: 119
+        Extra: 120
+    - rid: 3467224248452644868
+      type: {class: AssemblyCSharpSnapshotConcreteDerivedEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        BaseValue: 121
+        DerivedValue: 122
+    - rid: 3467224248452644869
+      type: {class: AssemblyCSharpSnapshotConcreteEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        BaseValue: 123
+    - rid: 3467224248452644870
+      type: {class: AssemblyCSharpSnapshotConcreteDerivedEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        BaseValue: 124
+        DerivedValue: 125
+--- !u!1 &7944327591558390230
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3935601344730073784}
+  - component: {fileID: 6007758045803077936}
+  m_Layer: 0
+  m_Name: CameraRig
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3935601344730073784
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7944327591558390230}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &6007758045803077936
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7944327591558390230}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!1 &8306978200530885928
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3968226691127459203}
+  m_Layer: 0
+  m_Name: Weapon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3968226691127459203
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306978200530885928}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8832579262968057291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1126327580199698849}
+  - component: {fileID: 1257397698371118203}
+  m_Layer: 0
+  m_Name: Boss
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1126327580199698849
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8832579262968057291}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8220380266594840059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1257397698371118203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8832579262968057291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92bf4662d55f0ee4896c30aeafff1239, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::EjoyFramework.Tests.AssemblyCSharpCodeGenSamples.AssemblyCSharpSnapshotBoss
+  ActorId: 601
+  ActorName: DefaultAssemblyBoss
+  Faction: 2
+  m_SpawnPoint: {x: 4.25, y: 5.25, z: 6.25}
+  m_BaseStats:
+    Level: 60
+    Health: 601.5
+    Label: default-base-boss
+    Faction: 2
+  m_BaseBuffIds: e90000007901000062020000
+  RuntimeCacheVersion: 6101
+  AbilityFlags: 13
+  IsElite: 1
+  Grade: 65
+  Slot: 0
+  Alignment: 3
+  Armor: 190
+  ArmorPierce: 120
+  ScoreSeed: 90007
+  SpawnToken: 9000099
+  MoveInput: {x: 90.125, y: 90.875}
+  Tuning: {x: 91, y: 92, z: 93, w: 94}
+  AimRotation: {x: 0.1, y: 0.2, z: 0.3, w: 0.9}
+  AuraColor: {r: 0.2, g: 0.4, b: 0.6, a: 0.8}
+  TeamColor:
+    serializedVersion: 2
+    rgba: 1312301580
+  PatrolRect:
+    serializedVersion: 2
+    x: 91
+    y: 92
+    width: 93
+    height: 94
+  PatrolBounds:
+    m_Center: {x: 95, y: 96, z: 97}
+    m_Extent: {x: 4, y: 4.5, z: 5}
+  GridRect:
+    x: 91
+    y: 92
+    width: 93
+    height: 94
+  GridBounds:
+    m_Position: {x: 95, y: 96, z: 97}
+    m_Size: {x: 8, y: 9, z: 10}
+  TargetMask:
+    serializedVersion: 2
+    m_Bits: 136
+  LocalMatrix:
+    e00: 1
+    e01: 0
+    e02: 0
+    e03: 101
+    e10: 0
+    e11: 1
+    e12: 0
+    e13: 102
+    e20: 0
+    e21: 0
+    e22: 1
+    e23: 103
+    e30: 0
+    e31: 0
+    e32: 0
+    e33: 1
+  GridCell: {x: 104, y: 105}
+  GridVolume: {x: 106, y: 107, z: 108}
+  DamageHistory: 5b0000005c0000005d000000
+  PatrolPath:
+  - {x: 109, y: 110, z: 111}
+  - {x: 112, y: 113, z: 114}
+  Tags:
+  - default
+  -
+  - seed-90
+  AttackRange:
+    Min: 91
+    Max: 99
+  SkillRanges:
+  - Min: 92
+    Max: 96
+  - Min: 97
+    Max: 101
+  WeaponPrefab: {fileID: 8306978200530885928}
+  AimTarget: {fileID: 7078487288967874864}
+  AssistTarget: {fileID: 6879090557671854905}
+  PrimaryEffect:
+    rid: 3467224248452644871
+  EffectTimeline:
+  - rid: 3467224248452644872
+  - rid: -2
+  - rid: 3467224248452644873
+  GenericEffect:
+    rid: 3467224248452644874
+  ConcreteEffect:
+    rid: 3467224248452644875
+  ConcreteEffects:
+  - rid: 3467224248452644876
+  - rid: 3467224248452644877
+  m_CombatStats:
+    Level: 90
+    Health: 90.5
+    Label: combat-90
+    Faction: 2
+  m_LoadoutStats:
+  - Level: 91
+    Health: 91.5
+    Label: loadout-a
+    Faction: 2
+  - Level: 0
+    Health: 0
+    Label:
+    Faction: 0
+  - Level: 92
+    Health: 92.5
+    Label: loadout-b
+    Faction: 2
+  m_ControlCells:
+  - {x: 146, y: 147}
+  - {x: 148, y: 149}
+  Phase: 5
+  EnrageSeconds: 88.125
+  Summons:
+  - {fileID: 6879090557671854905}
+  - {fileID: 0}
+  ReserveSummons:
+  - {fileID: 0}
+  - {fileID: 6879090557671854905}
+  ThreatTable:
+  - {fileID: 1257397698371118203}
+  - {fileID: 6879090557671854905}
+  ThreatList:
+  - {fileID: 6879090557671854905}
+  - {fileID: 0}
+  - {fileID: 1257397698371118203}
+  PhaseColors:
+  - {r: 0.35, g: 0.45, b: 0.55, a: 0.65}
+  - {r: 0, g: 1, b: 1, a: 1}
+  ArenaCells:
+  - {x: 101, y: 102}
+  - {x: 103, y: 104}
+  PhaseStats:
+  - Level: 91
+    Health: 911.5
+    Label: boss-phase-a
+    Faction: 2
+  - Level: 92
+    Health: 921.5
+    Label: boss-phase-b
+    Faction: 2
+  m_BossStats:
+    Level: 93
+    Health: 931.5
+    Label: boss-private
+    Faction: 2
+  m_EnrageRanges:
+  - Min: 35
+    Max: 45
+  - Min: 55
+    Max: 65
+  m_PrivateArenaMarker: {fileID: 4467037981361381299}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3467224248452644871
+      type: {class: AssemblyCSharpSnapshotDamageEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Id: 132
+        Damage: 133
+        Element: fire
+    - rid: 3467224248452644872
+      type: {class: AssemblyCSharpSnapshotBuffEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Id: 134
+        Multiplier: 1.5
+        Duration:
+          Min: 135
+          Max: 136
+    - rid: 3467224248452644873
+      type: {class: AssemblyCSharpSnapshotDamageEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Id: 137
+        Damage: 138
+        Element: water
+    - rid: 3467224248452644874
+      type: {class: AssemblyCSharpSnapshotIntEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        Value: 139
+        Extra: 140
+    - rid: 3467224248452644875
+      type: {class: AssemblyCSharpSnapshotConcreteDerivedEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        BaseValue: 141
+        DerivedValue: 142
+    - rid: 3467224248452644876
+      type: {class: AssemblyCSharpSnapshotConcreteEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        BaseValue: 143
+    - rid: 3467224248452644877
+      type: {class: AssemblyCSharpSnapshotConcreteDerivedEffect, ns: EjoyFramework.Tests.AssemblyCSharpCodeGenSamples, asm: Assembly-CSharp}
+      data:
+        BaseValue: 144
+        DerivedValue: 145

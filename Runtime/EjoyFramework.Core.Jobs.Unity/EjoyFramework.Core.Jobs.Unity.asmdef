@@ -1,0 +1,19 @@
+{
+    "name": "EjoyFramework.Core.Jobs.Unity",
+    "rootNamespace": "EjoyFramework.Core.Jobs.Unity",
+    "references": [
+        "EjoyFramework.Core",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

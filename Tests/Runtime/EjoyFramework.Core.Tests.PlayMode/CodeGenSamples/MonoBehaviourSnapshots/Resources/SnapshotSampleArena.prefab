@@ -1,0 +1,611 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &211940026883738632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3286921896040688576}
+  - component: {fileID: 3797213970781815982}
+  m_Layer: 0
+  m_Name: Hero
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3286921896040688576
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 211940026883738632}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3797213970781815982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 211940026883738632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfb32c934a2b42129c288a98d81501e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EjoyFramework.Tests.PlayMode::EjoyFramework.Tests.CodeGenSamples.MonoBehaviourSnapshots.SnapshotHeroBehaviour
+  ActorId: 301
+  ActorName: AssetNezha
+  m_SpawnPoint: {x: 1.5, y: 2.5, z: 3.5}
+  m_BaseStats:
+    Level: 30
+    Health: 301.5
+    Title: asset-base-hero
+    Faction: 1
+  m_BaseBuffIds: 65000000670000006b000000
+  RuntimeCacheVersion: 9101
+  Faction: 1
+  AbilityFlags: 13
+  IsElite: 1
+  Grade: 72
+  Slot: 7
+  Alignment: -8
+  Armor: 222
+  ArmorPierce: 45
+  ScoreSeed: 345678
+  SpawnToken: 3456789012
+  MoveInput: {x: 0.125, y: 0.875}
+  Tuning: {x: 2, y: 4, z: 6, w: 8}
+  AimRotation: {x: 0.11, y: 0.22, z: 0.33, w: 0.88}
+  AuraColor: {r: 0.7, g: 0.25, b: 0.15, a: 0.95}
+  TeamColor:
+    serializedVersion: 2
+    rgba: 740365835
+  PatrolRect:
+    serializedVersion: 2
+    x: 15
+    y: 16
+    width: 17
+    height: 18
+  GridCell: {x: 19, y: 20}
+  GridVolume: {x: 21, y: 22, z: 23}
+  DamageHistory: 220000003700000059000000
+  PatrolPath:
+  - {x: 24, y: 25, z: 26}
+  - {x: 27, y: 28, z: 29}
+  Tags:
+  - asset-front
+  - 
+  - asset-fire
+  AttackRange:
+    Min: 4
+    Max: 14
+  SkillRanges:
+  - Min: 5
+    Max: 9
+  - Min: 10
+    Max: 15
+  WeaponPrefab: {fileID: 8837952350475937651}
+  AimTarget: {fileID: 2672278507062691391}
+  AssistTarget: {fileID: 1017712994790750189}
+  m_CombatStats:
+    Level: 31
+    Health: 311.5
+    Title: asset-combat-hero
+    Faction: 1
+  m_LoadoutStats:
+  - Level: 32
+    Health: 321.5
+    Title: asset-loadout-a
+    Faction: 1
+  - Level: 0
+    Health: 0
+    Title: 
+    Faction: 0
+  - Level: 33
+    Health: 331.5
+    Title: asset-loadout-b
+    Faction: 1
+  m_ControlCells:
+  - {x: 40, y: 41}
+  - {x: 42, y: 43}
+  HeroKey: asset-hero-nezhaguard
+  CooldownMultiplier: 2.25
+  EquipmentSlots:
+  - {fileID: 2548835454347799216}
+  - {fileID: 0}
+  - {fileID: 2881287846378835362}
+  UpgradeStats:
+  - Level: 34
+    Health: 341.5
+    Title: asset-upgrade-a
+    Faction: 1
+  - Level: 0
+    Health: 0
+    Title: 
+    Faction: 0
+  - Level: 35
+    Health: 351.5
+    Title: asset-upgrade-b
+    Faction: 1
+  m_PrivateGrowthStats:
+    Level: 36
+    Health: 361.5
+    Title: asset-private-growth
+    Faction: 1
+  m_PrivateTalentIds: 90000000e900000079010000
+--- !u!1 &2548835454347799216
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1175148142878295671}
+  m_Layer: 0
+  m_Name: MarkerA
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1175148142878295671
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2548835454347799216}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2702507450046371972
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1872091222687530994}
+  m_Layer: 0
+  m_Name: AnchorB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1872091222687530994
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2702507450046371972}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2860170080686955247
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6055493063918913517}
+  - component: {fileID: 2002643534356692123}
+  m_Layer: 0
+  m_Name: SnapshotSampleArena
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6055493063918913517
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860170080686955247}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3286921896040688576}
+  - {fileID: 1394177613890787158}
+  - {fileID: 2646544429254460167}
+  - {fileID: 1175148142878295671}
+  - {fileID: 3755586639425910252}
+  - {fileID: 2672278507062691391}
+  - {fileID: 1872091222687530994}
+  - {fileID: 5079124363641818784}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2002643534356692123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860170080686955247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92bc42a249c54cab80a878d162641126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EjoyFramework.Tests.PlayMode::EjoyFramework.Tests.CodeGenSamples.MonoBehaviourSnapshots.SnapshotReferenceHubBehaviour
+  PrimaryActor: {fileID: 1017712994790750189}
+  Actors:
+  - {fileID: 3797213970781815982}
+  - {fileID: 0}
+  - {fileID: 1017712994790750189}
+  Heroes:
+  - {fileID: 3797213970781815982}
+  - {fileID: 0}
+  Boss: {fileID: 1017712994790750189}
+  Markers:
+  - {fileID: 2548835454347799216}
+  - {fileID: 0}
+  - {fileID: 2881287846378835362}
+  MarkerList:
+  - {fileID: 2881287846378835362}
+  - {fileID: 2548835454347799216}
+  Anchors:
+  - {fileID: 2672278507062691391}
+  - {fileID: 1872091222687530994}
+  CameraRef: {fileID: 974325848709279930}
+  m_PrivateActor: {fileID: 3797213970781815982}
+  m_PrivateBosses:
+  - {fileID: 1017712994790750189}
+  - {fileID: 0}
+--- !u!1 &2881287846378835362
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3755586639425910252}
+  m_Layer: 0
+  m_Name: MarkerB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3755586639425910252
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2881287846378835362}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3328910744057245634
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1394177613890787158}
+  - component: {fileID: 1017712994790750189}
+  m_Layer: 0
+  m_Name: Boss
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1394177613890787158
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3328910744057245634}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1017712994790750189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3328910744057245634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c30f21657cc40f8b9cb7f1050bca4c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EjoyFramework.Tests.PlayMode::EjoyFramework.Tests.CodeGenSamples.MonoBehaviourSnapshots.SnapshotBossBehaviour
+  ActorId: 401
+  ActorName: AssetDragonKing
+  m_SpawnPoint: {x: 41, y: 42, z: 43}
+  m_BaseStats:
+    Level: 40
+    Health: 401.5
+    Title: asset-base-boss
+    Faction: 2
+  m_BaseBuffIds: 9f0000000901000066010000
+  RuntimeCacheVersion: 9102
+  Faction: 2
+  AbilityFlags: 6
+  IsElite: 0
+  Grade: 66
+  Slot: 11
+  Alignment: 9
+  Armor: 444
+  ArmorPierce: 88
+  ScoreSeed: 876543
+  SpawnToken: 2109876543
+  MoveInput: {x: 0.625, y: 0.375}
+  Tuning: {x: 12, y: 14, z: 16, w: 18}
+  AimRotation: {x: 0.44, y: 0.33, z: 0.22, w: 0.77}
+  AuraColor: {r: 0.15, g: 0.35, b: 0.85, a: 0.9}
+  TeamColor:
+    serializedVersion: 2
+    rgba: 1481458231
+  PatrolRect:
+    serializedVersion: 2
+    x: 51
+    y: 52
+    width: 53
+    height: 54
+  GridCell: {x: 55, y: 56}
+  GridVolume: {x: 57, y: 58, z: 59}
+  DamageHistory: 62020000db030000
+  PatrolPath:
+  - {x: 60, y: 61, z: 62}
+  - {x: 63, y: 64, z: 65}
+  Tags:
+  - asset-boss
+  - asset-water
+  AttackRange:
+    Min: 16
+    Max: 29
+  SkillRanges:
+  - Min: 17
+    Max: 23
+  - Min: 24
+    Max: 30
+  WeaponPrefab: {fileID: 8837952350475937651}
+  AimTarget: {fileID: 1872091222687530994}
+  AssistTarget: {fileID: 3797213970781815982}
+  m_CombatStats:
+    Level: 41
+    Health: 411.5
+    Title: asset-combat-boss
+    Faction: 2
+  m_LoadoutStats:
+  - Level: 42
+    Health: 421.5
+    Title: asset-boss-loadout
+    Faction: 2
+  m_ControlCells:
+  - {x: 70, y: 71}
+  - {x: 72, y: 73}
+  Phase: 6
+  EnrageSeconds: 123.5
+  Summons:
+  - {fileID: 3797213970781815982}
+  - {fileID: 0}
+  ReserveSummons:
+  - {fileID: 0}
+  - {fileID: 3797213970781815982}
+  ThreatTable:
+  - {fileID: 1017712994790750189}
+  - {fileID: 3797213970781815982}
+  ThreatList:
+  - {fileID: 3797213970781815982}
+  - {fileID: 0}
+  - {fileID: 1017712994790750189}
+  PhaseColors:
+  - {r: 0.25, g: 0.45, b: 0.65, a: 0.85}
+  - {r: 1, g: 0, b: 1, a: 1}
+  ArenaCells:
+  - {x: 74, y: 75}
+  - {x: 76, y: 77}
+  PhaseStats:
+  - Level: 43
+    Health: 431.5
+    Title: asset-phase-a
+    Faction: 2
+  - Level: 44
+    Health: 441.5
+    Title: asset-phase-b
+    Faction: 2
+  m_BossStats:
+    Level: 45
+    Health: 451.5
+    Title: asset-private-boss
+    Faction: 2
+  m_EnrageRanges:
+  - Min: 31
+    Max: 37
+  - Min: 41
+    Max: 47
+  m_PrivateArenaMarker: {fileID: 2881287846378835362}
+--- !u!1 &5347923895917367819
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2672278507062691391}
+  m_Layer: 0
+  m_Name: AnchorA
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2672278507062691391
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5347923895917367819}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8585620376939015718
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5079124363641818784}
+  - component: {fileID: 974325848709279930}
+  m_Layer: 0
+  m_Name: CameraRig
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5079124363641818784
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8585620376939015718}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &974325848709279930
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8585620376939015718}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!1 &8837952350475937651
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2646544429254460167}
+  m_Layer: 0
+  m_Name: Weapon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2646544429254460167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8837952350475937651}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6055493063918913517}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
