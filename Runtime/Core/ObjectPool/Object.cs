@@ -105,13 +105,19 @@ namespace EjoyFramework.Core.ObjectPool
         public void Unspawn()
         {
             if (m_Object == null) throw new FrameworkException("Internal object payload is null (Unspawn on a cleared/released object).");
+
+            // 先校验再回调：重复归还是业务 bug，此时若先跑一遍用户 OnUnspawn 再抛错，
+            // 用户对象会经历第二次"归还"副作用（清状态/回收子资源），把一个可定位的配对错误变成难查的状态错乱。
+            if (m_SpawnCount <= 0)
+            {
+                throw new FrameworkException(Utility.Text.Format(
+                    "Object '{0}' 被重复 Unspawn（当前 SpawnCount = {1}）：每次 Spawn 只能配对一次 Unspawn，请检查业务侧是否在多处归还同一对象。",
+                    Name, m_SpawnCount));
+            }
+
             m_Object.OnUnspawn();
             m_Object.LastUseTime = DateTime.UtcNow;
             m_SpawnCount--;
-            if (m_SpawnCount < 0)
-            {
-                throw new FrameworkException(Utility.Text.Format("Object '{0}' spawn count is less than 0.", Name));
-            }
         }
 
         public void Release(bool isShutdown)

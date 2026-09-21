@@ -309,8 +309,10 @@ namespace EjoyFramework.Core.Unity
             GUILayout.Label(Utility.Text.Format("Total pools: {0}", opm.Count));
             foreach (var p in opm.GetAllObjectPools())
             {
-                GUILayout.Label(Utility.Text.Format("  {0} :: capacity={1} count={2} expireSec={3:F1}",
-                    p.FullName, p.Capacity, p.Count, p.ExpireTime));
+                ObjectPoolMetrics m;
+                p.GetMetrics(out m);
+                GUILayout.Label(Utility.Text.Format("  {0} :: count={1}/{2} inUse={3} peak={4} hit={5:P0} miss={6} released={7} expireSec={8:F1}",
+                    p.FullName, m.Count, m.Capacity, m.SpawnedCount, m.PeakCount, m.HitRate, m.SpawnMissCount, m.TotalReleaseCount, m.ExpireTime));
             }
         }
 

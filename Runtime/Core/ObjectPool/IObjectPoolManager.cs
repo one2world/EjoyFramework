@@ -4,6 +4,7 @@
 //------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace EjoyFramework.Core.ObjectPool
 {
@@ -56,5 +57,8 @@ namespace EjoyFramework.Core.ObjectPool
         /// 获取所有对象池基类引用（调试/统计用，请勿修改）。
         /// </summary>
         ObjectPoolBase[] GetAllObjectPools();
+
+        /// <summary>获取所有对象池（非分配版本：写入调用方提供的列表，列表先被清空）。</summary>
+        void GetAllObjectPools(List<ObjectPoolBase> results);
     }
 }

@@ -23,6 +23,11 @@ namespace EjoyFramework.Core.ObjectPool
 
         private readonly Dictionary<TypeNamePair, ObjectPoolBase> m_ObjectPools;
         private ObjectPoolBase[] m_UpdateScratch = Array.Empty<ObjectPoolBase>();
+        private readonly List<ObjectPoolBase> m_ReleaseSnapshot = new List<ObjectPoolBase>();
+        private bool m_Releasing;
+
+        /// <summary>按优先级升序释放。排序走 NoAllocSort（List.Sort 在 Mono 下会分配委托/包装对象）。</summary>
+        private static readonly IComparer<ObjectPoolBase> s_ByPriorityAscending = new PriorityComparer();
 
         public ObjectPoolManager()
         {
@@ -99,6 +104,20 @@ namespace EjoyFramework.Core.ObjectPool
             return arr;
         }
 
+        public void GetAllObjectPools(List<ObjectPoolBase> results)
+        {
+            if (results == null)
+            {
+                throw new FrameworkException("Results is invalid.");
+            }
+
+            results.Clear();
+            foreach (KeyValuePair<TypeNamePair, ObjectPoolBase> kv in m_ObjectPools)
+            {
+                results.Add(kv.Value);
+            }
+        }
+
         public IObjectPool<T> GetObjectPool<T>() where T : ObjectBase
         {
             ObjectPoolBase objectPool = null;
@@ -128,26 +147,68 @@ namespace EjoyFramework.Core.ObjectPool
         public void Release()
         {
             Framework.EnsureMainThread("ObjectPoolManager.Release");
-            ObjectPoolBase[] snapshot = SnapshotPools(true);
-            for (int i = 0; i < snapshot.Length; i++)
-            {
-                try { snapshot[i].Release(); }
-                catch (Exception ex) { FrameworkLog.Error("ObjectPool '{0}' Release threw: {1}", snapshot[i].FullName, ex); }
-            }
+            ReleaseAll(/*allUnused*/ false);
         }
 
         public void ReleaseAllUnused()
         {
             Framework.EnsureMainThread("ObjectPoolManager.ReleaseAllUnused");
-            ObjectPoolBase[] snapshot = SnapshotPools(true);
-            for (int i = 0; i < snapshot.Length; i++)
+            ReleaseAll(/*allUnused*/ true);
+        }
+
+        /// <summary>
+        /// 按优先级升序遍历所有池执行释放。遍历基于快照：用户 Release 回调里创建/销毁池不会破坏迭代。
+        /// 稳态复用 m_ReleaseSnapshot（零分配）；释放过程中被重入时退化为分配一份新数组。
+        /// </summary>
+        private void ReleaseAll(bool allUnused)
+        {
+            if (m_Releasing)
             {
-                try { snapshot[i].ReleaseAllUnused(); }
-                catch (Exception ex) { FrameworkLog.Error("ObjectPool '{0}' ReleaseAllUnused threw: {1}", snapshot[i].FullName, ex); }
+                ObjectPoolBase[] reentrant = SnapshotPoolsSorted();
+                for (int i = 0; i < reentrant.Length; i++)
+                {
+                    ReleaseOne(reentrant[i], allUnused);
+                }
+
+                return;
+            }
+
+            m_Releasing = true;
+            try
+            {
+                m_ReleaseSnapshot.Clear();
+                foreach (KeyValuePair<TypeNamePair, ObjectPoolBase> kvp in m_ObjectPools)
+                {
+                    m_ReleaseSnapshot.Add(kvp.Value);
+                }
+
+                NoAllocSort.Sort(m_ReleaseSnapshot, s_ByPriorityAscending);
+                for (int i = 0; i < m_ReleaseSnapshot.Count; i++)
+                {
+                    ReleaseOne(m_ReleaseSnapshot[i], allUnused);
+                }
+            }
+            finally
+            {
+                m_ReleaseSnapshot.Clear();
+                m_Releasing = false;
             }
         }
 
-        private ObjectPoolBase[] SnapshotPools(bool sort)
+        private static void ReleaseOne(ObjectPoolBase pool, bool allUnused)
+        {
+            try
+            {
+                if (allUnused) pool.ReleaseAllUnused();
+                else pool.Release();
+            }
+            catch (Exception ex)
+            {
+                FrameworkLog.Error("ObjectPool '{0}' {1} threw: {2}", pool.FullName, allUnused ? "ReleaseAllUnused" : "Release", ex);
+            }
+        }
+
+        private ObjectPoolBase[] SnapshotPoolsSorted()
         {
             ObjectPoolBase[] snapshot = new ObjectPoolBase[m_ObjectPools.Count];
             int idx = 0;
@@ -155,11 +216,17 @@ namespace EjoyFramework.Core.ObjectPool
             {
                 snapshot[idx++] = kvp.Value;
             }
-            if (sort)
-            {
-                Array.Sort(snapshot, (a, b) => a.Priority.CompareTo(b.Priority));
-            }
+
+            Array.Sort(snapshot, s_ByPriorityAscending);
             return snapshot;
+        }
+
+        private sealed class PriorityComparer : IComparer<ObjectPoolBase>
+        {
+            public int Compare(ObjectPoolBase a, ObjectPoolBase b)
+            {
+                return a.Priority.CompareTo(b.Priority);
+            }
         }
 
         private IObjectPool<T> InternalCreateObjectPool<T>(string name, bool allowMultiSpawn, float autoReleaseInterval, int capacity, float expireTime, int priority) where T : ObjectBase

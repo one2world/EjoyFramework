@@ -1,0 +1,135 @@
+# EjoyFramework 开放世界完整解决方案路线图
+
+> **恢复协议**：任何会话开始时先读本文件 + `git log -10`，找「状态追踪」里第一个未勾选的里程碑继续。
+> 每个里程碑完成 = 代码 + 测试（含零 GC 断言）+ 文档 + 一次提交。验证统一走 unity-cli
+> （命令见 `docs/PackageMigration.md` 与本文末尾），不接受"静态编译通过"替代运行。
+>
+> 制定：2026-09-21。依据：`FrameworkAnalysis.md`（隐患 10 项 / 零 GC 缺口 13 项）、`EXPANSION_PLAN.md`、
+> `ConfigBlob.md`、`DOTS-Research.md`、代码规模与测试计数实测（下表）。
+
+## 0. 目标与质量标准
+
+**目标**：框架成为**大型开放世界游戏的完整解决方案**——(a) 游戏开发（首要），(b) 性能基建，
+(c) 上线后的性能检测与分析（LiveOps）。
+
+**每个模块的"专业级"定义（验收口径，逐条可检）**：
+
+| 维度 | 口径 |
+|---|---|
+| 完整 | 覆盖该领域 AAA 团队的常规需求，不留"能跑但用不了"的半成品 API |
+| 性能 | 热路径零托管分配（`AllocatingGCMemory` 断言）；有基准数字；无每帧字符串键查找/闭包/LINQ/装箱 |
+| 易用 | 一条主路径 API、命名与生命周期与全框架一致、错误信息可执行（说明怎么修） |
+| 健壮 | 引用计数/配对/重入/生命周期有断言与测试；异常路径不留半状态；线程契约写在类头且有验证 |
+| 统一流程 | 模块 = `IXxxManager`(Core) + `XxxComponent`(Core.Unity) + Helper 注入 + 生成注册；诊断接入 Debugger；配置走 ConfigBlob |
+
+## 1. 现状盘点（2026-09-21 实测）
+
+规模：Core 42 模块 ~34k 行；Core.Unity 39 目录 ~15k 行；GamePlay 26 系统 ~34k 行；Editor ~14.6k 行。
+测试：Core.Tests 890、GamePlay.Tests 1304、Pathfinding.Tests 31、Jobs.Tests 8、PlayMode 22（共 2255）。
+
+成熟度 0-5（5 = 专业级）。「估」= 依据规模/测试/既有审计估计，未逐行复核。
+
+| 模块 | 层 | 行数 | 成熟度 | 开放世界关键度 | 结论 |
+|---|---|---|---|---|---|
+| Base（模块系统/ReferencePool/EventPool/TempText/Log） | Core | 5217 | 4 | 高 | 已过多轮审查；缺 CollectionPool/BufferPool/零分配格式化 |
+| ObjectPool | Core | 1231 | 3 | **高** | 能用；缺预热/预算/收缩/诊断，Release 走快照数组 + 委托，Spawn 按 string 名 |
+| Pool（SpawnPool，GameObject） | Core.Unity | 516 | 2.5 | **高** | string 键字典、每次加载闭包、无预热/预算/收缩、与 ObjectPool 语义未统一 |
+| Resource（Manager/Loader/AssetBatch/AssetRef） | Core+Unity | 3538 | 3.5 | **高** | AssetBatch 已零 GC 定案；缺取消/帧预算调度/内存预算与淘汰/区域加载卸载/目录标签 |
+| Blobs（ConfigBlob） | Core | 2651 | 4.5 | 高 | 95 测试、零 GC 断言、13× 基准；缺真机验证与业务迁移 |
+| Streaming | Core | 339 | 1.5 | **极高** | 骨架：string chunkId、逐块距离判定、事件通知；无分区网格/预算/异步调度/LOD 编排/浮动原点/持久化 |
+| Spatial（AoiGrid） | GamePlay | 421 | 2.5 | 高 | 仅 AOI 网格；需通用空间索引（网格/四叉树/BVH）供流送/索敌/寻路共用 |
+| Navigation | Core | 245 | 1.5 | 高 | 接口壳；无流式 navmesh、动态障碍、off-mesh、群体 |
+| Pathfinding | GamePlay | 836 | 3 | 中 | A*/网格；31 测试 |
+| AI（BT+黑板） | Core | 351 | 2 | 高 | 最小 BT；无 Utility/感知/群体/调试器；Blackboard 类型不匹配静默 |
+| Ecs | Core | 838 | 3 | 中 | 自研 SparseSet；未与流送/世界分区集成 |
+| Jobs | Core.Jobs.Unity | 小 | 3 | 中 | 封装可用；JobScope 句柄覆盖隐患（隐患#6） |
+| Entity / Scene / Sound / Video / UI(+MVVM) | Core+Unity | 大 | 3.5-4 | 中 | UI/MVVM 成熟；MVVM 嵌套路径不刷新（隐患#1） |
+| Save | Core+Unity | 1500 | 3.5 | 高 | HMAC+AES+迁移；缺**流式世界状态**（分块增量）持久化 |
+| Network / Netcode | Core / GamePlay | 1117 / 4965 | 3 | 中 | 每连接一线程、全量快照、Unreliable 假语义（隐患#5） |
+| Performance / Diagnostics | Core+Unity | 1329+387 | 3 | **高（LiveOps）** | 计数器/分级/告警/崩溃接口具备；缺采样上报、ANR、覆盖层、设备分级自动画质、日志上传 |
+| LiveOps（成就/邮件/任务/活动/榜/公会/聊天/匹配/云存/AB） | GamePlay | 7487 | 3.5 | 中 | 面广；后端为 Null Object，需接口契约测试 |
+| Combat / Units / Attributes / Targeting | GamePlay | 7000 | 3 | 高 | 双轨重复（隐患#3）；Units 无测试（隐患#10） |
+| Atmosphere / Worldmap / Dialogue / Quest / Items / Loot / Crafting | GamePlay | 各 0.5-1.7k | 3 | 高 | 存在但薄；需与流送/存档/ConfigBlob 打通 |
+| Input | Core+Unity | 511 | 2 | 中 | 抽象浅；无重映射/上下文互斥/录制 |
+| HotUpdate(iFix) / Patch / Download / Http | Core+Unity | ~2.5k | 3.5 | 中 | 已审查；Patch 头注释过期 |
+| Editor（codegen 7 线/构建/校验） | Editor | 14.5k | 4 | 高 | 齐全；缺基准基建与 unity-cli CI 脚本 |
+
+## 2. 缺口清单（按优先级）
+
+### P0 —— 没有它做不了开放世界
+
+| # | 缺口 | 现状 | 形态 | 工作量 |
+|---|---|---|---|---|
+| P0-1 | **对象池专业化** | ObjectPool/SpawnPool 见上表 | Prewarm/Trim/Budget/Metrics；Spawn 按 int id；零 GC；SpawnPool 与 ObjectPool 统一语义与诊断 | M |
+| P0-2 | **CollectionPool + BufferPool** | 缺口#1/#2 | `CollectionPool<List<T>>` 等静态池 + `using` 作用域；2 的幂分桶 `BufferPool<T>`；接入 Network/Download/Save | M |
+| P0-3 | **资源调度**：取消/优先级/帧预算 | LoadAsset(priority, callbacks)，IAssetLoadHandle 存在但未贯通 | 统一 `LoadHandle`（可取消、可查询）、按优先级出队、每帧毫秒预算、同步回退规则 | L |
+| P0-4 | **资源内存预算与淘汰** | 无 | 预算（MB）+ LRU/引用计数联合淘汰 + 预警事件 + 诊断 | M |
+| P0-5 | **世界分区与流送** | Streaming 骨架 | 网格/层级分区（cell 键 = 整数坐标）、玩家位置驱动的 in/out 集合差分、预算化异步加载队列、LOD/HLOD 编排、浮动原点、区域级 Resource 加载/卸载 | XL |
+| P0-6 | **空间索引** | AoiGrid | 通用 `SpatialGrid`/`Quadtree`（Core，纯 C#），流送/索敌/感知/寻路共用，零 GC 查询 | M |
+| P0-7 | **帧预算调度器 + 主线程派发** | 缺口#10/#11 | `FrameBudgetScheduler`（毫秒预算跑任务队列）、`MainThreadDispatcher`（下沉现有手写） | M |
+| P0-8 | **性能遥测上报** | Performance 有计数器 | 帧时间分位/内存/GPU/温度/加载时长采样 → 批量离线队列 → 上报接口；采样率与隐私开关 | M |
+| P0-9 | **崩溃/ANR/日志采集** | ICrashReporter 接口 | 托管异常 + 原生崩溃钩子 + ANR（主线程看门狗）+ 日志环形缓冲上传 + 符号表出包脚本 | M |
+
+### P1 —— 专业级必需
+
+| # | 缺口 | 形态 | 工作量 |
+|---|---|---|---|
+| P1-1 | 零分配格式化 / 字符串哈希 ID / Span 解析（缺口#3/#7/#8） | ValueStringBuilder、StringHash + 编辑期碰撞检查、DataTable/Localization 走 Span | M |
+| P1-2 | Struct 事件通道 / 无 GC 集合（缺口#4/#5） | `Event<T:struct>`、RingBuffer/Deque/PriorityQueue/BitSet/SlotMap | M |
+| P1-3 | 流式世界状态存档 | 分块增量（chunk delta）+ 全局状态；与 Save 迁移链集成 | M |
+| P1-4 | AI：Utility/感知/群体 + BT 调试器 | 感知系统（视觉/听觉，走空间索引）、Utility 选择器、群体避让钩子、编辑器可视化 | L |
+| P1-5 | Navigation：流式 navmesh 与动态障碍 | 分块 navmesh 加载/卸载、off-mesh、Helper 接 Unity Navigation | L |
+| P1-6 | 生成/种群管理（Spawn & Population） | 密度/预算驱动的 NPC/怪物生成，与流送与对象池联动 | M |
+| P1-7 | 战斗双轨合并 / Units 测试 / MVVM 嵌套刷新 / JobScope（隐患#1#3#6#10） | 见 FrameworkAnalysis 隐患清单 | M |
+| P1-8 | 设备分级与自动画质 / 游戏内性能覆盖层 | Performance 分级 → 画质档位表（ConfigBlob）；IMGUI/UITK 覆盖层 | M |
+| P1-9 | 基准基建 | `Benchmark` 测试类别 + 结果落盘 + unity-cli 脚本；计数器死值自校准（已在 ConfigBlob 基准示范） | S |
+| P1-10 | 交互系统 / 相机框架（ThreeC）/ 角色移动与动画框架 | 交互体积+提示；相机模式栈；locomotion 状态机 + 动画参数桥 | L |
+
+### P2 —— 完整性
+
+| # | 缺口 | 工作量 |
+|---|---|---|
+| P2-1 | 确定性 Random/定点数（缺口#12）、帧临时分配器（#9）、分配监控（#13） | M |
+| P2-2 | Netcode：AOI 接入下发、真 Unreliable、状态 schema、连接线程池化 | L |
+| P2-3 | Input：重映射/上下文互斥/录制回放 | M |
+| P2-4 | LiveOps 后端契约测试与远程配置/AB 与画质分级联动 | M |
+| P2-5 | 过场/Timeline 编排、天气与时间对流送/AI 的驱动 | M |
+| P2-6 | 文档与样例：每模块 README（用法主路径 + 反例）、开放世界样例场景 | M |
+
+## 3. 工作流与顺序
+
+```
+WS1 基础（P0-1/2/7）──► WS2 资源（P0-3/4）──► WS3 世界流送（P0-5/6 + P1-3/5/6）
+        │                                                │
+        └──► WS4 性能与 LiveOps（P0-8/9 + P1-8/9）        └──► WS5 玩法（P1-4/7/10）──► WS6 完整性（P2）
+```
+
+WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见状态追踪。
+
+## 4. 状态追踪
+
+- [x] **WS1-M1 ObjectPool 专业化**（2026-09-21）：Prewarm/Trim/Metrics(O(1))/非分配 GetAllObjectInfos；
+      Release/Trim/Manager.Release 零分配（缓存筛选委托 + `NoAllocSort` 堆排序，Mono 的 List.Sort 两个重载都会分配）；
+      重入释放安全；重复 Unspawn 先校验再回调；Debugger 面板显示指标。测试 +19（对象池 28 + NoAllocSort 4），
+      全量 2251/2252 绿。Spawn 按 int id 移到 WS1-M2 与 SpawnPool 一并做。
+- [ ] **WS1-M2 SpawnPool 统一**：与 ObjectPool 同语义（预热/预算/收缩/诊断）；string 键 → 哈希 id；去每次加载闭包；
+      与 Resource 句柄贯通
+- [ ] **WS1-M3 CollectionPool / BufferPool**：静态池 + using 作用域；接入 Network/Download/Save/ByteBuffer
+- [ ] **WS1-M4 FrameBudgetScheduler + MainThreadDispatcher**：下沉 Diagnostics/Network 手写派发
+- [ ] **WS2-M1 LoadHandle 统一**：取消/状态查询/优先级队列/帧预算；同步回退规则；诊断
+- [ ] **WS2-M2 内存预算与淘汰**：预算、LRU+引用计数、预警事件、Debugger 窗口
+- [ ] **WS3-M1 SpatialGrid/Quadtree（Core）**：零 GC 查询；AoiGrid 迁移到其上
+- [ ] **WS3-M2 WorldPartition + Streaming 重写**：cell 分区、差分、预算队列、LOD 编排、浮动原点、区域加载
+- [ ] **WS3-M3 流式世界存档 + 种群管理 + 流式 navmesh**
+- [ ] **WS4-M1 性能遥测采样与上报**；**WS4-M2 崩溃/ANR/日志采集**；**WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
+- [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
+      **WS5-M4 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；**WS5-M5 交互/相机/移动动画框架**
+- [ ] **WS6 P2 全部项 + 每模块 README + 开放世界样例**
+
+## 5. 验证命令（unity-cli，输出目录必须在工程外）
+
+```powershell
+$env:HTTP_PROXY="http://127.0.0.1:7897"; $env:HTTPS_PROXY=$env:HTTP_PROXY; $env:NO_PROXY="localhost,127.0.0.1"
+& "C:\Program Files\Unity\unity-cli.exe" --no-banner --non-interactive --json test E:\1_code_new\EjoyGame `
+  --mode EditMode --filter <Fixture> --output E:\1_code_new\ejoy-perf\<name>.xml --timeout 1500 -- -nographics
+```

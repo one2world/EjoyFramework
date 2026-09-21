@@ -4,6 +4,7 @@
 //------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace EjoyFramework.Core.ObjectPool
 {
@@ -93,6 +94,29 @@ namespace EjoyFramework.Core.ObjectPool
         /// </summary>
         /// <returns>所有对象信息。</returns>
         public abstract ObjectInfo[] GetAllObjectInfos();
+
+        /// <summary>
+        /// 获取所有对象信息（非分配版本：写入调用方提供的列表）。诊断面板每帧刷新时用这个。
+        /// </summary>
+        /// <param name="results">输出列表，会先被清空。</param>
+        public abstract void GetAllObjectInfos(List<ObjectInfo> results);
+
+        /// <summary>当前在用对象数（SpawnCount &gt; 0）。O(1)。</summary>
+        public abstract int SpawnedCount { get; }
+
+        /// <summary>历史最大对象总数。O(1)。</summary>
+        public abstract int PeakCount { get; }
+
+        /// <summary>
+        /// 收缩：释放最久未用的空闲对象，直到总数不超过 <paramref name="keepCount"/>（受 Locked / CustomCanReleaseFlag 约束）。
+        /// 用于关卡切换、内存告警等主动回收时机；与自动过期相比它是即时且确定的。
+        /// </summary>
+        /// <param name="keepCount">保留的对象总数上限。</param>
+        /// <returns>实际释放的对象数。</returns>
+        public abstract int Trim(int keepCount);
+
+        /// <summary>零分配读取运行指标。</summary>
+        public abstract void GetMetrics(out ObjectPoolMetrics metrics);
 
         /// <summary>
         /// 对象池轮询。
