@@ -172,6 +172,7 @@ namespace EjoyFramework.Core.Unity
                 case "ReferencePool": DrawReferencePool(); break;
                 case "Resource": DrawResource(); break;
                 case "ObjectPool": DrawObjectPool(); break;
+                case "SpawnPool": DrawSpawnPool(); break;
                 case "Entity": DrawEntity(); break;
                 case "Sound": DrawSound(); break;
                 case "Network": DrawNetwork(); break;
@@ -316,6 +317,26 @@ namespace EjoyFramework.Core.Unity
             }
         }
 
+        private readonly List<SpawnPoolEntry> m_SpawnPoolEntries = new List<SpawnPoolEntry>();
+
+        private void DrawSpawnPool()
+        {
+            var sp = ComponentRegistry.GetComponent<SpawnPoolComponent>();
+            if (sp == null) { GUILayout.Label("SpawnPoolComponent not registered."); return; }
+            sp.GetAllEntries(m_SpawnPoolEntries);
+            GUILayout.Label(Utility.Text.Format("Total entries: {0}", m_SpawnPoolEntries.Count));
+            for (int i = 0; i < m_SpawnPoolEntries.Count; i++)
+            {
+                SpawnPoolEntry e = m_SpawnPoolEntries[i];
+                ObjectPoolMetrics m;
+                e.GetMetrics(out m);
+                GUILayout.Label(Utility.Text.Format("  {0} :: {1} inUse={2} idle={3}/{4} peak={5} hit={6:P0} miss={7} instantiated={8} destroyed={9}",
+                    e.Key, e.IsReady ? "ready" : (e.IsLoading ? "loading" : "no-prefab"),
+                    m.SpawnedCount, m.IdleCount, e.MaxIdle == int.MaxValue ? "inf" : e.MaxIdle.ToString(), m.PeakCount,
+                    m.HitRate, m.SpawnMissCount, e.TotalInstantiatedCount, m.TotalReleaseCount));
+            }
+        }
+
         private void DrawEntity()
         {
             var em = Framework.HasModule<IEntityManager>() ? Framework.GetModule<IEntityManager>() : null;
@@ -446,6 +467,7 @@ namespace EjoyFramework.Core.Unity
             m_BuiltInPaths.Add("ReferencePool");
             m_BuiltInPaths.Add("Resource");
             m_BuiltInPaths.Add("ObjectPool");
+            m_BuiltInPaths.Add("SpawnPool");
             m_BuiltInPaths.Add("Entity");
             m_BuiltInPaths.Add("Sound");
             m_BuiltInPaths.Add("Network");

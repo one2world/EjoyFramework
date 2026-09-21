@@ -112,8 +112,12 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       Release/Trim/Manager.Release 零分配（缓存筛选委托 + `NoAllocSort` 堆排序，Mono 的 List.Sort 两个重载都会分配）；
       重入释放安全；重复 Unspawn 先校验再回调；Debugger 面板显示指标。测试 +19（对象池 28 + NoAllocSort 4），
       全量 2251/2252 绿。Spawn 按 int id 移到 WS1-M2 与 SpawnPool 一并做。
-- [ ] **WS1-M2 SpawnPool 统一**：与 ObjectPool 同语义（预热/预算/收缩/诊断）；string 键 → 哈希 id；去每次加载闭包；
-      与 Resource 句柄贯通
+- [x] **WS1-M2 SpawnPool 统一**（2026-09-21）：重写为 `SpawnPoolEntry`（每键条目，业务缓存引用即无字符串哈希）+
+      `SpawnPoolInstance`（实例标记：缓存 ISpawnCallback 数组、状态、外部 Destroy 回报计数）。
+      Prewarm/Trim/TrimAll/MaxIdle/ExpireTime 周期清扫/指标（复用 ObjectPoolMetrics）/RegisterPrefab 直登 prefab；
+      Despawn 走 GetComponent 定位；首加载委托缓存、等待者双列表交换；Debugger 新增 SpawnPool 页。
+      旧实现每次 Spawn/Despawn 的 `GetComponentsInChildren` 数组分配与每次 Despawn 全表扫描已消除。
+      PlayMode 测试 +14（含 Spawn/Despawn 零分配断言），全量 PlayMode 39/39 绿。
 - [ ] **WS1-M3 CollectionPool / BufferPool**：静态池 + using 作用域；接入 Network/Download/Save/ByteBuffer
 - [ ] **WS1-M4 FrameBudgetScheduler + MainThreadDispatcher**：下沉 Diagnostics/Network 手写派发
 - [ ] **WS2-M1 LoadHandle 统一**：取消/状态查询/优先级队列/帧预算；同步回退规则；诊断
