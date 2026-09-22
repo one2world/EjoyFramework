@@ -17,7 +17,7 @@
 | 维度 | 口径 |
 |---|---|
 | 完整 | 覆盖该领域 AAA 团队的常规需求，不留"能跑但用不了"的半成品 API |
-| 性能 | 热路径零托管分配（`AllocatingGCMemory` 断言）；有基准数字；无每帧字符串键查找/闭包/LINQ/装箱 |
+| 性能 | 热路��零托管分配（`AllocatingGCMemory` 断言，被测委托先执行一遍再断言）；有基准数字；无每帧字符串键查找/闭包/LINQ/装箱 |
 | 易用 | 一条主路径 API、命名与生命周期与全框架一致、错误信息可执行（说明怎么修） |
 | 健壮 | 引用计数/配对/重入/生命周期有断言与测试；异常路径不留半状态；线程契约写在类头且有验证 |
 | 统一流程 | 模块 = `IXxxManager`(Core) + `XxxComponent`(Core.Unity) + Helper 注入 + 生成注册；诊断接入 Debugger；配置走 ConfigBlob |
@@ -118,7 +118,15 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       Despawn 走 GetComponent 定位；首加载委托缓存、等待者双列表交换；Debugger 新增 SpawnPool 页。
       旧实现每次 Spawn/Despawn 的 `GetComponentsInChildren` 数组分配与每次 Despawn 全表扫描已消除。
       PlayMode 测试 +14（含 Spawn/Despawn 零分配断言），全量 PlayMode 39/39 绿。
-- [ ] **WS1-M3 CollectionPool / BufferPool**：静态池 + using 作用域；接入 Network/Download/Save/ByteBuffer
+- [x] **WS1-M3 CollectionPool / BufferPool**（2026-09-21）：`Core/Base/Pooling/` —— `CollectionPool<TColl,TItem>`
+      （ListPool/HashSetPool/DictionaryPool 便利入口，ThreadStatic 无锁、using 作用域、每线程保留上限、
+      编辑器下重复归还检测、Interlocked 指标）、`StringBuilderPool`（超容量不回池）、`BufferPool<T>`
+      （2 的幂分桶 ArrayPool 语义、每桶一锁、跨线程租还、clearArray 选项、超 16M 直分配）。
+      接入：ByteBuffer 构造/扩容/收缩走 BufferPool；TCP 发送帧租借 + 写出后归还（每包零托管分配）。
+      接收 body 仍 new（所有权经 CreatePacket 转移给派生类，改契约会破坏业务子类，留 WS2）。
+      测试 +34（CollectionPool 12 / BufferPool 13 / AllocProbe 8 + 1 合并）。
+      **方法论发现**：Unity Mono 下同一代码路径进程内首次执行（JIT/泛型实例化）会被计为 GC.Alloc——
+      零分配断言必须先执行一遍同一个委托再 Assert（AllocProbeTests 固化了这条结论）。
 - [ ] **WS1-M4 FrameBudgetScheduler + MainThreadDispatcher**：下沉 Diagnostics/Network 手写派发
 - [ ] **WS2-M1 LoadHandle 统一**：取消/状态查询/优先级队列/帧预算；同步回退规则；诊断
 - [ ] **WS2-M2 内存预算与淘汰**：预算、LRU+引用计数、预警事件、Debugger 窗口

@@ -45,7 +45,7 @@ namespace EjoyFramework.Core.Serialization
 
         public ByteBuffer()
         {
-            m_Buffer = new byte[DefaultCapacity];
+            m_Buffer = BufferPool<byte>.Rent(DefaultCapacity);
             m_Owned = true;
         }
 
@@ -103,7 +103,9 @@ namespace EjoyFramework.Core.Serialization
             m_ReadPos = 0;
             if (!m_Owned || m_Buffer.Length > MaxPooledCapacity)
             {
-                m_Buffer = new byte[DefaultCapacity];
+                // 超大缓冲交还 BufferPool（Wrap 的外部数组不归我们，不能还）；默认容量从池里拿。
+                if (m_Owned) BufferPool<byte>.Return(m_Buffer);
+                m_Buffer = BufferPool<byte>.Rent(DefaultCapacity);
                 m_Owned = true;
             }
         }
@@ -385,8 +387,10 @@ namespace EjoyFramework.Core.Serialization
             long newCapacity = m_Buffer.Length > 0 ? m_Buffer.Length : DefaultCapacity;
             while (newCapacity < required) newCapacity <<= 1;   // long 累乘，不会溢出到负
             if (newCapacity > MaxCapacity) newCapacity = MaxCapacity;
-            byte[] grown = new byte[(int)newCapacity];
+            // 扩容走 BufferPool：容量按 2 的幂增长，正好命中桶尺寸；旧的自有数组归还复用。
+            byte[] grown = BufferPool<byte>.Rent((int)newCapacity);
             Array.Copy(m_Buffer, 0, grown, 0, m_WritePos);
+            if (m_Owned) BufferPool<byte>.Return(m_Buffer);
             m_Buffer = grown;
             m_Owned = true;
         }

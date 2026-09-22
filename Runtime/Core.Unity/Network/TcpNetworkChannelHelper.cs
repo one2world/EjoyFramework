@@ -47,7 +47,14 @@ namespace EjoyFramework.Core.Unity
 
         // ---- 异步发送队列（背压有界）----
         // 队列中存放已序列化好的整帧字节；发送线程在 m_StateLock 下写流，主线程 Send 永不阻塞在 socket I/O。
-        private readonly ConcurrentQueue<byte[]> m_SendQueue = new ConcurrentQueue<byte[]>();
+        /// <summary>待发送帧：缓冲来自 BufferPool（长度 ≥ Length），写出后归还。</summary>
+        private struct SendFrame
+        {
+            public byte[] Buffer;
+            public int Length;
+        }
+
+        private readonly ConcurrentQueue<SendFrame> m_SendQueue = new ConcurrentQueue<SendFrame>();
         private readonly SemaphoreSlim m_SendSignal = new SemaphoreSlim(0);
         private int m_SendQueueCount; // 近似计数（Interlocked 维护），用于背压判定。
         private volatile int m_MaxQueuedPackets = 1024;
@@ -180,16 +187,18 @@ namespace EjoyFramework.Core.Unity
 
         public bool Send<T>(T packet) where T : Packet
         {
-            byte[] frame;
+            SendFrame frame;
             try
             {
                 byte[] body = SerializeBody(packet);
                 int packetId = GetPacketId(packet);
                 int bodyLen = body?.Length ?? 0;
-                frame = new byte[8 + bodyLen];
-                WriteLittleEndian(frame, 0, bodyLen);
-                WriteLittleEndian(frame, 4, packetId);
-                if (bodyLen > 0) Buffer.BlockCopy(body, 0, frame, 8, bodyLen);
+                // 帧缓冲从 BufferPool 租借（长度向上取到桶尺寸），发送线程写出后归还：每包零托管分配。
+                frame.Length = 8 + bodyLen;
+                frame.Buffer = BufferPool<byte>.Rent(frame.Length);
+                WriteLittleEndian(frame.Buffer, 0, bodyLen);
+                WriteLittleEndian(frame.Buffer, 4, packetId);
+                if (bodyLen > 0) Buffer.BlockCopy(body, 0, frame.Buffer, 8, bodyLen);
             }
             catch (Exception ex)
             {
@@ -208,6 +217,7 @@ namespace EjoyFramework.Core.Unity
                     FrameworkLog.Error("TcpNetworkChannelHelper send queue overflow (cap={0}); dropping packet.", cap);
                 }
                 m_Channel?.NotifyError(-112, "Send queue overflow; packet dropped.");
+                BufferPool<byte>.Return(frame.Buffer);
                 return false;
             }
 
@@ -269,7 +279,7 @@ namespace EjoyFramework.Core.Unity
                 catch (Exception ex) { FrameworkLog.Warning("SendSignal.Wait threw: {0}", ex); }
                 if (m_ShuttingDown) break;
 
-                while (m_SendQueue.TryPeek(out byte[] frame))
+                while (m_SendQueue.TryPeek(out SendFrame frame))
                 {
                     // 仅在锁内快照 stream 引用（瞬时），写操作放到锁外执行：
                     // 阻塞的 Stream.Write/Flush 不再持有 m_StateLock，避免 Close/CleanupSocket 被慢写阻塞。
@@ -281,7 +291,7 @@ namespace EjoyFramework.Core.Unity
                     if (stream == null) break;
 
                     bool written;
-                    try { stream.Write(frame, 0, frame.Length); stream.Flush(); written = true; }
+                    try { stream.Write(frame.Buffer, 0, frame.Length); stream.Flush(); written = true; }
                     catch (Exception ex)
                     {
                         written = false;
@@ -293,7 +303,11 @@ namespace EjoyFramework.Core.Unity
                     }
                     if (!written) break; // 写失败：等接收线程检测断线并触发重连，帧保留待重发。
 
-                    if (m_SendQueue.TryDequeue(out _)) Interlocked.Decrement(ref m_SendQueueCount);
+                    if (m_SendQueue.TryDequeue(out SendFrame sent))
+                    {
+                        Interlocked.Decrement(ref m_SendQueueCount);
+                        BufferPool<byte>.Return(sent.Buffer);
+                    }
                 }
             }
         }
