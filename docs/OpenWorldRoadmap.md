@@ -134,7 +134,12 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       每帧毫秒预算且至少推进一步，版本号句柄防 ABA，Cancel/RunToCompletion，Step 内自取消安全。
       测试 +17（含两个零分配断言）。TCP helper 的自有主线程队列**保留**：其"连接回调先于首包派发"的顺序
       约束依赖自有队列，迁到全局派发器会破坏该保证——留 WS2 网络重构时按包体所有权一并处理。
-- [ ] **WS2-M1 LoadHandle 统一**：取消/状态查询/优先级队列/帧预算；同步回退规则；诊断
+- [x] **WS2-M1 请求调度**（2026-09-21）：ResourceManager 内所有加载（旧回调式 + 句柄式）统一经池化 `LoadRequest` 进入：
+      `MaxConcurrentRequests`（默认 16）内同步派发（行为不变），超出按 `BinaryHeap` 优先级（高者先、同级 FIFO）排队，
+      完成一个补派一个；排队中取消零 IO；`IAssetLoadHandle.SetPriority` 在队内重排；共享回调 + userData 携带请求
+      → 每次加载不再分配闭包；同步完成 loader 下 5000 深队列无递归；Shutdown 排队句柄 → Cancelled、回调 → NotReady。
+      新增 `BinaryHeap<T>`（Core/Base，零分配，DecreaseKey/IncreaseKey/RemoveAt）。测试 +17。
+      未做：主线程完成回调的帧预算（loader 协程内派发，需 WS2-M2 一并改 loader）。
 - [ ] **WS2-M2 内存预算与淘汰**：预算、LRU+引用计数、预警事件、Debugger 窗口
 - [ ] **WS3-M1 SpatialGrid/Quadtree（Core）**：零 GC 查询；AoiGrid 迁移到其上
 - [ ] **WS3-M2 WorldPartition + Streaming 重写**：cell 分区、差分、预算队列、LOD 编排、浮动原点、区域加载

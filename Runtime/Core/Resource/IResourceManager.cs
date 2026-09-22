@@ -4,6 +4,7 @@
 //------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace EjoyFramework.Core.Resource
 {
@@ -116,6 +117,18 @@ namespace EjoyFramework.Core.Resource
         /// 异步加载资源（指定类型），返回 handle。
         /// </summary>
         IAssetLoadHandle LoadAssetWithHandle(string assetName, Type assetType, int priority = 0, object userData = null);
+
+        /// <summary>同时派发给 loader 的请求上限；&lt;= 0 表示不限。超出的请求按优先级（高者先、同级 FIFO）排队。</summary>
+        int MaxConcurrentRequests { get; set; }
+
+        /// <summary>排队等待派发的请求数。</summary>
+        int QueuedRequestCount { get; }
+
+        /// <summary>已派发、尚未完成的请求数。</summary>
+        int InFlightRequestCount { get; }
+
+        /// <summary>获取所有加载中句柄（非分配版本：写入调用方列表，列表先被清空）。</summary>
+        void GetAllLoadingHandles(List<IAssetLoadHandle> results);
 
         /// <summary>
         /// 当前所有在途加载句柄的快照（调试用，请勿修改）。

@@ -73,6 +73,12 @@ namespace EjoyFramework.Core.Resource
         void Cancel();
 
         /// <summary>
+        /// 调整优先级。仍在排队时会立即改变出队次序（玩家靠近了某区块 → 提升；远离 → 降低）；
+        /// 已派发或已完成时只更新记录，不影响 loader。
+        /// </summary>
+        void SetPriority(int priority);
+
+        /// <summary>
         /// 结束回调（Done / Failed / Cancelled 都会触发一次）。
         /// 若注册时 handle 已结束，监听器会被同步同帧调用一次。
         /// </summary>

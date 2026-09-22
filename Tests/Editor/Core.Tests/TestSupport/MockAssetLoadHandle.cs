@@ -46,6 +46,8 @@ namespace EjoyFramework.Tests.TestSupport
             Fire();
         }
 
+        public void SetPriority(int priority) { }
+
         public void FireSuccess(object asset)
         {
             if (IsDone) return;

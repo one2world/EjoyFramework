@@ -89,6 +89,14 @@ namespace EjoyFramework.Tests.TestSupport
             return h;
         }
 
+        public int MaxConcurrentRequests { get; set; } = 16;
+
+        public int QueuedRequestCount { get { return 0; } }
+
+        public int InFlightRequestCount { get { return 0; } }
+
+        public void GetAllLoadingHandles(System.Collections.Generic.List<IAssetLoadHandle> results) { results.Clear(); }
+
         public IAssetLoadHandle[] GetAllLoadingHandles()
         {
             var arr = new IAssetLoadHandle[m_PendingHandles.Count];

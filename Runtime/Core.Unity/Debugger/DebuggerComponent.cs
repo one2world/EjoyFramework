@@ -298,7 +298,8 @@ namespace EjoyFramework.Core.Unity
             GUILayout.Label(Utility.Text.Format("Initialized: {0}", rm.IsInitialized));
             GUILayout.Label(Utility.Text.Format("Loaded bundles: {0}", rm.LoadedBundleCount));
             GUILayout.Label(Utility.Text.Format("Loaded assets: {0}", rm.LoadedAssetCount));
-            GUILayout.Label(Utility.Text.Format("Loading tasks: {0}", rm.LoadingTaskCount));
+            GUILayout.Label(Utility.Text.Format("Loading tasks: {0}  |  requests in-flight={1} queued={2} max={3}",
+                rm.LoadingTaskCount, rm.InFlightRequestCount, rm.QueuedRequestCount, rm.MaxConcurrentRequests <= 0 ? "inf" : rm.MaxConcurrentRequests.ToString()));
             GUILayout.Label(Utility.Text.Format("ReadOnly: {0}", rm.ReadOnlyPath ?? "<null>"));
             GUILayout.Label(Utility.Text.Format("ReadWrite: {0}", rm.ReadWritePath ?? "<null>"));
         }

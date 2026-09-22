@@ -27,10 +27,39 @@ namespace EjoyFramework.Core.Resource
         private readonly AssetCache m_AssetCache = new AssetCache();
         private bool m_ShutDown;
 
+        // ---- 请求调度（WS2-M1）----
+        // 所有加载（旧回调式 + 句柄式）统一经 LoadRequest 进入：容量未满时同步派发（与旧行为一致），
+        // 满了才入优先级堆；完成一个就从堆顶补一个。取消排队中的请求不产生任何 IO。
+        private readonly BinaryHeap<LoadRequest> m_Queue = new BinaryHeap<LoadRequest>(LoadRequestComparer.Instance, 32);
+        private readonly LoadAssetCallbacks m_RequestCallbacks;
+        private int m_MaxConcurrentRequests = 16;
+        private int m_InFlightRequests;
+        private long m_NextSequence;
+        private bool m_Pumping;
+
         public ResourceManager()
         {
             m_Mode = ResourceMode.Unspecified;
+            // 一份共享回调 + userData 携带 LoadRequest：每次加载不再为回调分配闭包。
+            m_RequestCallbacks = new LoadAssetCallbacks(OnRequestSuccess, OnRequestFailure, OnRequestProgress, null);
         }
+
+        /// <summary>同时派发给 loader 的请求上限；&lt;= 0 表示不限。默认 16。调小不会撤回已派发的请求。</summary>
+        public int MaxConcurrentRequests
+        {
+            get { return m_MaxConcurrentRequests; }
+            set
+            {
+                m_MaxConcurrentRequests = value;
+                PumpQueue();
+            }
+        }
+
+        /// <summary>排队等待派发的请求数。</summary>
+        public int QueuedRequestCount { get { return m_Queue.Count; } }
+
+        /// <summary>已派发给 loader、尚未完成的请求数。</summary>
+        public int InFlightRequestCount { get { return m_InFlightRequests; } }
 
         // Priority 20：IO keystone；所有上层 Manager (Sound/Entity/Scene/Config/Loc/DataTable) 依赖。
         public override int Priority { get { return 20; } }
@@ -56,6 +85,30 @@ namespace EjoyFramework.Core.Resource
             // ClearAll 同时会把缓存封存：此后迟到的批次回调不会再把资产 Pin 回一张永远不会再被清理的表。
             m_ShutDown = true;
             m_AssetCache.ClearAll(m_Loader);
+
+            // 排队中的请求：不再派发。句柄 → Cancelled；回调式 → NotReady 失败通知。
+            while (m_Queue.Count > 0)
+            {
+                LoadRequest request = m_Queue.Pop();
+                request.Queued = false;
+                if (!request.Cancelled)
+                {
+                    if (request.Handle != null)
+                    {
+                        m_LoadingHandles.Remove(request.Handle.Id);
+                        request.Handle.Request = null;
+                        request.Handle.Cancel();
+                    }
+                    else
+                    {
+                        var cb = request.Callbacks.LoadAssetFailureCallback;
+                        if (cb != null) { try { cb(request.AssetName, LoadResourceStatus.NotReady, "Resource manager is shutting down.", request.UserData); } catch (Exception ex) { FrameworkLog.Error("LoadAsset failure callback threw: {0}", ex); } }
+                    }
+                }
+
+                ReferencePool.Release(request);
+            }
+            m_InFlightRequests = 0;
 
             if (m_Loader != null)
             {
@@ -159,7 +212,10 @@ namespace EjoyFramework.Core.Resource
                 if (fail != null) fail(assetName, LoadResourceStatus.NotReady, "Resource loader is not initialized.", userData);
                 return;
             }
-            m_Loader.LoadAssetAsync(assetName, assetType, priority, loadAssetCallbacks, userData);
+
+            LoadRequest request = ReferencePool.Acquire<LoadRequest>();
+            request.Init(assetName, assetType, priority, m_NextSequence++, null, loadAssetCallbacks, userData);
+            Submit(request);
         }
 
         // ===== Handle-style API =====
@@ -183,23 +239,19 @@ namespace EjoyFramework.Core.Resource
             }
 
             m_LoadingHandles[handle.Id] = handle;
-            handle.MarkLoading();
-
-            var callbacks = new LoadAssetCallbacks(
-                (an, asset, dur, ud) => OnHandleSuccess(handle, asset, dur),
-                (an, status, msg, ud) => OnHandleFailure(handle, status, msg),
-                (an, progress, ud) => handle.SetProgress(progress),
-                null);
-            try
-            {
-                m_Loader.LoadAssetAsync(assetName, assetType, priority, callbacks, userData);
-            }
-            catch (Exception ex)
-            {
-                m_LoadingHandles.Remove(handle.Id);
-                handle.SignalFailure(LoadResourceStatus.AssetError, "Loader.LoadAssetAsync threw: " + ex.Message);
-            }
+            LoadRequest request = ReferencePool.Acquire<LoadRequest>();
+            request.Init(assetName, assetType, priority, m_NextSequence++, handle, null, userData);
+            handle.Request = request;
+            Submit(request);
             return handle;
+        }
+
+        /// <summary>获取所有加载中句柄（非分配版本：写入调用方列表，列表先被清空）。</summary>
+        public void GetAllLoadingHandles(List<IAssetLoadHandle> results)
+        {
+            if (results == null) throw new FrameworkException("Results is invalid.");
+            results.Clear();
+            foreach (var kv in m_LoadingHandles) results.Add(kv.Value);
         }
 
         public IAssetLoadHandle[] GetAllLoadingHandles()
@@ -210,33 +262,171 @@ namespace EjoyFramework.Core.Resource
             return arr;
         }
 
-        private void OnHandleSuccess(AssetLoadHandle handle, object asset, float duration)
+        // ================================================================
+        //  请求调度
+        // ================================================================
+
+        private void Submit(LoadRequest request)
         {
-            m_LoadingHandles.Remove(handle.Id);
-            if (handle.Status == LoadAssetStatus.Cancelled)
+            if (CanDispatch())
             {
-                // 业务方已取消但 loader 仍把资产送达——直接卸载。
-                if (asset != null) { try { m_Loader.UnloadAsset(asset); } catch (System.Exception ex) { FrameworkLog.Warning("UnloadAsset on cancelled-late asset threw: {0}", ex); } }
+                Dispatch(request);
                 return;
             }
-            handle.SignalSuccess(asset, duration);
+
+            request.Queued = true;
+            m_Queue.Push(request);
         }
 
-        private void OnHandleFailure(AssetLoadHandle handle, LoadResourceStatus status, string message)
+        private bool CanDispatch()
         {
-            m_LoadingHandles.Remove(handle.Id);
-            if (handle.Status == LoadAssetStatus.Cancelled) return;
-            handle.SignalFailure(status, message);
+            return m_MaxConcurrentRequests <= 0 || m_InFlightRequests < m_MaxConcurrentRequests;
         }
 
+        /// <summary>从堆顶补派。m_Pumping 挡住"同步完成的 loader → 完成回调 → 再 Pump"的递归，由外层循环接着派。</summary>
+        private void PumpQueue()
+        {
+            if (m_Pumping) return;
+            m_Pumping = true;
+            try
+            {
+                while (m_Queue.Count > 0 && CanDispatch())
+                {
+                    LoadRequest request = m_Queue.Pop();
+                    request.Queued = false;
+                    if (request.Cancelled)
+                    {
+                        ReferencePool.Release(request);   // 排队中被取消：不产生 IO
+                        continue;
+                    }
+
+                    Dispatch(request);
+                }
+            }
+            finally
+            {
+                m_Pumping = false;
+            }
+        }
+
+        private void Dispatch(LoadRequest request)
+        {
+            m_InFlightRequests++;
+            if (request.Handle != null) request.Handle.MarkLoading();
+            try
+            {
+                m_Loader.LoadAssetAsync(request.AssetName, request.AssetType, request.Priority, m_RequestCallbacks, request);
+            }
+            catch (Exception ex)
+            {
+                if (!request.Completed)
+                {
+                    CompleteFailure(request, LoadResourceStatus.AssetError, "Loader.LoadAssetAsync threw: " + ex.Message);
+                }
+            }
+        }
+
+        private void OnRequestSuccess(string assetName, object asset, float duration, object userData)
+        {
+            var request = (LoadRequest)userData;
+            if (request.Completed) return;
+            request.Completed = true;
+            m_InFlightRequests--;
+
+            if (request.Cancelled)
+            {
+                // 业务方已取消但 loader 仍把资产送达——直接卸载。
+                if (asset != null) { try { m_Loader?.UnloadAsset(asset); } catch (Exception ex) { FrameworkLog.Warning("UnloadAsset on cancelled-late asset threw: {0}", ex); } }
+            }
+            else if (request.Handle != null)
+            {
+                m_LoadingHandles.Remove(request.Handle.Id);
+                request.Handle.SignalSuccess(asset, duration);
+            }
+            else
+            {
+                var cb = request.Callbacks.LoadAssetSuccessCallback;
+                if (cb != null) { try { cb(assetName, asset, duration, request.UserData); } catch (Exception ex) { FrameworkLog.Error("LoadAsset success callback threw: {0}", ex); } }
+            }
+
+            ReferencePool.Release(request);
+            PumpQueue();
+        }
+
+        private void OnRequestFailure(string assetName, LoadResourceStatus status, string message, object userData)
+        {
+            var request = (LoadRequest)userData;
+            if (request.Completed) return;
+            CompleteFailure(request, status, message);
+        }
+
+        private void CompleteFailure(LoadRequest request, LoadResourceStatus status, string message)
+        {
+            request.Completed = true;
+            m_InFlightRequests--;
+            if (!request.Cancelled)
+            {
+                if (request.Handle != null)
+                {
+                    m_LoadingHandles.Remove(request.Handle.Id);
+                    request.Handle.SignalFailure(status, message);
+                }
+                else
+                {
+                    var cb = request.Callbacks.LoadAssetFailureCallback;
+                    if (cb != null) { try { cb(request.AssetName, status, message, request.UserData); } catch (Exception ex) { FrameworkLog.Error("LoadAsset failure callback threw: {0}", ex); } }
+                }
+            }
+
+            ReferencePool.Release(request);
+            PumpQueue();
+        }
+
+        private void OnRequestProgress(string assetName, float progress, object userData)
+        {
+            var request = (LoadRequest)userData;
+            if (request.Completed || request.Cancelled) return;
+            if (request.Handle != null)
+            {
+                request.Handle.SetProgress(progress);
+            }
+            else
+            {
+                var cb = request.Callbacks.LoadAssetUpdateCallback;
+                if (cb != null) { try { cb(assetName, progress, request.UserData); } catch (Exception ex) { FrameworkLog.Error("LoadAsset update callback threw: {0}", ex); } }
+            }
+        }
+
+        /// <summary>句柄取消：排队中 → 标记，出堆时丢弃；派发中 → 标记，结果到达时卸载。</summary>
         internal void HandleCancelled(AssetLoadHandle handle, object earlyAsset)
         {
-            // 取消时若 handle 已收到资产（罕见：调用方 Done 后调 Cancel 被本方法挡掉），帮其卸载
             m_LoadingHandles.Remove(handle.Id);
+            LoadRequest request = handle.Request;
+            if (request != null)
+            {
+                request.Cancelled = true;
+                handle.Request = null;
+            }
+
             if (earlyAsset != null && m_Loader != null)
             {
-                try { m_Loader.UnloadAsset(earlyAsset); } catch (System.Exception ex) { FrameworkLog.Warning("UnloadAsset on cancel-early asset threw: {0}", ex); }
+                try { m_Loader.UnloadAsset(earlyAsset); } catch (Exception ex) { FrameworkLog.Warning("UnloadAsset on cancel-early asset threw: {0}", ex); }
             }
+        }
+
+        /// <summary>句柄改优先级：仍在排队则在堆内调整位置；已派发则只更新记录。</summary>
+        internal void HandleReprioritized(AssetLoadHandle handle, int priority)
+        {
+            LoadRequest request = handle.Request;
+            if (request == null) return;
+            int old = request.Priority;
+            request.Priority = priority;
+            if (!request.Queued || old == priority) return;
+
+            int index = m_Queue.IndexOf(request);
+            if (index < 0) return;
+            if (priority > old) m_Queue.DecreaseKeyAt(index);
+            else m_Queue.IncreaseKeyAt(index);
         }
 
         public void LoadScene(string sceneAssetName, int priority,
@@ -345,10 +535,20 @@ namespace EjoyFramework.Core.Resource
                 m_StartTime = NowSeconds();
             }
 
+            /// <summary>对应的调度请求；完成/取消后置 null。</summary>
+            internal LoadRequest Request;
+
             public int Id { get; }
             public string AssetName { get; }
             public Type AssetType { get; }
-            public int Priority { get; }
+            public int Priority { get; private set; }
+
+            public void SetPriority(int priority)
+            {
+                if (IsDone || Priority == priority) return;
+                Priority = priority;
+                m_Owner.HandleReprioritized(this, priority);
+            }
             public object UserData { get; }
             public LoadAssetStatus Status { get { return m_Status; } }
             public float Progress { get { return m_Progress; } }
@@ -394,6 +594,7 @@ namespace EjoyFramework.Core.Resource
             internal void SignalSuccess(object asset, float duration)
             {
                 if (IsDone) return;
+                Request = null;
                 m_Asset = asset;
                 m_Progress = 1f;
                 m_Duration = duration;
@@ -404,6 +605,7 @@ namespace EjoyFramework.Core.Resource
             internal void SignalFailure(LoadResourceStatus status, string error)
             {
                 if (IsDone) return;
+                Request = null;
                 m_FailureStatus = status;
                 m_Error = error;
                 m_Duration = NowSeconds() - m_StartTime;
@@ -423,6 +625,62 @@ namespace EjoyFramework.Core.Resource
             {
                 // 单调时钟，避免系统时钟跳变导致的负数/巨大 Duration，且子秒精度充足。
                 return Utility.Timestamp.SecondsF;
+            }
+        }
+
+        /// <summary>
+        /// 一次加载请求（池化）。旧回调式 API 与句柄式 API 都经它排队/派发，loader 的 userData 槽位携带它本身，
+        /// 业务的 userData 存在请求里——每次加载不再分配闭包。
+        /// </summary>
+        internal sealed class LoadRequest : IReference
+        {
+            public string AssetName;
+            public Type AssetType;
+            public int Priority;
+            public long Sequence;
+            public AssetLoadHandle Handle;
+            public LoadAssetCallbacks Callbacks;
+            public object UserData;
+            public bool Queued;
+            public bool Cancelled;
+            public bool Completed;
+
+            public void Init(string assetName, Type assetType, int priority, long sequence, AssetLoadHandle handle, LoadAssetCallbacks callbacks, object userData)
+            {
+                AssetName = assetName;
+                AssetType = assetType;
+                Priority = priority;
+                Sequence = sequence;
+                Handle = handle;
+                Callbacks = callbacks;
+                UserData = userData;
+                Queued = false;
+                Cancelled = false;
+                Completed = false;
+            }
+
+            public void Clear()
+            {
+                AssetName = null;
+                AssetType = null;
+                Handle = null;
+                Callbacks = null;
+                UserData = null;
+                Queued = false;
+                Cancelled = false;
+                Completed = false;
+            }
+        }
+
+        /// <summary>优先级高者先；同优先级按提交序号（FIFO）。</summary>
+        private sealed class LoadRequestComparer : IComparer<LoadRequest>
+        {
+            public static readonly LoadRequestComparer Instance = new LoadRequestComparer();
+
+            public int Compare(LoadRequest a, LoadRequest b)
+            {
+                if (a.Priority != b.Priority) return b.Priority.CompareTo(a.Priority);
+                return a.Sequence.CompareTo(b.Sequence);
             }
         }
     }
