@@ -11,6 +11,7 @@ using EjoyFramework.Core.Debugger;
 using EjoyFramework.Core.Entity;
 using EjoyFramework.Core.Network;
 using EjoyFramework.Core.ObjectPool;
+using EjoyFramework.Core.Streaming;
 using EjoyFramework.Core.Resource;
 using EjoyFramework.Core.Sound;
 using UnityEngine;
@@ -173,6 +174,7 @@ namespace EjoyFramework.Core.Unity
                 case "Resource": DrawResource(); break;
                 case "ObjectPool": DrawObjectPool(); break;
                 case "SpawnPool": DrawSpawnPool(); break;
+                case "Streaming": DrawStreaming(); break;
                 case "Entity": DrawEntity(); break;
                 case "Sound": DrawSound(); break;
                 case "Network": DrawNetwork(); break;
@@ -344,6 +346,20 @@ namespace EjoyFramework.Core.Unity
             }
         }
 
+        private void DrawStreaming()
+        {
+            var ws = Framework.HasModule<IWorldStreamingManager>() ? Framework.GetModule<IWorldStreamingManager>() : null;
+            if (ws == null) { GUILayout.Label("WorldStreamingManager not registered."); return; }
+            GUILayout.Label(Utility.Text.Format("Cells: registered={0} loaded={1} loading={2} queued={3} observers={4} cellSize={5:F1}",
+                ws.RegisteredCellCount, ws.LoadedCellCount, ws.LoadingCellCount, ws.QueuedLoadCount, ws.ObserverCount, ws.CellSize));
+            GUILayout.Label(Utility.Text.Format("Totals: started={0} completed={1} cancelled={2} failed={3} unloads={4}",
+                ws.TotalLoadsStarted, ws.TotalLoadsCompleted, ws.TotalLoadsCancelled, ws.TotalLoadFailures, ws.TotalUnloads));
+            float ox, oz;
+            ws.GetOrigin(out ox, out oz);
+            GUILayout.Label(Utility.Text.Format("Origin offset: ({0:F1}, {1:F1})  budgets: starts/frame={2} inFlight={3} unloads/frame={4}",
+                ox, oz, ws.MaxLoadStartsPerFrame, ws.MaxLoadsInFlight, ws.MaxUnloadsPerFrame));
+        }
+
         private void DrawEntity()
         {
             var em = Framework.HasModule<IEntityManager>() ? Framework.GetModule<IEntityManager>() : null;
@@ -475,6 +491,7 @@ namespace EjoyFramework.Core.Unity
             m_BuiltInPaths.Add("Resource");
             m_BuiltInPaths.Add("ObjectPool");
             m_BuiltInPaths.Add("SpawnPool");
+            m_BuiltInPaths.Add("Streaming");
             m_BuiltInPaths.Add("Entity");
             m_BuiltInPaths.Add("Sound");
             m_BuiltInPaths.Add("Network");

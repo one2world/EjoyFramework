@@ -118,6 +118,9 @@ namespace EjoyFramework.Core.Unity
         /// <summary>GameObject 生成池（子弹 / 特效 / 敌人复用，避免 Instantiate/Destroy GC 尖刺）。</summary>
         public static SpawnPoolComponent SpawnPool => ComponentRegistry.GetComponent<SpawnPoolComponent>();
 
+        /// <summary>世界分区流送组件。</summary>
+        public static WorldStreamingComponent WorldStreaming => ComponentRegistry.GetComponent<WorldStreamingComponent>();
+
         /// <summary>HTTP/REST 客户端（登录 / 排行榜 / 邮件 / 抽卡校验，带重试 / 鉴权头 / Awaitable）。</summary>
         public static HttpComponent Http => ComponentRegistry.GetComponent<HttpComponent>();
 

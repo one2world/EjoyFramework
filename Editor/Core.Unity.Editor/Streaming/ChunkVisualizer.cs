@@ -3,7 +3,6 @@
 // Copyright (c) 2024-2026 EjoyGame. All rights reserved.
 //------------------------------------------------------------
 
-using System.Collections.Generic;
 using EjoyFramework.Core.Streaming;
 using UnityEditor;
 using UnityEngine;
@@ -11,107 +10,118 @@ using UnityEngine;
 namespace EjoyFramework.Core.Unity.Editor.Streaming
 {
     /// <summary>
-    /// Scene 视图内绘制 chunk 边界 + 玩家位置 + LoadRadius/UnloadRadius。
-    /// 业务通过 ChunkVisualizationSource 实现告诉本工具：当前 player 在哪 / 哪些 chunk 注册了。
+    /// 世界分区流送可视化（Scene 视图叠加）。
+    ///
+    /// 编辑态：按 CellSize 画观察点周围的单元网格与加载/卸载半径，用于规划分区尺寸。
+    /// 播放态：从运行中的 <see cref="IWorldStreamingManager"/> 读取指定层的单元状态着色
+    /// （绿 = Loaded，青 = Loading/Queued，黄 = Unloading/Cancelling，灰 = Unloaded，未注册不画）。
     /// </summary>
     public sealed class ChunkVisualizer : EditorWindow
     {
-        private static ChunkVisualizer s_Instance;
-
         private bool m_Enabled = true;
-        private float m_LoadRadius = 100f;
-        private float m_UnloadRadius = 130f;
-        private List<ChunkInfo> m_Chunks = new List<ChunkInfo>();
-        private Vector3 m_PlayerPos;
+        private float m_CellSize = 64f;
+        private float m_LoadRadius = 200f;
+        private float m_UnloadRadius = 260f;
+        private int m_Layer;
+        private int m_ViewCells = 8;
+        private Vector3 m_ObserverPos;
+        private Transform m_ObserverTransform;
 
-        [MenuItem("EjoyFramework/Core/Streaming/Chunk Visualizer")]
-        public static void Open() => GetWindow<ChunkVisualizer>("Chunk Visualizer").Show();
+        [MenuItem("EjoyFramework/Core/Streaming/World Streaming Visualizer")]
+        public static void Open()
+        {
+            GetWindow<ChunkVisualizer>("World Streaming").Show();
+        }
 
         private void OnEnable()
         {
-            s_Instance = this;
             SceneView.duringSceneGui += OnSceneGUI;
         }
+
         private void OnDisable()
         {
             SceneView.duringSceneGui -= OnSceneGUI;
-            s_Instance = null;
         }
 
         private void OnGUI()
         {
             m_Enabled = EditorGUILayout.Toggle("Draw in Scene View", m_Enabled);
-            m_LoadRadius = EditorGUILayout.FloatField("Load Radius", m_LoadRadius);
-            m_UnloadRadius = EditorGUILayout.FloatField("Unload Radius", m_UnloadRadius);
-            EditorGUILayout.Vector3Field("Player position", m_PlayerPos);
+            m_ObserverTransform = (Transform)EditorGUILayout.ObjectField("Observer (optional)", m_ObserverTransform, typeof(Transform), true);
+            if (m_ObserverTransform == null) m_ObserverPos = EditorGUILayout.Vector3Field("Observer position", m_ObserverPos);
+            m_Layer = EditorGUILayout.IntSlider("Layer", m_Layer, 0, 15);
+            m_ViewCells = EditorGUILayout.IntSlider("View cells (radius)", m_ViewCells, 1, 32);
 
-            EditorGUILayout.LabelField("Registered chunks: " + m_Chunks.Count);
-            if (GUILayout.Button("Auto-detect chunks from scene (ChunkAuthoring components)"))
+            IWorldStreamingManager live = GetLiveManager();
+            if (live != null)
             {
-                AutoDetectFromScene();
+                EditorGUILayout.HelpBox("Play mode: reading live manager state.", MessageType.Info);
+                EditorGUILayout.LabelField("CellSize", live.CellSize.ToString("F1"));
+                EditorGUILayout.LabelField("Registered / Loaded / Loading / Queued",
+                    live.RegisteredCellCount + " / " + live.LoadedCellCount + " / " + live.LoadingCellCount + " / " + live.QueuedLoadCount);
+                EditorGUILayout.LabelField("Totals started / completed / cancelled / failed / unloads",
+                    live.TotalLoadsStarted + " / " + live.TotalLoadsCompleted + " / " + live.TotalLoadsCancelled + " / " + live.TotalLoadFailures + " / " + live.TotalUnloads);
             }
-            if (GUILayout.Button("Clear chunks")) { m_Chunks.Clear(); SceneView.RepaintAll(); }
-            EditorGUILayout.HelpBox(
-                "Chunks can also be populated programmatically via ChunkVisualizer.AddChunk(...) for editor playtests.",
-                MessageType.Info);
+            else
+            {
+                m_CellSize = Mathf.Max(1f, EditorGUILayout.FloatField("Cell Size (preview)", m_CellSize));
+                m_LoadRadius = EditorGUILayout.FloatField("Load Radius (preview)", m_LoadRadius);
+                m_UnloadRadius = EditorGUILayout.FloatField("Unload Radius (preview)", m_UnloadRadius);
+            }
+
+            if (GUI.changed) SceneView.RepaintAll();
+        }
+
+        private static IWorldStreamingManager GetLiveManager()
+        {
+            if (!Application.isPlaying) return null;
+            return Framework.HasModule<IWorldStreamingManager>() ? Framework.GetModule<IWorldStreamingManager>() : null;
         }
 
         private void OnSceneGUI(SceneView sv)
         {
             if (!m_Enabled) return;
+            Vector3 observer = m_ObserverTransform != null ? m_ObserverTransform.position : m_ObserverPos;
+            IWorldStreamingManager live = GetLiveManager();
+            float cellSize = live != null ? live.CellSize : m_CellSize;
 
-            // 玩家
             Handles.color = Color.cyan;
-            Handles.DrawWireDisc(m_PlayerPos, Vector3.up, 1f);
-            Handles.color = new Color(0, 1, 1, 0.15f);
-            Handles.DrawWireDisc(m_PlayerPos, Vector3.up, m_LoadRadius);
-            Handles.color = new Color(1, 1, 0, 0.15f);
-            Handles.DrawWireDisc(m_PlayerPos, Vector3.up, m_UnloadRadius);
-
-            // chunk
-            foreach (var c in m_Chunks)
+            Handles.DrawWireDisc(observer, Vector3.up, 1f);
+            if (live == null)
             {
-                var center = new Vector3(c.Center.X, c.Center.Y, c.Center.Z);
-                float r = c.Radius > 0 ? c.Radius : 5f;
-                float dist = Vector3.Distance(center, m_PlayerPos);
-                Color col;
-                if (dist - r <= m_LoadRadius) col = Color.green;
-                else if (dist - r <= m_UnloadRadius) col = Color.yellow;
-                else col = Color.gray;
-                Handles.color = col;
-                Handles.DrawWireDisc(center, Vector3.up, r);
-                Handles.Label(center + Vector3.up * r, c.ChunkId);
+                Handles.color = new Color(0f, 1f, 1f, 0.25f);
+                Handles.DrawWireDisc(observer, Vector3.up, m_LoadRadius);
+                Handles.color = new Color(1f, 1f, 0f, 0.25f);
+                Handles.DrawWireDisc(observer, Vector3.up, m_UnloadRadius);
             }
-        }
 
-        private void AutoDetectFromScene()
-        {
-            m_Chunks.Clear();
-            var authors = UnityEngine.Object.FindObjectsByType<ChunkAuthoring>(FindObjectsSortMode.None);
-            foreach (var a in authors)
+            int cx0 = Mathf.FloorToInt(observer.x / cellSize);
+            int cz0 = Mathf.FloorToInt(observer.z / cellSize);
+            for (int cx = cx0 - m_ViewCells; cx <= cx0 + m_ViewCells; cx++)
             {
-                m_Chunks.Add(new ChunkInfo
+                for (int cz = cz0 - m_ViewCells; cz <= cz0 + m_ViewCells; cz++)
                 {
-                    ChunkId = string.IsNullOrEmpty(a.ChunkId) ? a.gameObject.name : a.ChunkId,
-                    Center = new Vector3Lite(a.transform.position.x, a.transform.position.y, a.transform.position.z),
-                    Radius = a.Radius,
-                });
+                    Color color = new Color(1f, 1f, 1f, 0.08f);
+                    if (live != null)
+                    {
+                        int id = live.FindCell(m_Layer, cx, cz);
+                        if (id < 0) continue;
+                        switch (live.GetCellState(id))
+                        {
+                            case StreamingCellState.Loaded: color = new Color(0f, 1f, 0f, 0.5f); break;
+                            case StreamingCellState.Loading:
+                            case StreamingCellState.Queued: color = new Color(0f, 1f, 1f, 0.5f); break;
+                            case StreamingCellState.Unloading:
+                            case StreamingCellState.Cancelling: color = new Color(1f, 1f, 0f, 0.5f); break;
+                            default: color = new Color(0.5f, 0.5f, 0.5f, 0.25f); break;
+                        }
+                    }
+
+                    Handles.color = color;
+                    Vector3 min = new Vector3(cx * cellSize, observer.y, cz * cellSize);
+                    Vector3 size = new Vector3(cellSize, 0f, cellSize);
+                    Handles.DrawWireCube(min + size * 0.5f, size);
+                }
             }
-            SceneView.RepaintAll();
         }
-
-        public static void AddChunk(ChunkInfo info)
-        {
-            if (s_Instance != null) { s_Instance.m_Chunks.Add(info); SceneView.RepaintAll(); }
-        }
-    }
-
-    /// <summary>业务侧场景内 chunk 标记 component；放在场景 GameObject 上让 ChunkVisualizer 自动发现。</summary>
-    [DisallowMultipleComponent]
-    [AddComponentMenu("EjoyFramework/Core/ChunkAuthoring")]
-    public sealed class ChunkAuthoring : MonoBehaviour
-    {
-        public string ChunkId;
-        public float Radius = 10f;
     }
 }

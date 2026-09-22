@@ -152,7 +152,13 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       **实测坑**：Mono 以更高精度求值 float 乘法，`v * (1/cellSize)` 会把恰在边界的坐标 floor 到相邻 cell，
       必须用除法；已固化为回归测试。测试 +11，AOI/Units/Targeting 相关 228/228。四叉树未做（网格已满足流送/索敌，
       非均匀密度场景再补）。
-- [ ] **WS3-M2 WorldPartition + Streaming 重写**：cell 分区、差分、预算队列、LOD 编排、浮动原点、区域加载
+- [x] **WS3-M2 WorldPartition + Streaming 重写**（2026-09-22）：`IWorldStreamingManager` 全新契约（旧 chunk/string/事件模型无消费者，整体替换）——
+      整数单元 (layer, cx, cz)、多观察者并集、代数戳差分、BinaryHeap 最近优先 + 层偏置、每次评估重排、
+      启动/在途/卸载三预算、滞回、加载中取消 + 迟到结果转卸载、失败重试、槽位版本号、浮动原点、
+      `RequireLoaded` 同步兜底、`IWorldStreamingHandler` 单接收者零分配。评估只枚举半径内 cell 范围（与世界规模无关），
+      1681 单元巡逻零分配断言。内置 `SceneStreamingHandler`（每单元一个附加场景）；`WorldStreamingComponent`
+      （Inspector 预算 + 观察者 Transform 绑定 + 原点桥接）；Debugger Streaming 页；Scene 视图可视化改为 cell 模型。
+      文档 `docs/WorldStreaming.md`。测试：WorldStreamingTests 16 + SceneStreamingHandlerTests 7；全量 2351/2352 + PlayMode 39/39。
 - [ ] **WS3-M3 流式世界存档 + 种群管理 + 流式 navmesh**
 - [ ] **WS4-M1 性能遥测采样与上报**；**WS4-M2 崩溃/ANR/日志采集**；**WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
 - [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
