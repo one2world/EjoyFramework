@@ -37,6 +37,10 @@ namespace EjoyFramework.Core.Unity
         private float m_BundleUnloadDelay = 5f;
 
         [SerializeField]
+        [Tooltip("常驻 bundle 内存预算（MB）；0 = 不启用（引用归零后按延迟卸载）。启用后引用归零的 bundle 进入温缓存，超预算按 LRU 淘汰。")]
+        private int m_MemoryBudgetMB = 0;
+
+        [SerializeField]
         private string m_CurrentVariant = string.Empty;
 
         [SerializeField]
@@ -85,6 +89,8 @@ namespace EjoyFramework.Core.Unity
 
             m_Loader = CreateLoader(m_ResourceMode);
             if (m_Loader != null) m_ResourceManager.SetLoader(m_Loader);
+            var bundleLoader = m_Loader as AssetBundleLoader;
+            if (bundleLoader != null && m_MemoryBudgetMB > 0) bundleLoader.MemoryBudgetBytes = (long)m_MemoryBudgetMB * 1024L * 1024L;
         }
 
         private void Start()
@@ -138,6 +144,26 @@ namespace EjoyFramework.Core.Unity
         public bool HasAsset(string assetName)
         {
             return m_ResourceManager.HasAsset(assetName);
+        }
+
+        /// <summary>常驻 bundle 内存预算（字节）；0 = 不启用。仅 AssetBundle 模式有效。</summary>
+        public long MemoryBudgetBytes
+        {
+            get { var l = m_Loader as AssetBundleLoader; return l != null ? l.MemoryBudgetBytes : 0L; }
+            set { var l = m_Loader as AssetBundleLoader; if (l != null) l.MemoryBudgetBytes = value; m_MemoryBudgetMB = (int)(value / (1024L * 1024L)); }
+        }
+
+        /// <summary>常驻 bundle 总字节（manifest 记录的 Size 之和）。</summary>
+        public long ResidentBytes
+        {
+            get { var l = m_Loader as AssetBundleLoader; return l != null ? l.ResidentBytes : 0L; }
+        }
+
+        /// <summary>主动把常驻收缩到 targetBytes（关卡切换 / 内存告警时机）。返回卸载的 bundle 数；非预算模式返回 0。</summary>
+        public int TrimResident(long targetBytes)
+        {
+            var l = m_Loader as AssetBundleLoader;
+            return l != null ? l.TrimResident(targetBytes) : 0;
         }
 
         public void ForceUnloadUnusedAssets(bool performGCCollect)

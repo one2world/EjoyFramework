@@ -300,6 +300,12 @@ namespace EjoyFramework.Core.Unity
             GUILayout.Label(Utility.Text.Format("Loaded assets: {0}", rm.LoadedAssetCount));
             GUILayout.Label(Utility.Text.Format("Loading tasks: {0}  |  requests in-flight={1} queued={2} max={3}",
                 rm.LoadingTaskCount, rm.InFlightRequestCount, rm.QueuedRequestCount, rm.MaxConcurrentRequests <= 0 ? "inf" : rm.MaxConcurrentRequests.ToString()));
+            var rc = ComponentRegistry.GetComponent<ResourceComponent>();
+            if (rc != null)
+            {
+                GUILayout.Label(Utility.Text.Format("Resident bundles: {0:F1} MB / budget {1}",
+                    rc.ResidentBytes / (1024.0 * 1024.0), rc.MemoryBudgetBytes > 0 ? Utility.Text.Format("{0:F1} MB", rc.MemoryBudgetBytes / (1024.0 * 1024.0)) : "off"));
+            }
             GUILayout.Label(Utility.Text.Format("ReadOnly: {0}", rm.ReadOnlyPath ?? "<null>"));
             GUILayout.Label(Utility.Text.Format("ReadWrite: {0}", rm.ReadWritePath ?? "<null>"));
         }

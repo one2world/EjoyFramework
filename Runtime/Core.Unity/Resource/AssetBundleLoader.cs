@@ -35,6 +35,8 @@ namespace EjoyFramework.Core.Unity.Resource
         private readonly ICoroutineManager m_Coroutine;
         private readonly int m_MaxConcurrentLoads;
         private readonly float m_BundleUnloadDelay;
+        private readonly ResidentBudget m_Budget = new ResidentBudget();
+        private readonly List<string> m_EvictionScratch = new List<string>();
 
         // 路径与 manifest
         private string m_ReadOnlyPath;
@@ -69,6 +71,38 @@ namespace EjoyFramework.Core.Unity.Resource
         public int LoadedBundleCount { get { return m_LoadedBundles.Count; } }
         public int LoadedAssetCount { get { return m_LoadedAssets.Count; } }
         public int LoadingTaskCount { get { return m_LoadingAssets.Count + m_LoadingBundles.Count; } }
+
+        /// <summary>常驻 bundle 总字节（按 manifest 的 BundleInfo.Size 计）。</summary>
+        public long ResidentBytes { get { return m_Budget.ResidentBytes; } }
+
+        /// <summary>
+        /// 常驻内存预算（字节）；0 = 未启用（引用归零后按 bundleUnloadDelay 延迟卸载）。
+        /// 启用后引用归零的 bundle 进入温缓存，超预算时按 LRU 淘汰；调小预算立即收缩。
+        /// </summary>
+        public long MemoryBudgetBytes
+        {
+            get { return m_Budget.BudgetBytes; }
+            set { m_Budget.BudgetBytes = value; EnforceBudget(); }
+        }
+
+        /// <summary>主动把常驻收缩到 targetBytes（关卡切换 / 内存告警）。返回卸载的 bundle 数。</summary>
+        public int TrimResident(long targetBytes)
+        {
+            int n = m_Budget.SelectEvictions(m_EvictionScratch, targetBytes);
+            for (int i = 0; i < m_EvictionScratch.Count; i++)
+            {
+                BundleHandle h;
+                if (m_LoadedBundles.TryGetValue(m_EvictionScratch[i], out h) && h.RefCount <= 0) UnloadBundleNow(h);
+            }
+            m_EvictionScratch.Clear();
+            return n;
+        }
+
+        private void EnforceBudget()
+        {
+            if (!m_Budget.IsEnabled) return;
+            TrimResident(m_Budget.BudgetBytes);
+        }
 
         // ===== Initialize =====
 
@@ -350,6 +384,7 @@ namespace EjoyFramework.Core.Unity.Resource
             var handle = new BundleHandle(info, req.assetBundle, this);
             handle.AddRef();
             m_LoadedBundles.Add(info.Name, handle);
+            m_Budget.OnLoaded(info.Name, info.Size, true);
             refdBundles.Add(handle);
             newTask.Result = handle;
             newTask.IsDone = true;
@@ -519,6 +554,7 @@ namespace EjoyFramework.Core.Unity.Resource
                 catch (Exception ex) { FrameworkLog.Error("Bundle.Unload threw for '{0}': {1}", kv.Key, ex); }
             }
             m_LoadedBundles.Clear();
+            m_Budget.Clear();
             m_LoadedAssets.Clear();
             m_LoadingBundles.Clear();
             m_LoadingAssets.Clear();
@@ -535,6 +571,14 @@ namespace EjoyFramework.Core.Unity.Resource
         private void ScheduleBundleUnloadIfUnused(BundleHandle handle)
         {
             if (handle == null || handle.RefCount > 0) return;
+            if (m_Budget.IsEnabled)
+            {
+                // 预算模式：进入温缓存，只在超预算时按 LRU 淘汰（可能淘汰的是别的更久未用的 bundle）。
+                m_Budget.OnUnreferenced(handle.Info.Name);
+                EnforceBudget();
+                return;
+            }
+
             if (m_BundleUnloadDelay <= 0f) { UnloadBundleNow(handle); return; }
             m_Coroutine.Run(DelayedUnloadRoutine(handle, m_BundleUnloadDelay), CoroutineTag, this);
         }
@@ -551,6 +595,7 @@ namespace EjoyFramework.Core.Unity.Resource
             if (handle == null) return;
             string name = handle.Info.Name;
             if (!m_LoadedBundles.Remove(name)) return;
+            m_Budget.OnUnloaded(name);
             try { if (handle.Bundle != null) handle.Bundle.Unload(false); }
             catch (Exception ex) { FrameworkLog.Error("Bundle.Unload threw for '{0}': {1}", name, ex); }
             FrameworkLog.Debug("Unloaded bundle: {0}", name);
@@ -577,7 +622,12 @@ namespace EjoyFramework.Core.Unity.Resource
             private readonly AssetBundleLoader m_Owner;
             public BundleHandle(BundleInfo info, AssetBundle bundle, AssetBundleLoader owner)
             { Info = info; Bundle = bundle; m_Owner = owner; }
-            public void AddRef() { RefCount++; }
+            public void AddRef()
+            {
+                RefCount++;
+                if (RefCount == 1) m_Owner.m_Budget.OnReferenced(Info.Name);
+            }
+
             public void RemoveRef() { RefCount = Math.Max(0, RefCount - 1); }
         }
 

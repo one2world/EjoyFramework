@@ -140,7 +140,12 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       → 每次加载不再分配闭包；同步完成 loader 下 5000 深队列无递归；Shutdown 排队句柄 → Cancelled、回调 → NotReady。
       新增 `BinaryHeap<T>`（Core/Base，零分配，DecreaseKey/IncreaseKey/RemoveAt）。测试 +17。
       未做：主线程完成回调的帧预算（loader 协程内派发，需 WS2-M2 一并改 loader）。
-- [ ] **WS2-M2 内存预算与淘汰**：预算、LRU+引用计数、预警事件、Debugger 窗口
+- [x] **WS2-M2 内存预算与淘汰**（2026-09-22）：`ResidentBudget`（Core，纯 C#）——bundle 引用归零后进入温缓存而非立即卸载，
+      常驻超预算才按 LRU 淘汰（开放世界来回走动时"刚离开的区块"直接命中）；主动收缩 `TrimResident(targetBytes)`；
+      "超预算且全在引用中"压力状态告警一次 + 计数器。AssetBundleLoader 薄接入（OnLoaded/OnReferenced/OnUnreferenced/
+      OnUnloaded 四个钩子），预算 0 时行为与原延迟卸载完全一致；ResourceComponent Inspector `m_MemoryBudgetMB` +
+      `MemoryBudgetBytes/ResidentBytes/TrimResident`；Debugger 资源页显示常驻/预算。测试 +8（含零分配）。
+      大小来源是 manifest 的 BundleInfo.Size（磁盘大小，非解压后内存）——精确内存需 WS4 接 Profiler 采样校准。
 - [ ] **WS3-M1 SpatialGrid/Quadtree（Core）**：零 GC 查询；AoiGrid 迁移到其上
 - [ ] **WS3-M2 WorldPartition + Streaming 重写**：cell 分区、差分、预算队列、LOD 编排、浮动原点、区域加载
 - [ ] **WS3-M3 流式世界存档 + 种群管理 + 流式 navmesh**
