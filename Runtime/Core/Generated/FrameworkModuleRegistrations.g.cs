@@ -37,6 +37,8 @@ namespace EjoyFramework.Core.Generated
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Resource.IResourceManager), static () => new global::EjoyFramework.Core.Resource.ResourceManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Save.ISaveManager), static () => new global::EjoyFramework.Core.Save.SaveManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Scene.ISceneManager), static () => new global::EjoyFramework.Core.Scene.SceneManager());
+            global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Scheduling.IFrameBudgetScheduler), static () => new global::EjoyFramework.Core.Scheduling.FrameBudgetScheduler());
+            global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Scheduling.IMainThreadDispatcher), static () => new global::EjoyFramework.Core.Scheduling.MainThreadDispatcher());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.ServerTime.IServerTimeManager), static () => new global::EjoyFramework.Core.ServerTime.ServerTimeManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Setting.ISettingManager), static () => new global::EjoyFramework.Core.Setting.SettingManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Sound.ISoundManager), static () => new global::EjoyFramework.Core.Sound.SoundManager());

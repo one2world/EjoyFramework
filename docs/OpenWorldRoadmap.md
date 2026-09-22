@@ -127,7 +127,13 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       测试 +34（CollectionPool 12 / BufferPool 13 / AllocProbe 8 + 1 合并）。
       **方法论发现**：Unity Mono 下同一代码路径进程内首次执行（JIT/泛型实例化）会被计为 GC.Alloc——
       零分配断言必须先执行一遍同一个委托再 Assert（AllocProbeTests 固化了这条结论）。
-- [ ] **WS1-M4 FrameBudgetScheduler + MainThreadDispatcher**：下沉 Diagnostics/Network 手写派发
+- [x] **WS1-M4 FrameBudgetScheduler + MainThreadDispatcher**（2026-09-21）：`Core/Scheduling/`，两个新 FrameworkModule
+      （已登记生成注册表）。`IMainThreadDispatcher`：Post(Action) / Post(IMainThreadWork 池化工作项，执行后自动归还)，
+      双缓冲数组 + 单次交换（ConcurrentQueue 每 32 项分配一段，不满足稳态零分配；自投递项留到下一帧），
+      每帧 drain 毫秒上限，异常隔离。`IFrameBudgetScheduler`：IBudgetedTask.Step 切片，优先级 + FIFO，
+      每帧毫秒预算且至少推进一步，版本号句柄防 ABA，Cancel/RunToCompletion，Step 内自取消安全。
+      测试 +17（含两个零分配断言）。TCP helper 的自有主线程队列**保留**：其"连接回调先于首包派发"的顺序
+      约束依赖自有队列，迁到全局派发器会破坏该保证——留 WS2 网络重构时按包体所有权一并处理。
 - [ ] **WS2-M1 LoadHandle 统一**：取消/状态查询/优先级队列/帧预算；同步回退规则；诊断
 - [ ] **WS2-M2 内存预算与淘汰**：预算、LRU+引用计数、预警事件、Debugger 窗口
 - [ ] **WS3-M1 SpatialGrid/Quadtree（Core）**：零 GC 查询；AoiGrid 迁移到其上
