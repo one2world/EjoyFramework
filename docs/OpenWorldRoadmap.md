@@ -146,7 +146,12 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       OnUnloaded 四个钩子），预算 0 时行为与原延迟卸载完全一致；ResourceComponent Inspector `m_MemoryBudgetMB` +
       `MemoryBudgetBytes/ResidentBytes/TrimResident`；Debugger 资源页显示常驻/预算。测试 +8（含零分配）。
       大小来源是 manifest 的 BundleInfo.Size（磁盘大小，非解压后内存）——精确内存需 WS4 接 Profiler 采样校准。
-- [ ] **WS3-M1 SpatialGrid/Quadtree（Core）**：零 GC 查询；AoiGrid 迁移到其上
+- [x] **WS3-M1 SpatialGrid（Core）**（2026-09-22）：`Core/Spatial/SpatialGrid`——XZ 平面空间哈希，槽位数组 + 每 cell
+      侵入式链表（不再为每个 cell 分配 HashSet），插入/移动/删除 O(1)；圆形/矩形/cell 半径/最近邻（环扩张 + 早停）/
+      回调式（ISpatialVisitor 可早停）查询全部零分配。AoiGrid 改为其薄包装（API 不变，暴露 `Grid`），删除 CellCoord。
+      **实测坑**：Mono 以更高精度求值 float 乘法，`v * (1/cellSize)` 会把恰在边界的坐标 floor 到相邻 cell，
+      必须用除法；已固化为回归测试。测试 +11，AOI/Units/Targeting 相关 228/228。四叉树未做（网格已满足流送/索敌，
+      非均匀密度场景再补）。
 - [ ] **WS3-M2 WorldPartition + Streaming 重写**：cell 分区、差分、预算队列、LOD 编排、浮动原点、区域加载
 - [ ] **WS3-M3 流式世界存档 + 种群管理 + 流式 navmesh**
 - [ ] **WS4-M1 性能遥测采样与上报**；**WS4-M2 崩溃/ANR/日志采集**；**WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
