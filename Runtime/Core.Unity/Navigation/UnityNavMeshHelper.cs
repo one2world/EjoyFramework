@@ -42,6 +42,32 @@ namespace EjoyFramework.Core.Unity
             onComplete(result);
         }
 
+        public object AddNavMeshData(object navMeshData, Vector3Lite position)
+        {
+            var data = navMeshData as NavMeshData;
+            if (data == null)
+            {
+                FrameworkLog.Error("UnityNavMeshHelper.AddNavMeshData: object is not a NavMeshData ({0}).", navMeshData == null ? "null" : navMeshData.GetType().Name);
+                return null;
+            }
+
+            NavMeshDataInstance instance = NavMesh.AddNavMeshData(data, ToVec3(position), Quaternion.identity);
+            if (!instance.valid) return null;
+            return new TileHandle { Instance = instance };
+        }
+
+        public void RemoveNavMeshData(object helperHandle)
+        {
+            var tile = helperHandle as TileHandle;
+            if (tile == null) return;
+            if (tile.Instance.valid) NavMesh.RemoveNavMeshData(tile.Instance);
+        }
+
+        private sealed class TileHandle
+        {
+            public NavMeshDataInstance Instance;
+        }
+
         public object CreateAgent(NavAgentConfig config)
         {
             // 创建空 GameObject 持 NavMeshAgent；业务可改造为接受外部 transform。

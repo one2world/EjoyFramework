@@ -116,6 +116,10 @@ namespace EjoyFramework.Tests
                     Length = Vector3Lite.Distance(from, to),
                 });
             }
+            public int TilesAdded, TilesRemoved;
+            public object AddNavMeshData(object navMeshData, Vector3Lite position) { TilesAdded++; return new object(); }
+            public void RemoveNavMeshData(object helperHandle) { TilesRemoved++; }
+
             public object CreateAgent(NavAgentConfig config) { var k = new object(); m_Positions[k] = config.InitialPosition; return k; }
             public void DestroyAgent(object h) { DestroyCalls++; m_Positions.Remove(h); }
             public void SetAgentDestination(object h, Vector3Lite dst) { SetDestinationCalls++; }

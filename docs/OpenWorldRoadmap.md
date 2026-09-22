@@ -159,7 +159,14 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       1681 单元巡逻零分配断言。内置 `SceneStreamingHandler`（每单元一个附加场景）；`WorldStreamingComponent`
       （Inspector 预算 + 观察者 Transform 绑定 + 原点桥接）；Debugger Streaming 页；Scene 视图可视化改为 cell 模型。
       文档 `docs/WorldStreaming.md`。测试：WorldStreamingTests 16 + SceneStreamingHandlerTests 7；全量 2351/2352 + PlayMode 39/39。
-- [ ] **WS3-M3 流式世界存档 + 种群管理 + 流式 navmesh**
+- [x] **WS3-M3 流式世界存档 + 种群管理 + 流式 navmesh**（2026-09-22）：
+      `IWorldStreamingNotifier` 回报链抽象（业务 handler → 装饰器 → 管理器）；`WorldStateStore`（按 (layer,cx,cz) 的字节记录 +
+      全局段，BufferPool 承载、脏标记、带魔数/版本的事务性序列化、`WorldStateSaveData` 接 Save）；
+      `PersistentStreamingHandler`（卸载前 Capture / 加载成功后 Restore，取消的迟到结果不恢复）；
+      `INavigationManager.AddNavMeshTile/RemoveNavMeshTile` + `UnityNavMeshHelper` 接 `NavMesh.AddNavMeshData`，
+      `NavMeshStreamingHandler` 按单元加载/卸载 navmesh 资产；`PopulationManager`（GamePlay：生成点/预算/击杀复活/
+      卸载期间时间冻结/按局部序号持久化）+ `PopulationStreamingHandler`。ByteBuffer 补 ReadRawBytes/Skip。
+      测试：WorldStreamingDecoratorTests 9 + PopulationManagerTests 10（含整链"击杀后离开再回来不复活"）。
 - [ ] **WS4-M1 性能遥测采样与上报**；**WS4-M2 崩溃/ANR/日志采集**；**WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
 - [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
       **WS5-M4 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；**WS5-M5 交互/相机/移动动画框架**

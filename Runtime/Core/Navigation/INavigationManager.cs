@@ -51,6 +51,15 @@ namespace EjoyFramework.Core.Navigation
         /// <summary>当前注册的 agent 数。</summary>
         int AgentCount { get; }
 
+        /// <summary>流式 navmesh：挂载一块导航网格数据，返回 tile id（&lt;= 0 失败）。</summary>
+        int AddNavMeshTile(object navMeshData, Vector3Lite position);
+
+        /// <summary>卸载一块导航网格数据。</summary>
+        bool RemoveNavMeshTile(int tileId);
+
+        /// <summary>已挂载的 tile 数。</summary>
+        int NavMeshTileCount { get; }
+
         /// <summary>路径计算完成事件（业务可监听代替单点 callback）。</summary>
         event Action<NavPathResult> PathCalculated;
     }
@@ -60,6 +69,15 @@ namespace EjoyFramework.Core.Navigation
     {
         /// <summary>同步或异步计算路径；helper 完成后调 onComplete(result)。</summary>
         void CalculatePath(Vector3Lite from, Vector3Lite to, int areaMask, Action<NavPathResult> onComplete);
+
+        /// <summary>
+        /// 流式 navmesh：把一块导航网格数据（Unity 为 NavMeshData 资产）按世界位置挂载，返回 helper 内部 handle。
+        /// 失败返回 null。
+        /// </summary>
+        object AddNavMeshData(object navMeshData, Vector3Lite position);
+
+        /// <summary>卸载一块导航网格数据。</summary>
+        void RemoveNavMeshData(object helperHandle);
 
         /// <summary>创建一个 agent 实例，返回 helper 内部 handle（业务 wrap 为 agentId）。</summary>
         object CreateAgent(NavAgentConfig config);

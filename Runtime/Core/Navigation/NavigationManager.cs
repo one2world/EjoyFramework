@@ -13,7 +13,9 @@ namespace EjoyFramework.Core.Navigation
     {
         private INavigationHelper m_Helper;
         private readonly Dictionary<int, object> m_Agents = new Dictionary<int, object>();
+        private readonly Dictionary<int, object> m_Tiles = new Dictionary<int, object>();
         private int m_NextAgentId;
+        private int m_NextTileId;
 
         public override int Priority { get { return 0; } }
 
@@ -23,6 +25,31 @@ namespace EjoyFramework.Core.Navigation
         public override string ConfigurationHint { get { return "Call SetHelper(...) before use."; } }
 
         public override void Update(float a, float b) { }
+        public int AddNavMeshTile(object navMeshData, Vector3Lite position)
+        {
+            Framework.EnsureMainThread(nameof(AddNavMeshTile));
+            if (m_Helper == null) throw new FrameworkException("Navigation helper is not set.");
+            if (navMeshData == null) throw new FrameworkException("navMeshData is null.");
+            object handle = m_Helper.AddNavMeshData(navMeshData, position);
+            if (handle == null) return 0;
+            int id = ++m_NextTileId;
+            m_Tiles.Add(id, handle);
+            return id;
+        }
+
+        public bool RemoveNavMeshTile(int tileId)
+        {
+            Framework.EnsureMainThread(nameof(RemoveNavMeshTile));
+            object handle;
+            if (!m_Tiles.TryGetValue(tileId, out handle)) return false;
+            m_Tiles.Remove(tileId);
+            try { m_Helper.RemoveNavMeshData(handle); }
+            catch (Exception ex) { FrameworkLog.Error("Navigation helper RemoveNavMeshData threw: {0}", ex); }
+            return true;
+        }
+
+        public int NavMeshTileCount { get { return m_Tiles.Count; } }
+
         public override void Shutdown()
         {
             if (m_Helper != null)
@@ -32,8 +59,15 @@ namespace EjoyFramework.Core.Navigation
                     try { m_Helper.DestroyAgent(h); }
                     catch (Exception ex) { FrameworkLog.Error("NavigationManager.Shutdown DestroyAgent threw: {0}", ex); }
                 }
+
+                foreach (var t in m_Tiles.Values)
+                {
+                    try { m_Helper.RemoveNavMeshData(t); }
+                    catch (Exception ex) { FrameworkLog.Error("NavigationManager.Shutdown RemoveNavMeshData threw: {0}", ex); }
+                }
             }
             m_Agents.Clear();
+            m_Tiles.Clear();
             m_Helper = null;
         }
 

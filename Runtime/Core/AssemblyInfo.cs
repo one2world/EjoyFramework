@@ -8,3 +8,4 @@ using System.Runtime.CompilerServices;
 // EjoyFramework.Tests 直接构造 EntityManager / ObjectPoolManager 等 internal sealed 类型；
 // 通过 InternalsVisibleTo 暴露给测试程序集，无需把这些类型改为 public。
 [assembly: InternalsVisibleTo("EjoyFramework.Tests")]
+[assembly: InternalsVisibleTo("EjoyFramework.GamePlay.Tests")]

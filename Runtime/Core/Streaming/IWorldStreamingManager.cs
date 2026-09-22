@@ -27,7 +27,20 @@ namespace EjoyFramework.Core.Streaming
     /// 状态机（每单元）：Unloaded → Loading → Loaded → Unloading → Unloaded；Loading 中取消 → Cancelling → Unloaded。
     /// 线程契约：仅主线程。
     /// </summary>
-    public interface IWorldStreamingManager
+    /// <summary>
+    /// 加载/卸载完成的回报目标。管理器本身实现它；装饰器（持久化、navmesh 分块）也实现它并把回报串成链：
+    /// 业务 handler → 装饰器（做完自己的事）→ 管理器。业务 handler 只持有链头的 <see cref="IWorldStreamingNotifier"/>。
+    /// </summary>
+    public interface IWorldStreamingNotifier
+    {
+        /// <summary>业务加载完成回报。加载失败也应回报（success = false）。</summary>
+        void NotifyLoaded(int cellId, bool success);
+
+        /// <summary>业务卸载完成回报。</summary>
+        void NotifyUnloaded(int cellId);
+    }
+
+    public interface IWorldStreamingManager : IWorldStreamingNotifier
     {
         // ---- 配置 ----
 
@@ -87,12 +100,6 @@ namespace EjoyFramework.Core.Streaming
 
         /// <summary>强制立即重新评估（默认只在观察者移动超过阈值 / 配置变化时评估）。</summary>
         void ForceReevaluate();
-
-        /// <summary>业务加载完成回报。加载失败也应回报（<paramref name="success"/> = false），单元回到 Unloaded 并计入失败。</summary>
-        void NotifyLoaded(int cellId, bool success);
-
-        /// <summary>业务卸载完成回报。</summary>
-        void NotifyUnloaded(int cellId);
 
         /// <summary>
         /// 同步兜底：把单元提到最高优先级并立即派发加载（无视每帧启动预算与在途上限）；

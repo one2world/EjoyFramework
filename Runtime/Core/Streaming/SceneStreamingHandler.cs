@@ -14,8 +14,8 @@ namespace EjoyFramework.Core.Streaming
     /// 内容键 → 场景资源名由 <see cref="ISceneNameResolver"/> 提供（通常查 ConfigBlob 表或按 "World/L{layer}_{cx}_{cz}" 规则拼）。
     ///
     /// 语义：
-    ///   • BeginLoad → ISceneManager.LoadScene(sceneName, priority=LOD 越小越高, userData=cellId)；
-    ///     场景管理器的成功/失败事件回报给流送管理器。
+    ///   • BeginLoad → ISceneManager.LoadScene(sceneName, priority=LOD 越小越高)；场景管理器的成功/失败事件回报给
+    ///     <see cref="IWorldStreamingNotifier"/>（管理器本身，或持久化/navmesh 装饰器链的链头）。
     ///   • CancelLoad：场景加载不可中断，这里只记录；结果到达后流送管理器会按"迟到结果"发起卸载。
     ///   • BeginUnload → UnloadScene；成功事件回报 NotifyUnloaded。
     ///   • OnLodChanged：场景级 LOD 由业务自行处理（本处理器不做）。
@@ -30,7 +30,7 @@ namespace EjoyFramework.Core.Streaming
             string Resolve(int layer, int cx, int cz, int contentKey);
         }
 
-        private readonly IWorldStreamingManager m_Streaming;
+        private readonly IWorldStreamingNotifier m_Streaming;
         private readonly ISceneManager m_Scenes;
         private readonly ISceneNameResolver m_Resolver;
         private readonly Dictionary<string, int> m_SceneToCell = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -41,7 +41,7 @@ namespace EjoyFramework.Core.Streaming
         private readonly EventHandler<UnloadSceneFailureEventArgs> m_OnUnloadFailure;
         private bool m_Disposed;
 
-        public SceneStreamingHandler(IWorldStreamingManager streaming, ISceneManager scenes, ISceneNameResolver resolver)
+        public SceneStreamingHandler(IWorldStreamingNotifier streaming, ISceneManager scenes, ISceneNameResolver resolver)
         {
             if (streaming == null) throw new FrameworkException("SceneStreamingHandler：streaming 不能为 null。");
             if (scenes == null) throw new FrameworkException("SceneStreamingHandler：scenes 不能为 null。");

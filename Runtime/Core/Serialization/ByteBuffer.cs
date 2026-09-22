@@ -355,6 +355,25 @@ namespace EjoyFramework.Core.Serialization
             return value;
         }
 
+        /// <summary>读原始字节段到调用方数组（无长度前缀，与 <see cref="WriteRawBytes"/> 对应），零分配。</summary>
+        public void ReadRawBytes(byte[] destination, int offset, int count)
+        {
+            if (destination == null) throw new FrameworkException("ReadRawBytes destination is null.");
+            if (count <= 0) return;
+            if (offset < 0 || (long)offset + count > destination.Length) throw new FrameworkException("ReadRawBytes destination range is invalid.");
+            EnsureReadable(count);
+            Array.Copy(m_Buffer, m_ReadPos, destination, offset, count);
+            m_ReadPos += count;
+        }
+
+        /// <summary>跳过 count 个字节。</summary>
+        public void Skip(int count)
+        {
+            if (count <= 0) return;
+            EnsureReadable(count);
+            m_ReadPos += count;
+        }
+
         /// <summary>读字节数组（与 <see cref="WriteBytes"/> 对应）。返回值可能为 null。</summary>
         public byte[] ReadBytes()
         {

@@ -61,9 +61,30 @@ ws.ShiftOrigin(delta);
 每单元一个附加场景。`ISceneNameResolver.Resolve(layer, cx, cz, contentKey)` 返回场景资源名（null = 该单元无场景，立即视为加载成功）。
 同一场景名映射到两个单元是配置错误：第二个单元按失败处理并报错。场景卸载失败会记录错误并按已卸载处理，避免单元永久卡在 Unloading。
 
+## 装饰器链（WS3-M3）
+
+三个内置装饰器都同时实现 `IWorldStreamingHandler`（向内转发动作）与 `IWorldStreamingNotifier`（向外转发回报）：
+
+| 装饰器 | 动作侧（BeginUnload 前） | 回报侧（NotifyLoaded 成功时） |
+|---|---|---|
+| `PersistentStreamingHandler` | `ICellStateSerializer.Capture` → `WorldStateStore` | 有记录则 `Restore` |
+| `PopulationStreamingHandler`（GamePlay） | `PopulationManager.OnCellUnloaded`（回收实例） | `OnCellLoaded`（按存亡生成） |
+| `NavMeshStreamingHandler` | 卸 tile + 归还资产 | 加载 navmesh 资产 → `INavigationManager.AddNavMeshTile` |
+
+**推荐接线**（加载时先恢复存亡再生成；卸载时先采集再回收）：
+
+```csharp
+var population  = new PopulationStreamingHandler(mgr, downstream: mgr, populationManager);
+var persistence = new PersistentStreamingHandler(mgr, downstream: population, store, populationManager /* ICellStateSerializer */);
+var scene       = new SceneStreamingHandler(persistence /* 回报链头 */, sceneManager, resolver);
+persistence.Inner = population; population.Inner = scene;
+mgr.SetHandler(persistence);
+// 动作：mgr → persistence → population → scene ；回报：scene → persistence → population → mgr
+```
+
+`WorldStateStore` 与 Save 模块组合：`store.ToArray()` 放进存档结构（或 `WorldStateSaveData`），读档后 `store.Load(bytes)`；
+`IsDirty` 供自动存档节流。格式带魔数与版本，损坏数据读入失败时存储保持为空。
+
 ## 未做 / 后续
 
-- 单元级持久化（离开时保存增量、进入时恢复）→ WS3-M3。
-- 种群/生成管理与流送联动 → WS3-M3。
-- 流式 navmesh 分块 → WS3-M3。
 - 四叉树 / 层级分区（超大世界的多级 LOD 单元）：当前统一网格已覆盖常规开放世界规模，按需再加。
