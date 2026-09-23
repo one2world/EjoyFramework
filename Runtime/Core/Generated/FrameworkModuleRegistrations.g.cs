@@ -33,6 +33,7 @@ namespace EjoyFramework.Core.Generated
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Performance.IPerformanceManager), static () => new global::EjoyFramework.Core.Performance.PerformanceManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Procedure.IProcedureManager), static () => new global::EjoyFramework.Core.Procedure.ProcedureManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Purchase.IPurchaseManager), static () => new global::EjoyFramework.Core.Purchase.PurchaseManager());
+            global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Quality.IQualityManager), static () => new global::EjoyFramework.Core.Quality.QualityManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.RedDot.IRedDotManager), static () => new global::EjoyFramework.Core.RedDot.RedDotManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.RemoteConfig.IRemoteConfigManager), static () => new global::EjoyFramework.Core.RemoteConfig.RemoteConfigManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Resource.IResourceManager), static () => new global::EjoyFramework.Core.Resource.ResourceManager());

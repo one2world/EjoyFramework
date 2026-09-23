@@ -181,8 +181,18 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       AbnormalExit / BackgroundKill / LowMemoryKill / HangKill；`EJCR` 二进制报告（损坏检测）、盘上上限删最旧、`ICrashUploader`
       单个在途上传（成功删、连续失败本会话停）；每份报告写 `TelemetryKind.Crash` 遥测。`DiagnosticsComponent` 接线
       （persistentDataPath/Crash、lowMemory、OnApplicationPause/Quit、未处理异常 fatal 升级、编辑器默认关 ANR），
-      `AppSession` 让遥测与崩溃共用会话 id。测试：CrashManagerTests 24（含真实看门狗线程与 4 线程并发上报）。
-- [ ] **WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
+      `AppSession` 让遥测与崩溃共用会话 id。测试：CrashManagerTests 24（含真实看门狗线程与 4 线程并发上报）；全量 2407/2408 + PlayMode 39/39。
+- [x] **WS4-M3 设备分级/自动画质/覆盖层**（2026-09-23）：`Core/Quality`——`DeviceTierClassifier`（覆盖规则先写先得 →
+      硬件加权评分（移动 / 桌面分别参考值与阈值）→ 上限规则，规则文本带行号报错）；`IQualityManager`（五档、每档旋钮表、
+      上限 = min(玩家档位或设备档位, 热上限)、应用器、Tier / QualityChange 遥测）；`AutoQualityController`（先动态分辨率后换档、
+      降快升慢、升档失败冷却翻倍、卡顿帧忽略、零分配）；`IWorldStreamingManager.RadiusScale` + `StreamingQualityApplier`。
+      Unity：`QualityComponent`（SystemInfo 分级、FrameTimingManager 工作耗时喂自动画质、PlayerPrefs 持久化玩家档位、
+      与 PerformanceComponent 旧自适应互斥警告）、`UnityQualityApplier`；`PerfOverlayComponent`（自建 UGUI 画布、内置字体、
+      `OverlayTextBuffer` + `OverlayTextGraphic` 零分配文字、`FrameGraphGraphic` 帧时间柱状图、F3 / 三指开关）。
+      借鉴 FPSSample `DebugOverlay`/`GameStatistics` 的"字符格 + 数值零分配写入 + 帧图"思路，按框架风格改用 UGUI 实现、无需自带着色器与字库贴图。
+      文档 `docs/LiveOps.md`。测试：DeviceTierAndAutoQualityTests 18 + QualityManagerTests 12 + PerfOverlayPlayModeTests 1；
+      全量 2437/2438 + PlayMode 40/40。
+- [ ] **WS4-M4 基准基建**
 - [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
       **WS5-M4 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；**WS5-M5 交互/相机/移动动画框架**
 - [ ] **WS6 P2 全部项 + 每模块 README + 开放世界样例**

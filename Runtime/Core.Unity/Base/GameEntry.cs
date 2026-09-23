@@ -124,6 +124,12 @@ namespace EjoyFramework.Core.Unity
         /// <summary>性能遥测（帧时间 / 内存 / 热电 / 加载耗时，会话采样、离线批次上报）。</summary>
         public static TelemetryComponent Telemetry => ComponentRegistry.GetComponent<TelemetryComponent>();
 
+        /// <summary>画质：设备分级、档位旋钮、自动画质与动态分辨率。</summary>
+        public static QualityComponent Quality => ComponentRegistry.GetComponent<QualityComponent>();
+
+        /// <summary>运行时性能覆盖层（帧时间 / 画质 / 内存 / 流送 / 崩溃遥测）。</summary>
+        public static PerfOverlayComponent PerfOverlay => ComponentRegistry.GetComponent<PerfOverlayComponent>();
+
         /// <summary>HTTP/REST 客户端（登录 / 排行榜 / 邮件 / 抽卡校验，带重试 / 鉴权头 / Awaitable）。</summary>
         public static HttpComponent Http => ComponentRegistry.GetComponent<HttpComponent>();
 

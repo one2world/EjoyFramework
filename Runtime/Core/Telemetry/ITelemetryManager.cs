@@ -90,8 +90,11 @@ namespace EjoyFramework.Core.Telemetry
         /// <summary>崩溃 / ANR / 异常退出（ICrashManager）：I0=(int)CrashKind I1=消息指纹 I2=崩溃指纹 I3=次数 F0=卡顿秒 F1=会话内秒</summary>
         public const int Crash = 5;
 
-        /// <summary>设备分级（WS4-M3）：I0=tier I1=reason F0=score</summary>
+        /// <summary>设备分级（IQualityManager）：I0=tier I1=reason(DeviceTierReason) I2=规则行号 F0=硬件评分</summary>
         public const int Tier = 6;
+
+        /// <summary>画质档位变化（IQualityManager）：I0=旧档 I1=新档 I2=原因(QualityChangeCause) F0=渲染缩放 F1=最近平均帧耗时 ms</summary>
+        public const int QualityChange = 7;
 
         /// <summary>业务自定义起点。</summary>
         public const int Custom = 1000;

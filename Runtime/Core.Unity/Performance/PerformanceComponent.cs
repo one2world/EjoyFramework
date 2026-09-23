@@ -190,6 +190,12 @@ namespace EjoyFramework.Core.Unity
             m_PerformanceManager?.UnsubscribeAlert(type, handler);
         }
 
+        /// <summary>是否在按自适应等级切换 Unity 质量档（与 QualityComponent 的自动画质互斥）。</summary>
+        public bool AppliesUnityQualityLevels
+        {
+            get { return m_AdaptiveEnabled && m_ApplyUnityQualitySettings; }
+        }
+
         /// <summary>运行时切换自适应画质开关。</summary>
         public void SetAdaptiveEnabled(bool enabled)
         {

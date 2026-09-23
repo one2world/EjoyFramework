@@ -62,6 +62,12 @@ namespace EjoyFramework.Core.Streaming
         /// <summary>观察者移动超过该距离才重新评估（避免每帧全量差分）。默认 = CellSize / 4。</summary>
         float ReevaluateMoveThreshold { get; set; }
 
+        /// <summary>
+        /// 全局距离缩放（画质档 / 设备分级用）：所有层的加载半径、卸载半径、LOD 切换距离同乘此值。默认 1，须 &gt; 0。
+        /// 修改后下一次 Update 重新评估（缩小即卸载超出新半径的单元）。
+        /// </summary>
+        float RadiusScale { get; set; }
+
         /// <summary>执行 IO 的接收者。未设置时管理器只维护状态、不产生动作。</summary>
         void SetHandler(IWorldStreamingHandler handler);
 

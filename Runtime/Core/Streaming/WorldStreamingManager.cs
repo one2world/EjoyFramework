@@ -73,6 +73,7 @@ namespace EjoyFramework.Core.Streaming
 
         private IWorldStreamingHandler m_Handler;
         private float m_CellSize = 64f;
+        private float m_RadiusScale = 1f;
         private float m_MoveThreshold = 16f;
         private bool m_MoveThresholdExplicit;
         private int m_MaxLoadStartsPerFrame = 4;
@@ -132,6 +133,18 @@ namespace EjoyFramework.Core.Streaming
         {
             get { return m_MoveThreshold; }
             set { m_MoveThreshold = value < 0f ? 0f : value; m_MoveThresholdExplicit = true; }
+        }
+
+        public float RadiusScale
+        {
+            get { return m_RadiusScale; }
+            set
+            {
+                if (!(value > 0f)) throw new FrameworkException("WorldStreaming：RadiusScale 必须为正数。");
+                if (value == m_RadiusScale) return;
+                m_RadiusScale = value;
+                m_Dirty = true;
+            }
         }
 
         public void SetHandler(IWorldStreamingHandler handler)
@@ -368,7 +381,7 @@ namespace EjoyFramework.Core.Streaming
                     }
 
                     // 未在期望集：按 UnloadRadius 滞回确认（距离取本代最近观察者；无观察者视为无限远）
-                    float unloadRadius = m_Layers[c.Layer].UnloadRadius;
+                    float unloadRadius = m_Layers[c.Layer].UnloadRadius * m_RadiusScale;
                     float dist = m_ObserverCount == 0 ? float.MaxValue : NearestObserverDistance(c.Cx, c.Cz);
                     if (dist <= unloadRadius) continue;
 
@@ -418,7 +431,7 @@ namespace EjoyFramework.Core.Streaming
         private void MarkLayer(int layer, StreamingLayerSettings ls, float ox, float oz)
         {
             Dictionary<long, int> index = m_LayerIndex[layer];
-            float r = ls.LoadRadius;
+            float r = ls.LoadRadius * m_RadiusScale;
             int minCx = (int)Math.Floor((ox - r) / m_CellSize), maxCx = (int)Math.Floor((ox + r) / m_CellSize);
             int minCz = (int)Math.Floor((oz - r) / m_CellSize), maxCz = (int)Math.Floor((oz + r) / m_CellSize);
             float rSq = r * r;
@@ -469,7 +482,7 @@ namespace EjoyFramework.Core.Streaming
 
         private void UpdateLod(int id, ref Cell c)
         {
-            int lod = ComputeLod(m_Layers[c.Layer], c.NearestDistance);
+            int lod = ComputeLod(m_Layers[c.Layer], c.NearestDistance / m_RadiusScale);   // 距离按缩放折回表空间 = 表整体乘缩放
             if (lod == c.Lod) return;
             int from = c.Lod;
             c.Lod = lod;
@@ -523,7 +536,7 @@ namespace EjoyFramework.Core.Streaming
         {
             ref Cell c = ref m_Cells[id];
             c.State = StreamingCellState.Loading;
-            c.Lod = ComputeLod(m_Layers[c.Layer], c.NearestDistance);
+            c.Lod = ComputeLod(m_Layers[c.Layer], c.NearestDistance / m_RadiusScale);
             m_LoadingCount++;
             m_TotalLoadsStarted++;
             try { m_Handler.BeginLoad(id, c.Layer, c.Cx, c.Cz, c.ContentKey, c.Lod); }
