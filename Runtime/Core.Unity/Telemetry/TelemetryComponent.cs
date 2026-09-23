@@ -3,7 +3,6 @@
 // Copyright (c) 2024-2026 EjoyGame. All rights reserved.
 //------------------------------------------------------------
 
-using System;
 using EjoyFramework.Core.Performance;
 using EjoyFramework.Core.Telemetry;
 using UnityEngine;
@@ -86,15 +85,11 @@ namespace EjoyFramework.Core.Unity
         /// <summary>底层管理器。</summary>
         public ITelemetryManager Telemetry { get { return m_Telemetry; } }
 
-        /// <summary>开始会话（自动生成 sessionId 与设备信息）。</summary>
+        /// <summary>开始会话（会话 id 与设备信息取自 <see cref="AppSession"/>，与崩溃采集共用）。</summary>
         public bool StartSession()
         {
             if (m_Telemetry == null) return false;
-            string sessionId = Guid.NewGuid().ToString("N");
-            string device = SystemInfo.deviceModel + "|" + SystemInfo.operatingSystem + "|" + SystemInfo.graphicsDeviceName + "|"
-                            + SystemInfo.systemMemorySize + "MB|" + SystemInfo.processorType + "x" + SystemInfo.processorCount
-                            + "|" + Screen.width + "x" + Screen.height;
-            bool sampled = m_Telemetry.StartSession(sessionId, device, Application.version);
+            bool sampled = m_Telemetry.StartSession(AppSession.Id, AppSession.DeviceSummary, Application.version);
             m_SinceFrameWindow = 0f;
             m_SinceMemory = 0f;
             m_SinceThermal = 0f;

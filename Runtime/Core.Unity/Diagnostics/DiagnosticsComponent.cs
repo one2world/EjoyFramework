@@ -47,8 +47,23 @@ namespace EjoyFramework.Core.Diagnostics
         [Tooltip("订阅 AppDomain 未捕获异常，转发崩溃上报。")]
         [SerializeField] private bool m_CaptureUnhandled = true;
 
+        [Header("崩溃 / ANR / 异常退出（ICrashManager）")]
+        [Tooltip("启用框架崩溃采集：异常去重报告、ANR 看门狗、上次会话异常退出检测，报告落盘 persistentDataPath/Crash。")]
+        [SerializeField] private bool m_EnableCrashCapture = true;
+
+        [Tooltip("主线程停顿多少秒判为卡死（ANR）；0 = 关闭。")]
+        [SerializeField] private float m_HangThresholdSeconds = 5f;
+
+        [Tooltip("编辑器里也做 ANR 检测（断点 / 暂停会被误判，默认关）。")]
+        [SerializeField] private bool m_HangDetectionInEditor = false;
+
+        [Tooltip("盘上最多保留的待上传崩溃报告数。")]
+        [SerializeField] private int m_MaxStoredCrashReports = 20;
+
         private IDiagnosticsManager m_Manager;
         private FileLogSink m_FileSink;
+        private ICrashManager m_Crash;
+        private bool m_SubscribedLowMemory;
         private bool m_SubscribedUnityLog;
         private bool m_SubscribedUnhandled;
 
@@ -74,6 +89,8 @@ namespace EjoyFramework.Core.Diagnostics
                 m_Manager.AddSink(m_FileSink);
             }
 
+            if (m_EnableCrashCapture) SetupCrashCapture();
+
             if (m_CaptureUnityLog)
             {
                 UnityEngine.Application.logMessageReceivedThreaded += OnUnityLog;
@@ -85,6 +102,44 @@ namespace EjoyFramework.Core.Diagnostics
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                 m_SubscribedUnhandled = true;
             }
+        }
+
+        private void SetupCrashCapture()
+        {
+            m_Crash = Framework.GetModule<ICrashManager>();
+            bool hangAllowed = !UnityEngine.Application.isEditor || m_HangDetectionInEditor;
+            m_Crash.HangThresholdSeconds = hangAllowed ? m_HangThresholdSeconds : 0f;
+            m_Crash.MaxStoredReports = m_MaxStoredCrashReports;
+            m_Crash.Configure(System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "Crash"));
+            m_Manager.AddSink(m_Crash);
+            m_Crash.BeginSession(AppSession.Id, AppSession.DeviceSummary, UnityEngine.Application.version);
+            UnityEngine.Application.lowMemory += OnLowMemory;
+            m_SubscribedLowMemory = true;
+        }
+
+        private void Start()
+        {
+            // 所有组件 Awake 之后再接遥测：TelemetryComponent 可能晚于本组件 Awake
+            if (m_Crash != null && Framework.HasModule<EjoyFramework.Core.Telemetry.ITelemetryManager>())
+            {
+                m_Crash.SetTelemetry(Framework.GetModule<EjoyFramework.Core.Telemetry.ITelemetryManager>());
+            }
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            if (m_Crash != null) m_Crash.NotifyBackground(paused);
+        }
+
+        private void OnApplicationQuit()
+        {
+            // 正常退出：结束崩溃会话（删除会话标记），下次启动不会误判为异常退出
+            if (m_Crash != null && m_Crash.InSession) m_Crash.EndSession();
+        }
+
+        private void OnLowMemory()
+        {
+            if (m_Crash != null) m_Crash.NotifyLowMemory();
         }
 
         protected override void OnDestroy()
@@ -102,6 +157,18 @@ namespace EjoyFramework.Core.Diagnostics
                 {
                     AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
                     m_SubscribedUnhandled = false;
+                }
+                if (m_SubscribedLowMemory)
+                {
+                    UnityEngine.Application.lowMemory -= OnLowMemory;
+                    m_SubscribedLowMemory = false;
+                }
+
+                if (m_Crash != null)
+                {
+                    if (m_Crash.InSession) m_Crash.EndSession();
+                    if (m_Manager != null) m_Manager.RemoveSink(m_Crash);
+                    m_Crash = null;
                 }
 
                 if (m_Manager != null)
@@ -141,7 +208,10 @@ namespace EjoyFramework.Core.Diagnostics
             Exception ex = args.ExceptionObject as Exception;
             if (ex != null)
             {
+                // 先经诊断管道（崩溃采集作为 Sink 以非致命收到），再以 fatal 升级同一份报告并同步落盘
                 manager.ReportException(ex, args.IsTerminating ? "UnhandledException(terminating)" : "UnhandledException");
+                ICrashManager crash = m_Crash;
+                if (crash != null && args.IsTerminating) crash.ReportException(ex, true);
             }
             else
             {
@@ -195,6 +265,12 @@ namespace EjoyFramework.Core.Diagnostics
         public void SetUserKey(string key, string value)
         {
             m_Manager?.SetUserKey(key, value);
+        }
+
+        /// <summary>崩溃采集管理器（未启用时为 null）：SetPhase / SetUserKey / AddBreadcrumb / SetUploader / AddListener。</summary>
+        public ICrashManager Crash
+        {
+            get { return m_Crash; }
         }
 
         /// <summary>让所有 Sink 立即落盘 / 推送。</summary>

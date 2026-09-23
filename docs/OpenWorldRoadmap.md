@@ -174,7 +174,15 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       默认 `FileTelemetryBackend` 落盘 `persistentDataPath/Telemetry/*.ejtm` 并限文件数）；`GameEntry.Telemetry`。
       测试：TelemetryManagerTests 10（含 Record 零分配断言）+ FileTelemetryBackendTests 3。同时所有测试的临时文件
       改到工程内 `Temp/EjoyTests`（`TestTempPaths`），不再写系统临时目录。全量 2383/2384 + PlayMode 39/39。
-- [ ] **WS4-M2 崩溃/ANR/日志采集**；**WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
+- [x] **WS4-M2 崩溃/ANR/日志采集**（2026-09-23）：`ICrashManager`（Core/Diagnostics，同时是 ILogSink）——
+      `CrashFingerprint`（异常短类型名 + 前 12 帧，去掉行号 / IL 偏移 / "(at …)"，Unity 与 Mono 两种栈格式同指纹；无栈时去数字消息）
+      会话内去重计次 + 每会话上限；面包屑环（日志 + 业务）；阶段 / 用户键；ANR 看门狗线程（心跳原子写，检测即落盘、恢复补记时长，
+      Suspend/Resume 与前后台免判）；会话标记（阶段 / 前后台 / 低内存 / 卡死 / 已报致命 + 面包屑，原子替换写）→ 下次启动分类为
+      AbnormalExit / BackgroundKill / LowMemoryKill / HangKill；`EJCR` 二进制报告（损坏检测）、盘上上限删最旧、`ICrashUploader`
+      单个在途上传（成功删、连续失败本会话停）；每份报告写 `TelemetryKind.Crash` 遥测。`DiagnosticsComponent` 接线
+      （persistentDataPath/Crash、lowMemory、OnApplicationPause/Quit、未处理异常 fatal 升级、编辑器默认关 ANR），
+      `AppSession` 让遥测与崩溃共用会话 id。测试：CrashManagerTests 24（含真实看门狗线程与 4 线程并发上报）。
+- [ ] **WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
 - [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
       **WS5-M4 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；**WS5-M5 交互/相机/移动动画框架**
 - [ ] **WS6 P2 全部项 + 每模块 README + 开放世界样例**

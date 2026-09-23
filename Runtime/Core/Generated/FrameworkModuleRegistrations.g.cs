@@ -15,6 +15,7 @@ namespace EjoyFramework.Core.Generated
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.DataNode.IDataNodeManager), static () => new global::EjoyFramework.Core.DataNode.DataNodeManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.DataTable.IDataTableManager), static () => new global::EjoyFramework.Core.DataTable.DataTableManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Debugger.IDebuggerManager), static () => new global::EjoyFramework.Core.Debugger.DebuggerManager());
+            global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Diagnostics.ICrashManager), static () => new global::EjoyFramework.Core.Diagnostics.CrashManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Diagnostics.IDiagnosticsManager), static () => new global::EjoyFramework.Core.Diagnostics.DiagnosticsManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Download.IDownloadManager), static () => new global::EjoyFramework.Core.Download.DownloadManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Entity.IEntityManager), static () => new global::EjoyFramework.Core.Entity.EntityManager());

@@ -1,4 +1,4 @@
-//------------------------------------------------------------
+﻿//------------------------------------------------------------
 // EjoyGame Framework
 // Copyright (c) 2024-2026 EjoyGame. All rights reserved.
 //------------------------------------------------------------
@@ -60,7 +60,7 @@ namespace EjoyFramework.Core.Telemetry
             m_OnSendComplete = OnSendComplete;
         }
 
-        public override int Priority { get { return 95; } }   // 晚于业务：本帧的采样在业务之后写入
+        public override int Priority { get { return -90; } }   // 低优先级：本帧业务写完记录后再封批/发送；关闭时先于大多数模块
 
         // ---- 配置 ----
 

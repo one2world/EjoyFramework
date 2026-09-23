@@ -87,7 +87,7 @@ namespace EjoyFramework.Core.Telemetry
         /// <summary>设备热/电：I0=thermalState F0=batteryLevel I1=batteryStatus</summary>
         public const int Thermal = 4;
 
-        /// <summary>崩溃 / ANR（WS4-M2）：I0=kind(1 crash / 2 anr / 3 exception) I1=messageHash I2=stackHash F0=hangSeconds</summary>
+        /// <summary>崩溃 / ANR / 异常退出（ICrashManager）：I0=(int)CrashKind I1=消息指纹 I2=崩溃指纹 I3=次数 F0=卡顿秒 F1=会话内秒</summary>
         public const int Crash = 5;
 
         /// <summary>设备分级（WS4-M3）：I0=tier I1=reason F0=score</summary>
