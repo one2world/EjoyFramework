@@ -167,15 +167,23 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       `NavMeshStreamingHandler` 按单元加载/卸载 navmesh 资产；`PopulationManager`（GamePlay：生成点/预算/击杀复活/
       卸载期间时间冻结/按局部序号持久化）+ `PopulationStreamingHandler`。ByteBuffer 补 ReadRawBytes/Skip。
       测试：WorldStreamingDecoratorTests 9 + PopulationManagerTests 10（含整链"击杀后离开再回来不复活"）。
-- [ ] **WS4-M1 性能遥测采样与上报**；**WS4-M2 崩溃/ANR/日志采集**；**WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
+- [x] **WS4-M1 性能遥测采样与上报**（2026-09-23）：`Core/Telemetry`——`ITelemetryManager`（会话级可播种采样、
+      定长 `TelemetryRecord`（8 float + 8 int）零分配攒批、BatchSize/FlushInterval 封批、带魔数/版本的二进制批次、
+      单批在途、后端回调任意线程→主线程结算、失败重排队、离线队列上限丢最旧、后端抛异常视为失败）；
+      `TelemetryComponent`（帧时间窗口 avg/p95/p99/max/spike/分级、Profiler 内存、电量、加载耗时、自定义 Kind≥1000、
+      默认 `FileTelemetryBackend` 落盘 `persistentDataPath/Telemetry/*.ejtm` 并限文件数）；`GameEntry.Telemetry`。
+      测试：TelemetryManagerTests 10（含 Record 零分配断言）+ FileTelemetryBackendTests 3。同时所有测试的临时文件
+      改到工程内 `Temp/EjoyTests`（`TestTempPaths`），不再写系统临时目录。全量 2383/2384 + PlayMode 39/39。
+- [ ] **WS4-M2 崩溃/ANR/日志采集**；**WS4-M3 设备分级/自动画质/覆盖层**；**WS4-M4 基准基建**
 - [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
       **WS5-M4 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；**WS5-M5 交互/相机/移动动画框架**
 - [ ] **WS6 P2 全部项 + 每模块 README + 开放世界样例**
 
-## 5. 验证命令（unity-cli，输出目录必须在工程外）
+## 5. 验证命令（unity-cli；严禁路径超出项目，报告/日志放 `TestResults/unity-cli/`，不能放会被清空的 `Temp/`）
 
 ```powershell
 $env:HTTP_PROXY="http://127.0.0.1:7897"; $env:HTTPS_PROXY=$env:HTTP_PROXY; $env:NO_PROXY="localhost,127.0.0.1"
 & "C:\Program Files\Unity\unity-cli.exe" --no-banner --non-interactive --json test E:\1_code_new\EjoyGame `
-  --mode EditMode --filter <Fixture> --output E:\1_code_new\ejoy-perf\<name>.xml --timeout 1500 -- -nographics
+  --mode EditMode --filter <Fixture> --output E:\1_code_new\EjoyGame\TestResults\unity-cli\<name>.xml --timeout 1500 `
+  -- -nographics -logFile E:\1_code_new\EjoyGame\TestResults\unity-cli\<name>.log
 ```

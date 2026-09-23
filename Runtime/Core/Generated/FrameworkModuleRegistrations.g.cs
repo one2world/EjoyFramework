@@ -43,6 +43,7 @@ namespace EjoyFramework.Core.Generated
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Setting.ISettingManager), static () => new global::EjoyFramework.Core.Setting.SettingManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Sound.ISoundManager), static () => new global::EjoyFramework.Core.Sound.SoundManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Streaming.IWorldStreamingManager), static () => new global::EjoyFramework.Core.Streaming.WorldStreamingManager());
+            global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Telemetry.ITelemetryManager), static () => new global::EjoyFramework.Core.Telemetry.TelemetryManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.Timer.ITimerManager), static () => new global::EjoyFramework.Core.Timer.TimerManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.UI.IUIManager), static () => new global::EjoyFramework.Core.UI.UIManager());
             global::EjoyFramework.Core.Framework.RegisterFactory(typeof(global::EjoyFramework.Core.UI.IViewportManager), static () => new global::EjoyFramework.Core.UI.ViewportManager());

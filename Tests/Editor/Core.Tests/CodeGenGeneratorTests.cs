@@ -628,7 +628,7 @@ namespace EjoyFramework.Tests
 
         private static string NewTempDir(string testName)
         {
-            string dir = Path.Combine(Path.GetTempPath(), "ejoy_codegen_tests", testName + "_" + Guid.NewGuid().ToString("N"));
+            string dir = Path.Combine(TestTempPaths.Root, "ejoy_codegen_tests", testName + "_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(dir);
             return dir;
         }

@@ -534,7 +534,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void MmapBlobSource_ReadsRealFile()
         {
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, BuildSampleBlob());
@@ -562,7 +562,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void NativeAllocBlobSource_ReadsRealFile()
         {
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, BuildSampleBlob());
@@ -1014,7 +1014,7 @@ namespace EjoyFramework.Tests
             const string entryName = "assets/Configs/config.ejcb";
             byte[] zip = BuildMinimalZip(entryName, BuildSampleBlob(), stored: true, localExtraLength: 6, centralExtraLength: 2);
 
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, zip);
@@ -1044,7 +1044,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void MmapBlobSource_MissingFile_ThrowsFrameworkException()
         {
-            string missing = Path.Combine(Path.GetTempPath(), "ejoy_configblob_not_here_" + Guid.NewGuid().ToString("N") + ".bin");
+            string missing = Path.Combine(TestTempPaths.Root, "ejoy_configblob_not_here_" + Guid.NewGuid().ToString("N") + ".bin");
             Assert.Throws<FrameworkException>(() => new MmapBlobSource(missing));
         }
 
@@ -1112,7 +1112,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void ConfigBlobFile_OpenFile_RoundTrip()
         {
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, BuildSampleBlob());
@@ -1140,7 +1140,7 @@ namespace EjoyFramework.Tests
         public void ConfigBlobFile_OpenFile_BufferedMode_RoundTrip()
         {
             // allowMemoryMapping:false 是编辑器工具链的读法（映射会锁文件），行为必须与映射路径等价。
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, BuildSampleBlob());
@@ -1189,7 +1189,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void ConfigBlobFile_OpenFile_MissingFile_ThrowsWithExportHint()
         {
-            string path = Path.Combine(Path.GetTempPath(), "ejoy-configblob-does-not-exist.ejcb");
+            string path = Path.Combine(TestTempPaths.Root, "ejoy-configblob-does-not-exist.ejcb");
             FrameworkException ex = Assert.Throws<FrameworkException>(() => ConfigBlobFile.OpenFile(path, TestSchemaHash));
             StringAssert.Contains("文件不存在", ex.Message);
         }
@@ -1197,7 +1197,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void ConfigBlobFile_OpenFile_WrongSchemaHash_Throws()
         {
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, BuildSampleBlob());
@@ -1213,7 +1213,7 @@ namespace EjoyFramework.Tests
         public void ConfigBlobFile_OpenZipEntry_RoundTrip()
         {
             byte[] zip = BuildMinimalZip("assets/ConfigTables.ejcb", BuildSampleBlob(), stored: true);
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, zip);
@@ -1240,7 +1240,7 @@ namespace EjoyFramework.Tests
         public void ConfigBlobFile_OpenZipEntry_MissingEntry_Throws()
         {
             byte[] zip = BuildMinimalZip("assets/other.ejcb", BuildSampleBlob(), stored: true);
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, zip);
@@ -1260,7 +1260,7 @@ namespace EjoyFramework.Tests
             // allowMemoryMapping:false 强制走"按偏移整块读入"——这正是 Android 上映射不可用设备的
             // 回退路径主体，必须与映射路径行为等价，且不能只在故障注入下才可达。
             byte[] zip = BuildMinimalZip("assets/ConfigTables.ejcb", BuildSampleBlob(), stored: true);
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, zip);
@@ -1292,7 +1292,7 @@ namespace EjoyFramework.Tests
                 Assert.Ignore("依赖 Windows 的强制文件锁语义（FileShare.None 拒绝并发打开），POSIX 上不可复现。");
             }
 
-            string path = Path.GetTempFileName();
+            string path = TestTempPaths.NewFile();
             try
             {
                 File.WriteAllBytes(path, BuildSampleBlob());

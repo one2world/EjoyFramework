@@ -121,6 +121,9 @@ namespace EjoyFramework.Core.Unity
         /// <summary>世界分区流送组件。</summary>
         public static WorldStreamingComponent WorldStreaming => ComponentRegistry.GetComponent<WorldStreamingComponent>();
 
+        /// <summary>性能遥测（帧时间 / 内存 / 热电 / 加载耗时，会话采样、离线批次上报）。</summary>
+        public static TelemetryComponent Telemetry => ComponentRegistry.GetComponent<TelemetryComponent>();
+
         /// <summary>HTTP/REST 客户端（登录 / 排行榜 / 邮件 / 抽卡校验，带重试 / 鉴权头 / Awaitable）。</summary>
         public static HttpComponent Http => ComponentRegistry.GetComponent<HttpComponent>();
 

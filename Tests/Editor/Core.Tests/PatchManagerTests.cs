@@ -32,7 +32,7 @@ namespace EjoyFramework.Tests
             m_PM = new PatchManager(requireIntegrity: false);
             m_Dl = new MockDownloadHelper();
             m_PM.SetDownloadHelper(m_Dl);
-            m_TmpDir = Path.Combine(Path.GetTempPath(), "ejoy_patch_test_" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            m_TmpDir = Path.Combine(TestTempPaths.Root, "ejoy_patch_test_" + Guid.NewGuid().ToString("N").Substring(0, 8));
             m_PM.SetReadWritePath(m_TmpDir);
         }
 

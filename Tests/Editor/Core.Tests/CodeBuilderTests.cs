@@ -14,7 +14,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void WriteIfChanged_DoesNotRewriteDifferentLineEndings()
         {
-            string tmp = Path.Combine(Path.GetTempPath(), "ejoy_cb_test_" + System.Guid.NewGuid().ToString("N") + ".cs");
+            string tmp = Path.Combine(TestTempPaths.Root, "ejoy_cb_test_" + System.Guid.NewGuid().ToString("N") + ".cs");
             try
             {
                 File.WriteAllText(tmp, "// hello\n");
@@ -45,7 +45,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void ConfigBlob_RejectsImmutableOutputBeforeChangingOtherOutputs()
         {
-            string root = Path.Combine(Path.GetTempPath(), "ejoy_output_guard_" + System.Guid.NewGuid().ToString("N"));
+            string root = Path.Combine(TestTempPaths.Root, "ejoy_output_guard_" + System.Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             string orphan = Path.Combine(root, "Orphan.g.cs");
             string sidecar = Path.Combine(root, "Monsters.types");
@@ -99,7 +99,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void WriteIfChanged_True_OnFirstWrite()
         {
-            string tmp = Path.Combine(Path.GetTempPath(), "ejoy_cb_test_" + System.Guid.NewGuid().ToString("N") + ".cs");
+            string tmp = Path.Combine(TestTempPaths.Root, "ejoy_cb_test_" + System.Guid.NewGuid().ToString("N") + ".cs");
             try
             {
                 var cb = new CodeBuilder().Line("// hello");
@@ -111,7 +111,7 @@ namespace EjoyFramework.Tests
         [Test]
         public void WriteIfChanged_False_OnIdenticalContent()
         {
-            string tmp = Path.Combine(Path.GetTempPath(), "ejoy_cb_test_" + System.Guid.NewGuid().ToString("N") + ".cs");
+            string tmp = Path.Combine(TestTempPaths.Root, "ejoy_cb_test_" + System.Guid.NewGuid().ToString("N") + ".cs");
             try
             {
                 new CodeBuilder().Line("same").WriteIfChanged(tmp);

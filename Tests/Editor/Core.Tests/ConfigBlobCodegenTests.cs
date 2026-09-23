@@ -896,7 +896,7 @@ namespace EjoyFramework.Tests
 
         private string NewTempDir()
         {
-            string dir = Path.Combine(Path.GetTempPath(), "EjoyConfigBlobTests_" + Guid.NewGuid().ToString("N"));
+            string dir = Path.Combine(TestTempPaths.Root, "EjoyConfigBlobTests_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(dir);
             m_TempDirs.Add(dir);
             return dir;
