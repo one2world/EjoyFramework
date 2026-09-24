@@ -53,8 +53,7 @@ namespace EjoyFramework.Core.Unity
         private IQualityManager m_Quality;
         private UnityQualityApplier m_UnityApplier;
         private StreamingQualityApplier m_StreamingApplier;
-        private readonly FrameTiming[] m_Timings = new FrameTiming[1];
-        private bool m_FrameTimingSupported;
+        private FrameWorkTimeSampler m_WorkTime;
 
         protected override void Awake()
         {
@@ -100,7 +99,7 @@ namespace EjoyFramework.Core.Unity
                 m_Quality.AddApplier(m_UnityApplier);
             }
 
-            m_FrameTimingSupported = FrameTimingManager.IsFeatureEnabled();
+            m_WorkTime = new FrameWorkTimeSampler();
         }
 
         private void Start()
@@ -126,21 +125,8 @@ namespace EjoyFramework.Core.Unity
         private void Update()
         {
             float dt = Time.unscaledDeltaTime;
-            float work = dt * 1000f;
-            if (m_FrameTimingSupported)
-            {
-                FrameTimingManager.CaptureFrameTimings();
-                if (FrameTimingManager.GetLatestTimings(1, m_Timings) > 0)
-                {
-                    FrameTiming t = m_Timings[0];
-                    double main = t.cpuMainThreadFrameTime - t.cpuMainThreadPresentWaitTime;
-                    double busiest = main;
-                    if (t.cpuRenderThreadFrameTime > busiest) busiest = t.cpuRenderThreadFrameTime;
-                    if (t.gpuFrameTime > busiest) busiest = t.gpuFrameTime;
-                    if (busiest > 0.0) work = (float)busiest;
-                }
-            }
-
+            float work;
+            if (!m_WorkTime.TrySample(out work)) work = dt * 1000f;   // 不支持时退化为墙钟
             m_Quality.ReportFrame(work, dt);
         }
 

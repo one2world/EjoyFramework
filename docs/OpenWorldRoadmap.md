@@ -192,7 +192,15 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       借鉴 FPSSample `DebugOverlay`/`GameStatistics` 的"字符格 + 数值零分配写入 + 帧图"思路，按框架风格改用 UGUI 实现、无需自带着色器与字库贴图。
       文档 `docs/LiveOps.md`。测试：DeviceTierAndAutoQualityTests 18 + QualityManagerTests 12 + PerfOverlayPlayModeTests 1；
       全量 2437/2438 + PlayMode 40/40。
-- [ ] **WS4-M4 基准基建**
+- [x] **WS4-M4 基准基建**（2026-09-23）：`Core/Benchmarking`——`BenchmarkRunner`（预热、每样本操作数自适应到最短时长、
+      多样本统计：最小 / 中位 / 均值 / P95 / 标准差、分配在计时外单独测）、`IAllocationProbe`、`BenchmarkReport`
+      （带环境头的制表符文本，可解析 / 可 diff）、`BenchmarkComparison`（抗噪：变慢需中位比超阈值且最快样本仍慢于基线中位；
+      分配增加即回归）、`PerfCapture`（0.1ms 桶直方图分位、卡顿计数、内存峰值、标记，零分配）。Unity：`UnityAllocationProbe`
+      （Profiler GC.Alloc 事件，Boehm 下有效，已用已知分配自校准）、`FrameWorkTimeSampler`（QualityComponent 共用）、
+      `PerfCaptureComponent`（时长自动停、写报告、PerfCapture 遥测、采集期间暂停自动画质并标记崩溃阶段）。
+      `FrameworkBenchmarks` 9 项热路径（全部实测 0 分配并硬断言）+ `Tools~/Benchmarks/RunBenchmarks.ps1`（结果写工程内
+      `TestResults/Benchmarks`，基线保存与对比）。测试：BenchmarkInfraTests 9 + FrameworkBenchmarks 9 + PerfCapturePlayModeTests 1；
+      全量 2455/2456 + PlayMode 41/41。**WS4 完成。**
 - [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
       **WS5-M4 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；**WS5-M5 交互/相机/移动动画框架**
 - [ ] **WS6 P2 全部项 + 每模块 README + 开放世界样例**

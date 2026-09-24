@@ -130,6 +130,9 @@ namespace EjoyFramework.Core.Unity
         /// <summary>运行时性能覆盖层（帧时间 / 画质 / 内存 / 流送 / 崩溃遥测）。</summary>
         public static PerfOverlayComponent PerfOverlay => ComponentRegistry.GetComponent<PerfOverlayComponent>();
 
+        /// <summary>真机性能采集（跑图 / 基准 / 自动化回归，报告 + 遥测摘要）。</summary>
+        public static PerfCaptureComponent PerfCapture => ComponentRegistry.GetComponent<PerfCaptureComponent>();
+
         /// <summary>HTTP/REST 客户端（登录 / 排行榜 / 邮件 / 抽卡校验，带重试 / 鉴权头 / Awaitable）。</summary>
         public static HttpComponent Http => ComponentRegistry.GetComponent<HttpComponent>();
 

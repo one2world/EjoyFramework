@@ -100,3 +100,27 @@ thresholds desktop 0.35 0.50 0.65 0.85
 - 稳态零分配：数值经 `TempText` 写入 `OverlayTextBuffer`，内容不变不重建网格；默认 0.25s 刷新；隐藏时不采集。
 - 开关：`Visible` / `Toggle()`；装了 Input System 时 F3 或三指同时按下切换。
 - 只预取可打印 ASCII，非 ASCII 字符留空（保证零分配）。
+
+## 5. 基准与真机采集
+
+### 微基准（编辑器 / CI）
+
+- `BenchmarkRunner.Run(name, n => { 循环 n 次 }, options, probe)`：预热 → 每样本操作数自动倍增到不低于 `MinSampleMillis`
+  （避开计时器分辨率）→ 多样本 → 最小 / 中位 / 均值 / P95 / 标准差；分配在计时之外单独测一轮。
+- 分配探针 `UnityAllocationProbe` 用 Profiler 的 `GC.Alloc` 事件计**分配次数**（Mono/Boehm 下
+  `GC.GetAllocatedBytesForCurrentThread` 恒为 0，不能用）；`BenchmarkInfraTests` 用 10 次已知分配自校准，探针失效会直接报错。
+  没有探针时结果标记为"未测"，不会写成 0。
+- `BenchmarkReport`：带环境头的制表符文本（人可读、可 diff、无需 JSON 库）；`BenchmarkComparison` 抗噪判定
+  （变慢要求中位比超阈值**且**当前最快样本仍慢于基线中位；分配变多直接判回归）。
+- `FrameworkBenchmarks` 覆盖池、堆、空间查询、流送重评估、TempText、遥测、崩溃指纹、自动画质，零分配路径硬断言 0 次。
+- 运行：`pwsh EjoyFramework/Tools~/Benchmarks/RunBenchmarks.ps1`（`-SaveBaseline` 保存基线；有代理时设 `EJOY_PROXY`）。
+  结果写工程内 `TestResults/Benchmarks/editmode-<UTC>.tsv` 与 `editmode-latest.tsv`，存在 `editmode-baseline.tsv` 时输出对比。
+  时间只在同机同配置下可比，分配结论跨机器可比。
+
+### 真机采集
+
+`PerfCaptureComponent`（`GameEntry.PerfCapture`）：`StartCapture(label, seconds)` 后逐帧记录帧耗时与工作耗时、每 0.5s 记录内存峰值，
+`Mark("enter town")` 打标记，停止时写 `persistentDataPath/PerfCaptures/<label>-<UTC>.tsv`（`ReportDirectory` 可改），
+并写一条 `TelemetryKind.PerfCapture` 遥测。分位用 0.1ms 桶直方图（固定内存、零分配、与帧数无关）；超过 50 / 100ms 的帧单独计数。
+采集期间默认暂停自动画质、在崩溃采集里标记阶段 `Capture:<label>`，保证可复现、崩了也知道在跑哪段。
+基准场景 / 跑图脚本 / 自动化回归按固定镜头路径 Start → 走完 → Stop，同机对比前后版本的报告。

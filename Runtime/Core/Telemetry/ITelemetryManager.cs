@@ -96,6 +96,9 @@ namespace EjoyFramework.Core.Telemetry
         /// <summary>画质档位变化（IQualityManager）：I0=旧档 I1=新档 I2=原因(QualityChangeCause) F0=渲染缩放 F1=最近平均帧耗时 ms</summary>
         public const int QualityChange = 7;
 
+        /// <summary>性能采集摘要（PerfCapture）：I0=帧数 I1=卡顿>50ms I2=卡顿>100ms I3=内存峰值MB I4=标签指纹 F0=avg F1=p95 F2=p99 F3=max F4=平均工作耗时 ms F5=时长秒</summary>
+        public const int PerfCapture = 8;
+
         /// <summary>业务自定义起点。</summary>
         public const int Custom = 1000;
     }
