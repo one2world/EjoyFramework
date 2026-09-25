@@ -4,7 +4,6 @@
 //------------------------------------------------------------
 
 using System;
-using System.Globalization;
 
 namespace EjoyFramework.Core
 {
@@ -33,8 +32,9 @@ namespace EjoyFramework.Core
     ///     编辑器与开发版下作为额外校验。
     ///   - 单个实例的缓冲上限约 1M 个字符（<see cref="MaxGrowCapacity"/>），越界抛 FrameworkException。
     /// 注意：<see cref="AsSpan"/> 返回的 Span 在 Dispose 之后即失效，不得跨 using 作用域使用。
+    /// 复合格式化（<c>AppendFormat</c>）、泛型追加、紧凑数字 / 时长 / 百分比见 TempText.Format.cs。
     /// </summary>
-    public readonly ref struct TempText
+    public readonly ref partial struct TempText
     {
         /// <summary>
         /// TempText 的可变状态。放在托管对象中以规避 readonly 结构体变量的防御性拷贝问题，并由线程私有的状态池复用，稳态零分配。
@@ -206,13 +206,7 @@ namespace EjoyFramework.Core
         public TempText Append(int value, string format = null)
         {
             CheckUsable();
-            int written;
-            while (!value.TryFormat(FreeSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            m_State.Length += written;
+            AppendValue(value, format.AsSpan());
             return this;
         }
 
@@ -225,13 +219,7 @@ namespace EjoyFramework.Core
         public TempText Append(long value, string format = null)
         {
             CheckUsable();
-            int written;
-            while (!value.TryFormat(FreeSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            m_State.Length += written;
+            AppendValue(value, format.AsSpan());
             return this;
         }
 
@@ -244,13 +232,7 @@ namespace EjoyFramework.Core
         public TempText Append(uint value, string format = null)
         {
             CheckUsable();
-            int written;
-            while (!value.TryFormat(FreeSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            m_State.Length += written;
+            AppendValue(value, format.AsSpan());
             return this;
         }
 
@@ -263,13 +245,7 @@ namespace EjoyFramework.Core
         public TempText Append(ulong value, string format = null)
         {
             CheckUsable();
-            int written;
-            while (!value.TryFormat(FreeSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            m_State.Length += written;
+            AppendValue(value, format.AsSpan());
             return this;
         }
 
@@ -282,13 +258,7 @@ namespace EjoyFramework.Core
         public TempText Append(float value, string format = null)
         {
             CheckUsable();
-            int written;
-            while (!value.TryFormat(FreeSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            m_State.Length += written;
+            AppendValue(value, format.AsSpan());
             return this;
         }
 
@@ -301,13 +271,7 @@ namespace EjoyFramework.Core
         public TempText Append(double value, string format = null)
         {
             CheckUsable();
-            int written;
-            while (!value.TryFormat(FreeSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            m_State.Length += written;
+            AppendValue(value, format.AsSpan());
             return this;
         }
 

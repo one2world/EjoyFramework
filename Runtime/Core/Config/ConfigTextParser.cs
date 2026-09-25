@@ -13,35 +13,48 @@ namespace EjoyFramework.Core.Config
     ///   Name \t StringValue \t BoolValue \t IntValue \t FloatValue
     /// 兼容 LF/CRLF/CR；空白行与 # 注释行被跳过；
     /// 列数不足或重复 Name 被记录为 Warning 并跳过。
+    /// 零分配切行切列（<see cref="TextLineEnumerator"/> / <see cref="TextFieldReader"/>），布尔 / 整数 / 浮点列直接从切片解析
+    /// （<see cref="SpanParse"/>，语义同 <see cref="IConfigManager.AddConfig(string, string, string, string, string)"/>），
+    /// 每行只为入库的 Name 与原始值各分配一个 string。
     /// </summary>
     public static class ConfigTextParser
     {
-        private static readonly string[] s_LineSeparators = { "\r\n", "\n", "\r" };
-
         public static bool Parse(IConfigManager manager, string text)
         {
             if (manager == null) throw new FrameworkException("ConfigTextParser.Parse: manager is null.");
             if (string.IsNullOrEmpty(text)) return true;
 
-            string[] lines = text.Split(s_LineSeparators, StringSplitOptions.None);
-            int lineNo = 0;
-            for (int i = 0; i < lines.Length; i++)
+            TextLineEnumerator lines = new TextLineEnumerator(text.AsSpan());
+            while (lines.MoveNext())
             {
-                lineNo++;
-                string raw = lines[i];
-                if (raw == null) continue;
-                string line = raw.Trim();
+                ReadOnlySpan<char> line = lines.Current.Trim();
                 if (line.Length == 0 || line[0] == '#') continue;
 
-                string[] cols = line.Split('\t');
-                if (cols.Length < 5)
+                int columns = TextFieldReader.CountFields(line, '\t');
+                if (columns < 5)
                 {
-                    FrameworkLog.Warning("ConfigTextParser: line {0} has {1} cols, expected 5 (Name\\tString\\tBool\\tInt\\tFloat). Skipped.", lineNo, cols.Length);
+                    FrameworkLog.Warning("ConfigTextParser: line {0} has {1} cols, expected 5 (Name\\tString\\tBool\\tInt\\tFloat). Skipped.", lines.LineNumber, columns);
                     continue;
                 }
-                if (!manager.AddConfig(cols[0], cols[1], cols[2], cols[3], cols[4]))
+
+                TextFieldReader reader = new TextFieldReader(line, '\t');
+                ReadOnlySpan<char> name, raw, boolText, intText, floatText;
+                reader.TryReadField(out name);
+                reader.TryReadField(out raw);
+                reader.TryReadField(out boolText);
+                reader.TryReadField(out intText);
+                reader.TryReadField(out floatText);
+
+                bool boolValue;
+                int intValue;
+                float floatValue;
+                SpanParse.TryParseBoolean(boolText, out boolValue);   // 无法识别为 false
+                SpanParse.TryParseInt32(intText, out intValue);       // 失败为 0
+                SpanParse.TryParseSingle(floatText, out floatValue);  // 失败为 0
+                string configName = name.ToString();
+                if (!manager.AddConfig(configName, raw.ToString(), boolValue, intValue, floatValue))
                 {
-                    FrameworkLog.Warning("ConfigTextParser: duplicate or invalid config '{0}' at line {1}.", cols[0], lineNo);
+                    FrameworkLog.Warning("ConfigTextParser: duplicate or invalid config '{0}' at line {1}.", configName, lines.LineNumber);
                 }
             }
             return true;

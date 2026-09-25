@@ -4,13 +4,16 @@
 //------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 
 namespace EjoyFramework.Core.DataNode
 {
+    /// <summary>
+    /// 数据结点管理器。路径分隔符为 '.'、'/' 与反斜杠（可混用）；空段被忽略（"a..b"、".a."、"a/" 均等价于对应的规整路径，
+    /// 旧实现会创建名为空串的结点，属于错误行为），只由分隔符组成的路径指向根结点。
+    /// 路径按切片逐段查找（子结点表为 <see cref="StringMap{TValue}"/>），查找已存在结点零分配；只有新建结点时为段名分配 string。
+    /// </summary>
     internal sealed class DataNodeManager : FrameworkModule, IDataNodeManager
     {
-        private static readonly char[] s_PathSeparators = { '.', '/', '\\' };
         private DataNode m_Root;
 
         public DataNodeManager() { m_Root = new DataNode("Root", null); }
@@ -37,14 +40,18 @@ namespace EjoyFramework.Core.DataNode
         {
             Framework.EnsureMainThread(nameof(RemoveNode));
             if (string.IsNullOrEmpty(path)) return;
-            string[] segs = path.Split(s_PathSeparators);
-            DataNode parent = m_Root;
-            for (int i = 0; i < segs.Length - 1; i++)
-            {
-                parent = parent.GetChildInternal(segs[i]);
-                if (parent == null) return;
-            }
-            parent.RemoveChild(segs[segs.Length - 1]);
+            ReadOnlySpan<char> trimmed = path.AsSpan().TrimEnd(s_Separators);
+            if (trimmed.Length == 0) return;   // 只有分隔符：指向根，根不可移除
+            int last = trimmed.LastIndexOfAny('.', '/', '\\');
+            DataNode parent = last < 0 ? m_Root : m_Root.GetNodeByPath(trimmed.Slice(0, last), false);
+            if (parent != null) parent.RemoveChild(trimmed.Slice(last + 1));
+        }
+
+        private static readonly char[] s_Separators = { '.', '/', '\\' };
+
+        private static int IndexOfSeparator(ReadOnlySpan<char> path)
+        {
+            return path.IndexOfAny('.', '/', '\\');
         }
 
         public void Clear()
@@ -58,7 +65,7 @@ namespace EjoyFramework.Core.DataNode
             private readonly string m_Name;
             private readonly DataNode m_Parent;
             private Variable m_Data;
-            private Dictionary<string, DataNode> m_Children;
+            private StringMap<DataNode> m_Children;
             // FullName 缓存：name/parent 一旦构造便不可变（无重命名/重挂载 API），故惰性计算一次即可，
             // 避免每次 O(depth^2) 的字符串拼接与分配。
             private string m_FullNameCache;
@@ -97,15 +104,33 @@ namespace EjoyFramework.Core.DataNode
                 return m_Children.TryGetValue(name, out c) ? c : null;
             }
 
+            public DataNode GetChildInternal(ReadOnlySpan<char> name)
+            {
+                if (m_Children == null) return null;
+                DataNode c;
+                return m_Children.TryGetValue(name, out c) ? c : null;
+            }
+
             public IDataNode GetOrAddChild(string name)
             {
-                if (m_Children == null) m_Children = new Dictionary<string, DataNode>();
+                if (name == null) throw new FrameworkException("DataNode.GetOrAddChild: name is null.");
+                if (m_Children == null) m_Children = new StringMap<DataNode>();
                 DataNode c;
                 if (!m_Children.TryGetValue(name, out c))
                 {
                     c = new DataNode(name, this);
                     m_Children.Add(name, c);
                 }
+                return c;
+            }
+
+            private DataNode GetOrAddChild(ReadOnlySpan<char> name)
+            {
+                DataNode c = GetChildInternal(name);
+                if (c != null) return c;
+                if (m_Children == null) m_Children = new StringMap<DataNode>();
+                c = new DataNode(name.ToString(), this);
+                m_Children.Add(c.m_Name, c);
                 return c;
             }
 
@@ -120,7 +145,13 @@ namespace EjoyFramework.Core.DataNode
 
             public void RemoveChild(string name)
             {
-                if (m_Children == null || name == null) return;
+                if (name == null) return;
+                RemoveChild(name.AsSpan());
+            }
+
+            public void RemoveChild(ReadOnlySpan<char> name)
+            {
+                if (m_Children == null) return;
                 DataNode c;
                 if (m_Children.TryGetValue(name, out c))
                 {
@@ -141,20 +172,30 @@ namespace EjoyFramework.Core.DataNode
 
             public DataNode GetNodeByPath(string path, bool createMissing)
             {
-                string[] segs = path.Split(s_PathSeparators);
+                return GetNodeByPath(path.AsSpan(), createMissing);
+            }
+
+            public DataNode GetNodeByPath(ReadOnlySpan<char> path, bool createMissing)
+            {
+                ReadOnlySpan<char> rest = path;
                 DataNode cur = this;
-                for (int i = 0; i < segs.Length; i++)
+                while (true)
                 {
-                    string seg = segs[i];
-                    DataNode next = cur.GetChildInternal(seg);
-                    if (next == null)
+                    int separator = IndexOfSeparator(rest);
+                    ReadOnlySpan<char> seg = separator < 0 ? rest : rest.Slice(0, separator);
+                    if (seg.Length > 0)
                     {
-                        if (!createMissing) return null;
-                        next = (DataNode)cur.GetOrAddChild(seg);
+                        DataNode next = cur.GetChildInternal(seg);
+                        if (next == null)
+                        {
+                            if (!createMissing) return null;
+                            next = cur.GetOrAddChild(seg);
+                        }
+                        cur = next;
                     }
-                    cur = next;
+                    if (separator < 0) return cur;
+                    rest = rest.Slice(separator + 1);
                 }
-                return cur;
             }
         }
     }

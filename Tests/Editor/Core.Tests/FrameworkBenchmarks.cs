@@ -216,6 +216,86 @@ namespace EjoyFramework.Tests
         }
 
         [Test]
+        public void Text_AppendFormat4Args()
+        {
+            Run("Text.TempText.AppendFormat4", n =>
+            {
+                for (long i = 0; i < n; i++)
+                {
+                    using (TempText t = TempText.Rent(64))
+                    {
+                        t.AppendFormat("{0}/{1} {2:F1}% {3}", (int)i, 1000, 59.94f, "Hero");
+                    }
+                }
+            }, true);
+        }
+
+        [Test]
+        public void Text_StringHashCompute16()
+        {
+            const string key = "Player/Inventory";
+            uint expected = StringHash.Compute(key);
+            long sink = 0;
+            Run("Text.StringHash.Compute16", n =>
+            {
+                for (long i = 0; i < n; i++)
+                {
+                    if (StringHash.Compute(key.AsSpan()) == expected) sink++;
+                }
+            }, true);
+            // 计数而非异或：同一哈希异或偶数次归零，会让断言随采样次数的奇偶随机失败。
+            Assert.Greater(sink, 0L);
+        }
+
+        [Test]
+        public void Text_StringMapLookup_StringSpanHash()
+        {
+            StringMap<int> map = new StringMap<int>(0, true);
+            for (int k = 0; k < 256; k++) map.Add("Config.Key" + k, k);
+            string key = "Config.Key137";
+            char[] chars = ("xx" + key).ToCharArray();
+            StringHash hash = new StringHash(StringHash.Compute(key));
+            int sink = 0;
+            Run("Text.StringMap.Lookup3", n =>
+            {
+                for (long i = 0; i < n; i++)
+                {
+                    int v;
+                    if (map.TryGetValue(key, out v)) sink += v;
+                    if (map.TryGetValue(new ReadOnlySpan<char>(chars, 2, key.Length), out v)) sink += v;
+                    if (map.TryGetValue(hash, out v)) sink += v;
+                }
+            }, true);
+            Assert.Greater(sink, 0);
+        }
+
+        [Test]
+        public void Text_SpanParseRow7Columns()
+        {
+            const string line = "7\tHero\t120\t2.5\tyes\t9000000000\t3";
+            long sink = 0;
+            Run("Text.SpanParse.Row7", n =>
+            {
+                for (long i = 0; i < n; i++)
+                {
+                    TextFieldReader reader = new TextFieldReader(line.AsSpan());
+                    int id, hp, skill;
+                    ReadOnlySpan<char> name;
+                    float speed;
+                    bool enabled;
+                    long big;
+                    if (reader.TryReadInt32(out id) && reader.TryReadField(out name) && reader.TryReadInt32(out hp) &&
+                        reader.TryReadSingle(out speed) && reader.TryReadBoolean(out enabled) && reader.TryReadInt64(out big) &&
+                        reader.TryReadInt32(out skill))
+                    {
+                        sink += id + name.Length + hp + skill;
+                    }
+                }
+            }, true);
+            Assert.Greater(sink, 0L);
+        }
+
+        [Test]
         public void Telemetry_Record()
         {
             TelemetryManager telemetry = new TelemetryManager();

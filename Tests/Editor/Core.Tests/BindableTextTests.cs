@@ -245,5 +245,49 @@ namespace EjoyFramework.Tests
             Assert.IsTrue(text.Equals("span".AsSpan()));
             Assert.IsFalse(text.Equals("spa".AsSpan()));
         }
+
+        // ===== WS5-M1：泛型 SetValue（经 TextFormatter，不装箱） =====
+
+        private enum Rank
+        {
+            Bronze,
+            Silver,
+            Gold,
+        }
+
+        [Test]
+        public void SetValue_Generic_FormatsEnumsAndOtherTypes()
+        {
+            var text = new BindableText();
+            int count = 0;
+            text.PropertyChanged += (sender, name) => count++;
+
+            Assert.IsTrue(text.SetValue(Rank.Gold));
+            Assert.AreEqual("Gold", text.ToString());
+            Assert.IsFalse(text.SetValue(Rank.Gold), "unchanged content does not notify");
+            Assert.AreEqual(1, count);
+
+            Assert.IsTrue(text.SetValue(true));
+            Assert.AreEqual("True", text.ToString());
+            Assert.IsTrue(text.SetValue(4000000000u));
+            Assert.AreEqual("4000000000", text.ToString());
+            Assert.IsTrue(text.SetValue(Rank.Silver, "D"));
+            Assert.AreEqual("1", text.ToString());
+            Assert.AreEqual(4, count);
+        }
+
+        [Test]
+        public void SetValue_Generic_IsAllocationFreeInSteadyState()
+        {
+            var text = new BindableText(64);
+            text.PropertyChanged += (sender, name) => { };
+            int i = 0;
+            ZeroAlloc.Assert(() =>
+            {
+                text.SetValue((Rank)(i % 3));
+                text.SetValue(i * 0.25, "F2");
+                i++;
+            });
+        }
     }
 }

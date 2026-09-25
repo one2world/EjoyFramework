@@ -4,7 +4,6 @@
 //------------------------------------------------------------
 
 using System;
-using System.Text;
 
 namespace EjoyFramework.Core.Blobs
 {
@@ -37,31 +36,8 @@ namespace EjoyFramework.Core.Blobs
                 throw new FrameworkException("ConfigBlobHash.Compute：待哈希字符串不能为 null。");
             }
 
-            // 纯 ASCII 是绝大多数表名/字段名的情况，直接按字符取字节，避免 Encoding 分配临时数组。
-            bool ascii = true;
-            for (int i = 0; i < value.Length; i++)
-            {
-                if (value[i] > 0x7F)
-                {
-                    ascii = false;
-                    break;
-                }
-            }
-
-            if (ascii)
-            {
-                ulong hash = Fnv1a64Offset;
-                for (int i = 0; i < value.Length; i++)
-                {
-                    hash ^= (byte)value[i];
-                    hash *= Fnv1a64Prime;
-                }
-
-                return hash;
-            }
-
-            byte[] bytes = Encoding.UTF8.GetBytes(value);
-            return Compute(bytes, 0, bytes.Length);
+            // 与 StringHash.Compute64 是同一个函数（FNV1a-64 over UTF-8，就地编码非 ASCII，零分配）。
+            return StringHash.Compute64(value.AsSpan());
         }
 
         /// <summary>

@@ -219,6 +219,21 @@ namespace EjoyFramework.Core.DataTable
             {
                 T row = new T();
                 if (!row.ParseDataRow(dataRowString, userData)) return false;
+                return AddParsedRow(row);
+            }
+
+            public bool AddDataRow(ReadOnlySpan<char> dataRow, object userData)
+            {
+                T row = new T();
+                ISpanDataRow spanRow = row as ISpanDataRow;
+                bool parsed = spanRow != null
+                    ? spanRow.ParseDataRow(dataRow, userData)
+                    : row.ParseDataRow(dataRow.ToString(), userData);
+                return parsed && AddParsedRow(row);
+            }
+
+            private bool AddParsedRow(T row)
+            {
                 if (m_Rows.ContainsKey(row.Id)) return false;
                 m_Rows.Add(row.Id, row);
                 return true;

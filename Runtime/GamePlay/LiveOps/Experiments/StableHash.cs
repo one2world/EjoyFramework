@@ -4,7 +4,7 @@
 //------------------------------------------------------------
 
 using System;
-using System.Text;
+using EjoyFramework.Core;
 
 namespace EjoyFramework.GamePlay.Experiments
 {
@@ -26,12 +26,7 @@ namespace EjoyFramework.GamePlay.Experiments
         /// <summary>
         /// FNV-1a 32 位偏移基（offset basis）。
         /// </summary>
-        private const uint Fnv32OffsetBasis = 2166136261u;
-
-        /// <summary>
-        /// FNV-1a 32 位质数（prime）。
-        /// </summary>
-        private const uint Fnv32Prime = 16777619u;
+        private const uint Fnv32OffsetBasis = StringHash.OffsetBasis;
 
         /// <summary>
         /// 32 位 uint 取值空间大小（2^32），用于把哈希线性映射到 [0,1)。
@@ -55,15 +50,8 @@ namespace EjoyFramework.GamePlay.Experiments
                 return hash;
             }
 
-            // 显式按 UTF-8 编码取字节，确保非 ASCII 字符在所有平台产出一致字节序列。
-            byte[] bytes = Encoding.UTF8.GetBytes(s);
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                hash ^= bytes[i];
-                hash *= Fnv32Prime;
-            }
-
-            return hash;
+            // 与 Core 的 StringHash.Compute 是同一个函数（FNV-1a-32 over UTF-8，就地编码非 ASCII，零分配）。
+            return StringHash.Append(hash, s.AsSpan());
         }
 
         /// <summary>
@@ -75,8 +63,10 @@ namespace EjoyFramework.GamePlay.Experiments
         /// <returns>[0,1) 区间内的 double。</returns>
         public static double Normalized(string a, string b)
         {
-            string combined = string.Concat(a ?? string.Empty, ":", b ?? string.Empty);
-            uint hash = Fnv1a(combined);
+            // 流式混入等价于对 a + ":" + b 取哈希，但不拼接字符串。
+            uint hash = StringHash.Append(Fnv32OffsetBasis, (a ?? string.Empty).AsSpan());
+            hash = StringHash.Append(hash, ":".AsSpan());
+            hash = StringHash.Append(hash, (b ?? string.Empty).AsSpan());
             return hash / UInt32Range;
         }
     }

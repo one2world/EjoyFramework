@@ -23,7 +23,8 @@ namespace EjoyFramework.Core.Config
             public float Float;
         }
 
-        private readonly Dictionary<string, Entry> m_Configs = new Dictionary<string, Entry>(StringComparer.Ordinal);
+        // uniqueHashes：拒绝同哈希的不同名字，保证 StringHash 查找唯一确定。
+        private readonly StringMap<Entry> m_Configs = new StringMap<Entry>(0, true);
         private IResourceManager m_ResourceManager;
         private IConfigHelper m_Helper;
         private AssetLoadCoordinator m_LoadCoordinator;
@@ -108,6 +109,40 @@ namespace EjoyFramework.Core.Config
 
         public bool HasConfig(string n) { return n != null && m_Configs.ContainsKey(n); }
 
+        public bool HasConfig(StringHash n) { return m_Configs.ContainsKey(n); }
+        public bool GetBool(StringHash n) { Entry e; return m_Configs.TryGetValue(n, out e) && e.Bool; }
+        public int GetInt(StringHash n) { Entry e; return m_Configs.TryGetValue(n, out e) ? e.Int : 0; }
+        public float GetFloat(StringHash n) { Entry e; return m_Configs.TryGetValue(n, out e) ? e.Float : 0f; }
+        public string GetString(StringHash n) { Entry e; return m_Configs.TryGetValue(n, out e) ? e.Raw : null; }
+
+        public bool TryGetBool(StringHash n, out bool value)
+        {
+            Entry e;
+            if (m_Configs.TryGetValue(n, out e)) { value = e.Bool; return true; }
+            value = false; return false;
+        }
+
+        public bool TryGetInt(StringHash n, out int value)
+        {
+            Entry e;
+            if (m_Configs.TryGetValue(n, out e)) { value = e.Int; return true; }
+            value = 0; return false;
+        }
+
+        public bool TryGetFloat(StringHash n, out float value)
+        {
+            Entry e;
+            if (m_Configs.TryGetValue(n, out e)) { value = e.Float; return true; }
+            value = 0f; return false;
+        }
+
+        public bool TryGetString(StringHash n, out string value)
+        {
+            Entry e;
+            if (m_Configs.TryGetValue(n, out e)) { value = e.Raw; return true; }
+            value = null; return false;
+        }
+
         public bool GetBool(string n) { Entry e; return n != null && m_Configs.TryGetValue(n, out e) && e.Bool; }
         public int GetInt(string n) { Entry e; return n != null && m_Configs.TryGetValue(n, out e) ? e.Int : 0; }
         public float GetFloat(string n) { Entry e; return n != null && m_Configs.TryGetValue(n, out e) ? e.Float : 0f; }
@@ -141,34 +176,36 @@ namespace EjoyFramework.Core.Config
             value = null; return false;
         }
 
+        /// <summary>
+        /// 五元组字符串入口。布尔宽松解析：接受 1/0、true/false、yes/no（大小写不敏感，自动 Trim），无法识别为 false
+        /// （修复了 bool.TryParse 只认 "true"/"false" 导致配置里的 1/0 被静默解析为 false 的问题）；整数 / 浮点失败为 0。
+        /// </summary>
         public bool AddConfig(string name, string value, string boolStr, string intStr, string floatStr)
+        {
+            bool boolValue;
+            int intValue;
+            float floatValue;
+            SpanParse.TryParseBoolean(boolStr.AsSpan(), out boolValue);
+            SpanParse.TryParseInt32(intStr.AsSpan(), out intValue);
+            SpanParse.TryParseSingle(floatStr.AsSpan(), out floatValue);
+            return AddConfig(name, value, boolValue, intValue, floatValue);
+        }
+
+        public bool AddConfig(string name, string value, bool boolValue, int intValue, float floatValue)
         {
             Framework.EnsureMainThread(nameof(AddConfig));
             if (string.IsNullOrEmpty(name) || m_Configs.ContainsKey(name)) return false;
-            Entry e = new Entry { Raw = value };
-            e.Bool = ParseBool(boolStr);
-            int.TryParse(intStr, out e.Int);
-            float.TryParse(floatStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out e.Float);
-            m_Configs.Add(name, e);
-            return true;
-        }
-
-        /// <summary>
-        /// 宽松布尔解析：接受 1/0、true/false、yes/no（大小写不敏感，自动 Trim）。
-        /// 修复了 bool.TryParse 只认 "true"/"false" 导致配置里的 1/0 被静默解析为 false 的问题。
-        /// </summary>
-        private static bool ParseBool(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return false;
-            switch (s.Trim().ToLowerInvariant())
+            Entry e = new Entry { Raw = value, Bool = boolValue, Int = intValue, Float = floatValue };
+            if (!m_Configs.TryAdd(name, e))
             {
-                case "1":
-                case "true":
-                case "yes":
-                    return true;
-                default:
-                    return false;
+                string existing;
+                m_Configs.TryGetKey(new StringHash(StringHash.Compute(name)), out existing);
+                FrameworkLog.Error("Config '{0}' has the same StringHash as existing config '{1}'; hash lookups could not tell them apart. Rename one of them.",
+                    name, existing);
+                return false;
             }
+
+            return true;
         }
 
         public bool RemoveConfig(string n)

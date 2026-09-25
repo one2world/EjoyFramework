@@ -201,9 +201,33 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       `FrameworkBenchmarks` 9 项热路径（全部实测 0 分配并硬断言）+ `Tools~/Benchmarks/RunBenchmarks.ps1`（结果写工程内
       `TestResults/Benchmarks`，基线保存与对比）。测试：BenchmarkInfraTests 9 + FrameworkBenchmarks 9 + PerfCapturePlayModeTests 1；
       全量 2455/2456 + PlayMode 41/41。**WS4 完成。**
-- [ ] **WS5-M1 零分配格式化/StringHash/Span 解析**；**WS5-M2 Struct 事件与无 GC 集合**；**WS5-M3 AI 感知/Utility/调试器**；
-      **WS5-M4 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；**WS5-M5 交互/相机/移动动画框架**
-- [ ] **WS6 P2 全部项 + 每模块 README + 开放世界样例**
+- [x] **WS5-M1 零分配格式化/StringHash/Span 解析**（2026-09-25）：`Core/Base/Text/`——`TempText.AppendFormat/TryAppendFormat`
+      （`string.Format` 语法、与 InvariantCulture 输出逐字一致、值类型不装箱；非法格式串回滚，前者抛 FrameworkException、后者返回 false）、
+      `TextFormatter`（静态泛型缓存分派 + 可注册 `ITextFormatter<T>`、枚举名字表缓存）、`TextFormat`（紧凑数字截断不进位、时长四式、
+      百分比 <1 绝不显示 100% 且无 "-0%"）、`NumberStrings`、`StringHash`（FNV-1a-32 over UTF-8，与服务端 / StableHash 同值，0 保留）+
+      `StringHashRegistry`（开发版同哈希不同名即报错）、`StringMap<T>`（string / span / 哈希三种查找，uniqueHashes 模式）、`TextSpans`
+      （切行 / 切列与 Split 同语义同行号）、`SpanParse`。消费方：Config（StringMap + StringHash 重载）、Localization（AppendFormat /
+      AppendPlural，俄语复数 int.MinValue 溢出修复）、DataTable（`ISpanDataRow` + 生成器切片解析，坏行带行号跳过而非中断整表）、
+      DataNode、RedDot、BindableText（泛型 SetValue）、ConfigBlobHash / StableHash 改为委托 StringHash。Unity：`UnityTextFormatters`；
+      编辑器：`StringHashValidator` 菜单扫描字面量碰撞。文档 `docs/Text.md`。基准 +4（全部硬断言 0 分配）。
+      **坑**：基准 sink 不能对同一值反复异或——偶数次归零，断言随采样次数奇偶随机失败，改为计数。测试 +89；全量 2544/2545 + PlayMode 41/41。
+- [ ] **R1 目录重构：取消与层同义的 `Base` 目录**（`Runtime/Core/Base`、`Runtime/Core.Unity/Base`、`Editor/Core.Unity.Editor/Base`
+      上移到层根，保留 GUID；WS5-M1 提交后单独提交）
+- [ ] **WS5-M2 Struct 事件与无 GC 集合**（RingBuffer/Deque/BitSet/SlotMap——M3/M4 的前置）
+- [ ] **WS5-M3 ECS 深化**（用户 2026-09-24 指定重点：先分析 FPSSample，再按框架风格吸收；ECS 内核仍自研）：
+      ① 按游戏循环阶段显式排序的系统组（服务端模拟 / 客户端预测 / 插值 / 表现，对应 FPSSample
+      `ServerGameLoop`/`ClientGameLoop` 的显式 Update 顺序）；② 固定 tick 时间与 tick 驱动的系统；③ 结构变更只在同步点生效
+      （对应 `GameWorld` 的延迟 Despawn，落到现有 CommandBuffer）；④ 复制组件契约（序列化 / 预测态校验 / 插值态），供 M4 使用；
+      ⑤ 与 WorldStreaming 单元集成（按 cell 批量创建 / 卸载实体）；查询零分配。
+- [ ] **WS5-M4 帧同步 Netcode**（用户指定重点；参考 FPSSample `Networking/`（62 个文件）与 `Game/Main` 游戏循环）：
+      先对比现有 GamePlay/Netcode（已有快照 + 预测 + 插值，但全量快照、每连接一线程、Unreliable 假语义），分析阶段定案
+      "确定性锁步"与"状态同步 + 预测回滚"的取舍（锁步依赖 P2-1 确定性随机 / 定点数）。候选吸收点：固定 tick 命令帧、
+      按客户端已确认基线的快照差分（`DeltaWriter`/`NetworkSchema` 字段级差分与量化）、位打包 + 可选 Huffman 压缩模型、
+      UDP 连接的序号 / 确认与真正的可靠 / 不可靠通道（`NetworkConnection`/`SequenceBuffer`）、预测回滚与重放校验
+      （`NetworkPrediction`）、插值缓冲、延迟补偿状态历史、AOI 驱动下发。P2-2 并入本项。
+- [ ] **WS5-M5 AI 感知/Utility/调试器**；**WS5-M6 战斗双轨合并 + Units 测试 + MVVM 嵌套 + JobScope**；
+      **WS5-M7 交互/相机/移动动画框架**
+- [ ] **WS6 P2 其余项（P2-2 已并入 WS5-M4）+ 每模块 README + 开放世界样例**
 
 ## 5. 验证命令（unity-cli；严禁路径超出项目，报告/日志放 `TestResults/unity-cli/`，不能放会被清空的 `Temp/`）
 

@@ -69,6 +69,14 @@ namespace EjoyFramework.Core.DataTable
         T GetDataRow(int id);
         T[] GetAllDataRows();
         bool AddDataRow(string dataRowString, object userData);
+
+        /// <summary>
+        /// 从字符切片解析并加入一行：行类型实现 <see cref="ISpanDataRow"/> 时直接从切片解析（零中间字符串），
+        /// 否则退回生成一个 string 交给 <see cref="IDataRow.ParseDataRow(string, object)"/>。
+        /// 解析失败或 Id 重复返回 false。
+        /// </summary>
+        bool AddDataRow(ReadOnlySpan<char> dataRow, object userData);
+
         bool RemoveDataRow(int id);
     }
 
@@ -76,6 +84,16 @@ namespace EjoyFramework.Core.DataTable
     {
         int Id { get; }
         bool ParseDataRow(string dataRowString, object userData);
+    }
+
+    /// <summary>
+    /// 可直接从字符切片解析的数据行（配合 <see cref="TextFieldReader"/>，只有字符串列分配）。
+    /// 配置工具链生成的行默认实现它；手写行可选实现。解析失败应返回 false 而不是抛异常，
+    /// 且先解析到局部变量、全部成功后再赋值，不留半状态。
+    /// </summary>
+    public interface ISpanDataRow : IDataRow
+    {
+        bool ParseDataRow(ReadOnlySpan<char> dataRow, object userData);
     }
 
     public abstract class DataTableBase

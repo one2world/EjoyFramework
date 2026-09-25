@@ -15,7 +15,8 @@ namespace EjoyFramework.Core.Localization
     /// </summary>
     internal sealed class LocalizationManager : FrameworkModule, ILocalizationManager
     {
-        private readonly Dictionary<string, string> m_Dict = new Dictionary<string, string>(StringComparer.Ordinal);
+        // 允许哈希碰撞的字符串表（键由内容决定、量大）；支持按切片查找。
+        private readonly StringMap<string> m_Dict = new StringMap<string>();
         // 已警告过的缺失 key，去重避免逐帧刷屏。
         private readonly HashSet<string> m_WarnedMissingKeys = new HashSet<string>(StringComparer.Ordinal);
         private Language m_Language = Language.Unspecified;
@@ -116,6 +117,7 @@ namespace EjoyFramework.Core.Localization
 
         public bool HasRawString(string key) { return key != null && m_Dict.ContainsKey(key); }
         public string GetRawString(string key) { string v; return m_Dict.TryGetValue(key, out v) ? v : null; }
+        public bool TryGetRawString(ReadOnlySpan<char> key, out string value) { return m_Dict.TryGetValue(key, out value); }
 
         public bool AddRawString(string key, string value)
         {

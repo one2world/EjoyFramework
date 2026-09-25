@@ -39,9 +39,9 @@ namespace EjoyFramework.Core.Localization
                 // 俄语：CLDR 整数复数规则（n 取计数的绝对值，整数恒映射 one/few/many）
                 case Language.Russian:
                 {
-                    int n = count < 0 ? -count : count;
-                    int mod10 = n % 10;
-                    int mod100 = n % 100;
+                    long n = count < 0 ? -(long)count : count;   // long：int.MinValue 取绝对值不溢出
+                    long mod10 = n % 10;
+                    long mod100 = n % 100;
                     if (mod10 == 1 && mod100 != 11)
                     {
                         return PluralForm.One;
@@ -69,7 +69,7 @@ namespace EjoyFramework.Core.Localization
             return baseKey + "." + FormSuffix(form);
         }
 
-        private static string FormSuffix(PluralForm f)
+        internal static string FormSuffix(PluralForm f)
         {
             switch (f)
             {

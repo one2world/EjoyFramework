@@ -4,7 +4,6 @@
 //------------------------------------------------------------
 
 using System;
-using System.Globalization;
 
 namespace EjoyFramework.Core.UI.Mvvm
 {
@@ -161,13 +160,7 @@ namespace EjoyFramework.Core.UI.Mvvm
         /// <returns>内容是否发生变化。</returns>
         public bool SetValue(int value, string format = null)
         {
-            int written;
-            while (!value.TryFormat(TailSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            return Commit(written);
+            return SetFormatted(value, format);
         }
 
         /// <summary>设置为 64 位有符号整数。</summary>
@@ -176,13 +169,7 @@ namespace EjoyFramework.Core.UI.Mvvm
         /// <returns>内容是否发生变化。</returns>
         public bool SetValue(long value, string format = null)
         {
-            int written;
-            while (!value.TryFormat(TailSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            return Commit(written);
+            return SetFormatted(value, format);
         }
 
         /// <summary>设置为单精度浮点数，默认不变文化以保证跨语言环境输出一致。</summary>
@@ -191,13 +178,7 @@ namespace EjoyFramework.Core.UI.Mvvm
         /// <returns>内容是否发生变化。</returns>
         public bool SetValue(float value, string format = null)
         {
-            int written;
-            while (!value.TryFormat(TailSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
-            {
-                Grow();
-            }
-
-            return Commit(written);
+            return SetFormatted(value, format);
         }
 
         /// <summary>设置为双精度浮点数。</summary>
@@ -206,8 +187,26 @@ namespace EjoyFramework.Core.UI.Mvvm
         /// <returns>内容是否发生变化。</returns>
         public bool SetValue(double value, string format = null)
         {
+            return SetFormatted(value, format);
+        }
+
+        /// <summary>
+        /// 设置为任意可格式化的值（基础类型、枚举、已注册 <see cref="ITextFormatter{T}"/> 的类型零分配且不装箱）。
+        /// </summary>
+        /// <typeparam name="T">值类型。</typeparam>
+        /// <param name="value">值。</param>
+        /// <param name="format">可选格式串。</param>
+        /// <returns>内容是否发生变化。</returns>
+        public bool SetValue<T>(T value, string format = null)
+        {
+            return SetFormatted(value, format);
+        }
+
+        private bool SetFormatted<T>(T value, string format)
+        {
+            ITextFormatter<T> formatter = TextFormatter.Get<T>();
             int written;
-            while (!value.TryFormat(TailSpan(), out written, format.AsSpan(), CultureInfo.InvariantCulture))
+            while (!formatter.TryFormat(value, TailSpan(), out written, format.AsSpan()))
             {
                 Grow();
             }

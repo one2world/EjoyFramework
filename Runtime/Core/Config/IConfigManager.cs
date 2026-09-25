@@ -9,6 +9,8 @@ namespace EjoyFramework.Core.Config
 {
     /// <summary>
     /// 全局配置管理器接口。
+    /// 热路径请用 <see cref="StringHash"/> 重载：键缓存为 <c>static readonly StringHash k_X = StringHash.Of("X")</c>，
+    /// 查找只比较整数、零分配。配置名在入库时校验哈希唯一（同哈希不同名的第二个键被拒绝并报错），保证按哈希查找无歧义。
     /// </summary>
     public interface IConfigManager
     {
@@ -91,10 +93,44 @@ namespace EjoyFramework.Core.Config
         /// </summary>
         bool TryGetString(string configName, out string value);
 
+        /// <summary>检查是否存在指定全局配置项（按哈希，零分配）。</summary>
+        bool HasConfig(StringHash configName);
+
+        /// <summary>按哈希读取布尔值，缺失为 false。</summary>
+        bool GetBool(StringHash configName);
+
+        /// <summary>按哈希读取整数值，缺失为 0。</summary>
+        int GetInt(StringHash configName);
+
+        /// <summary>按哈希读取浮点数值，缺失为 0。</summary>
+        float GetFloat(StringHash configName);
+
+        /// <summary>按哈希读取字符串值，缺失为 null。</summary>
+        string GetString(StringHash configName);
+
+        /// <summary>按哈希尝试读取布尔值。</summary>
+        bool TryGetBool(StringHash configName, out bool value);
+
+        /// <summary>按哈希尝试读取整数值。</summary>
+        bool TryGetInt(StringHash configName, out int value);
+
+        /// <summary>按哈希尝试读取浮点数值。</summary>
+        bool TryGetFloat(StringHash configName, out float value);
+
+        /// <summary>按哈希尝试读取字符串值。</summary>
+        bool TryGetString(StringHash configName, out string value);
+
         /// <summary>
-        /// 增加指定全局配置项。原始字符串以五元组传入。
+        /// 增加指定全局配置项。原始字符串以五元组传入：布尔宽松解析（1/0、true/false、yes/no，无法识别为 false），
+        /// 整数 / 浮点解析失败为 0。
         /// </summary>
         bool AddConfig(string configName, string configValue, string boolValue, string intValue, string floatValue);
+
+        /// <summary>
+        /// 增加指定全局配置项（已解析的值，解析器走这条路径，免去三个中间字符串）。
+        /// 名字为空、已存在、或与已有配置同 <see cref="StringHash"/> 时返回 false（后者会报错并给出两个名字）。
+        /// </summary>
+        bool AddConfig(string configName, string configValue, bool boolValue, int intValue, float floatValue);
 
         /// <summary>
         /// 移除指定全局配置项。

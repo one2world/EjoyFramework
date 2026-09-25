@@ -3,6 +3,7 @@
 // Copyright (c) 2024-2026 EjoyGame. All rights reserved.
 //------------------------------------------------------------
 
+using System;
 using NUnit.Framework;
 using EjoyFramework.Core.Localization;
 
@@ -128,6 +129,111 @@ namespace EjoyFramework.Tests
             Assert.IsTrue(m_LM.HasLocalized("hello"));
             Assert.IsTrue(m_LM.HasLocalized("apple"));
             Assert.IsFalse(m_LM.HasLocalized("missing"));
+        }
+
+        // ===== WS5-M1：切片查表与零分配追加 =====
+
+        [Test]
+        public void TryGetRawString_BySpan()
+        {
+            m_LM.AddRawString("apple.one", "{0} apple");
+            string value;
+            Assert.IsTrue(m_LM.TryGetRawString("xapple.onex".AsSpan(1, 9), out value));
+            Assert.AreEqual("{0} apple", value);
+            Assert.IsFalse(m_LM.TryGetRawString("apple.two".AsSpan(), out value));
+            Assert.IsNull(value);
+        }
+
+        [Test]
+        public void AppendFormat_WritesFormattedTemplate()
+        {
+            m_LM.AddRawString("hp", "HP {0}/{1}");
+            m_LM.AddRawString("title", "Stage");
+            using (var t = TempText.Rent())
+            {
+                Assert.IsTrue(m_LM.AppendFormat(t, "hp", 30, 100));
+                t.Append(' ');
+                Assert.IsTrue(m_LM.AppendString(t, "title"));
+                Assert.AreEqual("HP 30/100 Stage", t.ToString());
+            }
+        }
+
+        [Test]
+        public void AppendFormat_MalformedTemplate_AppendsRawTemplate()
+        {
+            m_LM.AddRawString("broken", "HP {0");
+            using (var t = TempText.Rent())
+            {
+                Assert.IsFalse(m_LM.AppendFormat(t, "broken", 30));
+                Assert.AreEqual("HP {0", t.ToString(), "a translator's typo must not throw or leave half-formatted text");
+            }
+        }
+
+        [Test]
+        public void AppendFormat_MissingKey_AppendsFallback()
+        {
+            using (var t = TempText.Rent())
+            {
+                Assert.IsFalse(m_LM.AppendFormat(t, "nope", 1));
+                Assert.AreEqual(m_LM.GetString("nope"), t.ToString());
+            }
+        }
+
+        [Test]
+        public void AppendPlural_SelectsFormAndFallsBack()
+        {
+            m_LM.AddRawString("apple.one", "{0} apple");
+            m_LM.AddRawString("apple.other", "{0} apples");
+            m_LM.AddRawString("coin", "{0} coin(s)");
+            using (var t = TempText.Rent())
+            {
+                Assert.IsTrue(m_LM.AppendPlural(t, "apple", 1));
+                t.Append('|');
+                Assert.IsTrue(m_LM.AppendPlural(t, "apple", 5));
+                t.Append('|');
+                Assert.IsTrue(m_LM.AppendPlural(t, "coin", 3), "falls back to the base key");
+                t.Append('|');
+                Assert.IsFalse(m_LM.AppendPlural(t, "ghost", 2), "all candidates missing");
+                Assert.AreEqual("1 apple|5 apples|3 coin(s)|ghost", t.ToString());
+            }
+
+            m_LM.Language = Language.Russian;
+            using (var t = TempText.Rent())
+            {
+                Assert.IsTrue(m_LM.AppendPlural(t, "apple", 3), "Russian 'few' is missing and falls back to .other");
+                Assert.AreEqual("3 apples", t.ToString());
+            }
+        }
+
+        [Test]
+        public void Plural_LongBaseKey_UsesPooledKeyBuffer()
+        {
+            string baseKey = new string('k', 300);
+            m_LM.AddRawString(baseKey + ".other", "{0} long");
+            Assert.AreEqual("4 long", m_LM.GetPlural(baseKey, 4));
+            using (var t = TempText.Rent())
+            {
+                Assert.IsTrue(m_LM.AppendPlural(t, baseKey, 4));
+                Assert.AreEqual("4 long", t.ToString());
+            }
+        }
+
+        [Test]
+        public void Append_IsAllocationFree()
+        {
+            m_LM.AddRawString("hp", "HP {0}/{1}");
+            m_LM.AddRawString("apple.one", "{0} apple");
+            m_LM.AddRawString("apple.other", "{0} apples");
+            int count = 0;
+            ZeroAlloc.Assert(() =>
+            {
+                using (var t = TempText.Rent(64))
+                {
+                    m_LM.AppendFormat(t, "hp", count, 100);
+                    m_LM.AppendPlural(t, "apple", count & 3);
+                    count++;
+                }
+            });
         }
     }
 }

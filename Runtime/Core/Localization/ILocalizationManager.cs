@@ -26,6 +26,11 @@ namespace EjoyFramework.Core.Localization
         string GetString(string key, params object[] args);
         bool HasRawString(string key);
         string GetRawString(string key);
+
+        /// <summary>
+        /// 按字符切片查原始字符串（零分配），用于在栈缓冲里拼出的键（如复数键 "apple.one"）直接查表。
+        /// </summary>
+        bool TryGetRawString(ReadOnlySpan<char> key, out string value);
         bool AddRawString(string key, string value);
         bool AddRawString(string key, string value, bool overwrite);
         bool RemoveRawString(string key);

@@ -270,5 +270,140 @@ namespace EjoyFramework.Tests
                 Assert.IsEmpty(errors, errors.Count > 0 ? errors[0].ToString() : null);
             }
         }
+
+        // ================= WS5-M1：StringHash / NumberStrings / TextFormatter / StringMap =================
+        // 契约：StringHashRegistry 全方法加锁；NumberStrings 惰性填充是良性竞态、换表对读者原子；
+        // TextFormatter 的类型缓存由类型初始化保证只建一次、枚举名字表构造后只读；StringMap 无写者时可并发读。
+
+        private enum ThreadingEnum
+        {
+            Alpha,
+            Beta,
+            Gamma,
+        }
+
+        [Test]
+        public void StringHashRegistry_ConcurrentRecording_CountsAndCollisionsAreExact()
+        {
+            bool enabled = StringHashRegistry.Enabled;
+            bool throwOnCollision = StringHashRegistry.ThrowOnCollision;
+            StringHashRegistry.Clear();
+            StringHashRegistry.Enabled = true;
+            StringHashRegistry.ThrowOnCollision = false;
+            try
+            {
+                var errors = RunOnThreads(ThreadCount, threadIndex =>
+                {
+                    for (int i = 0; i < 2000; i++)
+                    {
+                        // 所有线程登记同一批 500 个名字（大量重复登记），外加一对已知碰撞。
+                        StringHash hash = StringHash.Of("Key." + (i % 500));
+                        if (hash.Value != StringHash.Compute("Key." + (i % 500)))
+                        {
+                            throw new InvalidOperationException("hash mismatch under contention");
+                        }
+
+                        StringHash.Of((i & 1) == (threadIndex & 1) ? "costarring" : "liquid");
+                    }
+                });
+
+                Assert.IsEmpty(errors, errors.Count > 0 ? errors[0].ToString() : null);
+                Assert.AreEqual(501, StringHashRegistry.Count, "500 names + whichever of the colliding pair came first");
+                Assert.AreEqual(1, StringHashRegistry.CollisionCount, "the colliding pair is reported exactly once");
+            }
+            finally
+            {
+                StringHashRegistry.Enabled = enabled;
+                StringHashRegistry.ThrowOnCollision = throwOnCollision;
+                StringHashRegistry.Clear();
+            }
+        }
+
+        [Test]
+        public void NumberStrings_ConcurrentGetWhileRangeChanges_AlwaysCorrect()
+        {
+            try
+            {
+                var errors = RunOnThreads(ThreadCount, threadIndex =>
+                {
+                    for (int i = 0; i < IterationsPerThread * 4; i++)
+                    {
+                        if (threadIndex == 0 && (i & 4095) == 0)
+                        {
+                            NumberStrings.SetCachedRange((i & 8192) == 0 ? -500 : 0, 1500);
+                        }
+
+                        int value = (i * 7 + threadIndex) % 2000 - 500;
+                        string text = NumberStrings.Get(value);
+                        if (text != value.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                        {
+                            throw new InvalidOperationException("NumberStrings returned '" + text + "' for " + value);
+                        }
+                    }
+                });
+
+                Assert.IsEmpty(errors, errors.Count > 0 ? errors[0].ToString() : null);
+            }
+            finally
+            {
+                NumberStrings.SetCachedRange(NumberStrings.DefaultMin, NumberStrings.DefaultMax);
+            }
+        }
+
+        [Test]
+        public void TextFormatter_FirstUseOnParallelThreads_FormatsCorrectly()
+        {
+            // ThreadingEnum 在此之前从未被格式化：各线程同时触发它的格式化器缓存初始化。
+            var errors = RunOnThreads(ThreadCount, threadIndex =>
+            {
+                for (int i = 0; i < IterationsPerThread; i++)
+                {
+                    ThreadingEnum value = (ThreadingEnum)(i % 3);
+                    using (var t = TempText.Rent(64))
+                    {
+                        t.AppendFormat("{0}:{1}:{2:F1}", threadIndex, value, i * 0.5);
+                        string expected = threadIndex + ":" + value + ":" + (i * 0.5).ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+                        if (t.ToString() != expected)
+                        {
+                            throw new InvalidOperationException("expected '" + expected + "' got '" + t.ToString() + "'");
+                        }
+                    }
+                }
+            });
+
+            Assert.IsEmpty(errors, errors.Count > 0 ? errors[0].ToString() : null);
+        }
+
+        [Test]
+        public void StringMap_ConcurrentReaders_WithoutWriters()
+        {
+            var map = new StringMap<int>(0, true);
+            for (int i = 0; i < 1000; i++)
+            {
+                map.Add("Item." + i, i);
+            }
+
+            string[] keys = new string[1000];
+            for (int i = 0; i < keys.Length; i++)
+            {
+                keys[i] = "Item." + i;
+            }
+
+            var errors = RunOnThreads(ThreadCount, threadIndex =>
+            {
+                for (int i = 0; i < IterationsPerThread * 4; i++)
+                {
+                    int k = (i * 31 + threadIndex) % keys.Length;
+                    int a, b, c;
+                    if (!map.TryGetValue(keys[k], out a) || !map.TryGetValue(keys[k].AsSpan(), out b) ||
+                        !map.TryGetValue(new StringHash(StringHash.Compute(keys[k])), out c) || a != k || b != k || c != k)
+                    {
+                        throw new InvalidOperationException("concurrent read returned a wrong entry for " + keys[k]);
+                    }
+                }
+            });
+
+            Assert.IsEmpty(errors, errors.Count > 0 ? errors[0].ToString() : null);
+        }
     }
 }

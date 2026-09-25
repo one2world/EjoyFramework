@@ -160,5 +160,58 @@ namespace EjoyFramework.Tests
             var n = m.GetOrAddNode("a.b.c");
             Assert.AreEqual("Root.a.b.c", n.FullName);
         }
+
+        // ===== WS5-M1：切片逐段查找 =====
+
+        [Test]
+        public void Path_EmptySegmentsAreIgnored()
+        {
+            var m = NewManager();
+            var n = m.GetOrAddNode("a..b");
+            Assert.AreSame(n, m.GetNode("a.b"));
+            Assert.AreSame(n, m.GetNode(".a/b."));
+            Assert.AreSame(m.GetNode("a"), m.GetNode("a/"));
+            Assert.AreEqual(1, m.Root.ChildCount, "no child named with an empty string");
+            Assert.AreEqual(1, m.GetNode("a").ChildCount);
+            Assert.AreSame(m.Root, m.GetNode("..."), "a path made only of separators points to the root");
+        }
+
+        [Test]
+        public void Path_MixedSeparators()
+        {
+            var m = NewManager();
+            var n = m.GetOrAddNode("a/b\\c.d");
+            Assert.AreSame(n, m.GetNode("a.b.c.d"));
+            Assert.AreEqual("Root.a.b.c.d", n.FullName);
+        }
+
+        [Test]
+        public void RemoveNode_TrailingSeparatorAndRoot()
+        {
+            var m = NewManager();
+            m.GetOrAddNode("a.b.c");
+            m.RemoveNode("a.b.");
+            Assert.IsNull(m.GetNode("a.b"));
+            Assert.IsNotNull(m.GetNode("a"));
+            m.RemoveNode("...");
+            Assert.IsNotNull(m.GetNode("a"), "the root cannot be removed");
+            m.RemoveNode("a");
+            Assert.AreEqual(0, m.Root.ChildCount);
+        }
+
+        [Test]
+        public void ExistingPathLookups_AreAllocationFree()
+        {
+            var m = NewManager();
+            m.GetOrAddNode("player.stats.hp");
+            int sink = 0;
+            ZeroAlloc.Assert(() =>
+            {
+                if (m.GetNode("player.stats.hp") != null) sink++;
+                if (m.GetNode("player/stats") != null) sink++;
+                if (m.GetOrAddNode("player.stats.hp") != null) sink++;
+            });
+            Assert.Greater(sink, 0);
+        }
     }
 }

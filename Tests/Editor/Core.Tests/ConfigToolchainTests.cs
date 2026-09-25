@@ -132,11 +132,36 @@ namespace EjoyFramework.Tests
                 new[] { "int", "string", "int", "float" },
             });
             string code = DataRowGenerator.Generate(schema, "Game.Data");
-            StringAssert.Contains("public sealed class HeroDataRow : IDataRow", code);
+            StringAssert.Contains("public sealed class HeroDataRow : ISpanDataRow", code);
             StringAssert.Contains("public int Id", code);
             StringAssert.Contains("public string Name", code);
             StringAssert.Contains("public float Speed", code);
             StringAssert.Contains("public bool ParseDataRow", code);
+        }
+
+        /// <summary>
+        /// 生成器输出与已编入测试程序集的 Generated/DataRow/SpanHeroDataRow.g.cs 逐字一致（忽略换行风格），
+        /// 因此 DataRowSpanParsingTests 对该类的运行期断言即是对生成代码的断言。
+        /// </summary>
+        [Test]
+        public void DataRowGenerator_MatchesCompiledGoldenFile()
+        {
+            var schema = ConfigTableSchema.Parse("SpanHero", new List<string[]>
+            {
+                new[] { "Id", "Name", "Hp", "Speed", "Enabled", "Big", "Skill" },
+                new[] { "int", "string", "int", "float", "bool", "long", "reference:Skill" },
+            });
+            string code = DataRowGenerator.Generate(schema, "EjoyFramework.Tests.GeneratedRows");
+            string goldenPath = System.IO.Path.Combine(
+                UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(ConfigToolchainTests).Assembly).resolvedPath,
+                "Tests/Editor/Core.Tests/Generated/DataRow/SpanHeroDataRow.g.cs");
+            string golden = System.IO.File.ReadAllText(goldenPath, System.Text.Encoding.UTF8);
+            Assert.AreEqual(Normalize(golden), Normalize(code));
+        }
+
+        private static string Normalize(string text)
+        {
+            return text.TrimStart('\uFEFF').Replace("\r\n", "\n").TrimEnd();
         }
     }
 }

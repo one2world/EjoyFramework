@@ -178,5 +178,114 @@ namespace EjoyFramework.Tests
             m.SetLeafCount("Mail/System", 5);
             Assert.AreEqual(1, fires, "Clear 后旧订阅不应再触发");
         }
+
+        // ===== WS5-M1：切片规整、订阅语义与零分配 =====
+
+        [Test]
+        public void PathNormalization_TrimsSegmentWhitespace()
+        {
+            var m = new RedDotManager();
+            m.SetLeafCount(" Mail / System ", 2);
+            Assert.AreEqual(2, m.GetCount("Mail/System"));
+            Assert.AreEqual(2, m.GetCount("Mail"));
+            Assert.AreEqual(2, m.GetCount("  Mail  "));
+            Assert.AreEqual(0, m.GetCount("///"), "no valid segment");
+            Assert.AreEqual(0, m.GetCount(" "));
+        }
+
+        [Test]
+        public void LongPaths_UseThePooledBuffer()
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < 60; i++)
+            {
+                if (i > 0) sb.Append('/');
+                sb.Append("Segment");
+            }
+
+            string deep = sb.ToString();   // 479 字符，超过栈缓冲 256
+            var m = new RedDotManager();
+            m.SetLeafCount("/" + deep + "/", 3);
+            Assert.AreEqual(3, m.GetCount(deep));
+            Assert.AreEqual(3, m.GetCount("//" + deep.Replace("/", "//")));
+            Assert.AreEqual(3, m.GetCount("Segment"));
+        }
+
+        [Test]
+        public void Subscribe_SameHandlerTwice_BehavesLikeMulticastDelegate()
+        {
+            var m = new RedDotManager();
+            int fires = 0;
+            System.Action<int> handler = v => fires++;
+            m.Subscribe("Mail", handler);
+            m.Subscribe("Mail", handler);
+            m.SetLeafCount("Mail/A", 1);
+            Assert.AreEqual(2, fires);
+
+            m.Unsubscribe("Mail", handler);   // 与多播委托 -= 一样只移除一次
+            m.SetLeafCount("Mail/A", 2);
+            Assert.AreEqual(3, fires);
+
+            m.Unsubscribe("Mail", handler);
+            m.SetLeafCount("Mail/A", 3);
+            Assert.AreEqual(3, fires);
+        }
+
+        [Test]
+        public void Subscriber_UnsubscribingDuringCallback_DoesNotSkipOthers()
+        {
+            var m = new RedDotManager();
+            var calls = new List<string>();
+            System.Action<int> first = null;
+            first = v =>
+            {
+                calls.Add("first");
+                m.Unsubscribe("Mail", first);
+            };
+            m.Subscribe("Mail", first);
+            m.Subscribe("Mail", v => calls.Add("second"));
+
+            m.SetLeafCount("Mail/A", 1);
+            CollectionAssert.AreEqual(new[] { "first", "second" }, calls, "the round in progress uses a snapshot");
+
+            m.SetLeafCount("Mail/A", 2);
+            CollectionAssert.AreEqual(new[] { "first", "second", "second" }, calls);
+        }
+
+        [Test]
+        public void ThrowingSubscriber_DoesNotBlockOthers()
+        {
+            UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                var m = new RedDotManager();
+                int fires = 0;
+                m.Subscribe("Mail", v => { throw new System.InvalidOperationException("boom"); });
+                m.Subscribe("Mail", v => fires++);
+                m.SetLeafCount("Mail/A", 1);
+                Assert.AreEqual(1, fires);
+            }
+            finally
+            {
+                UnityEngine.TestTools.LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void HotPath_IsAllocationFree()
+        {
+            var m = new RedDotManager();
+            m.SetLeafCount("Mail/System", 1);
+            m.Subscribe("Mail", v => { });
+            int i = 0;
+            int sink = 0;
+            ZeroAlloc.Assert(() =>
+            {
+                m.SetLeafCount("Mail/System", ++i & 7);
+                sink += m.GetCount("Mail") + m.GetCount("/Mail//System/");
+                sink += m.IsActive(" Mail ") ? 1 : 0;
+            });
+            Assert.GreaterOrEqual(sink, 0);
+        }
     }
 }
