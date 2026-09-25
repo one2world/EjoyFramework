@@ -21,6 +21,8 @@
 
 物理目录和程序集不是一一对应关系。确需隔离依赖的模块可以参照 `Core/Blobs/`，在层内模块目录放置独立 asmdef；不要因此在 Runtime 根下增加 `Core.<Module>` 目录。新 asmdef 必须有实际的依赖隔离用途。
 
+层目录下不设与层同义的中间目录（`Base`、`Common`、`Kernel`、`Foundation`、`Core` 之类）：这类名字不提供分类信息，还会让目录与命名空间对不上。层根命名空间（如 `EjoyFramework.Core`）的内核类型直接放在层目录根，基础设施按主题建子目录（如 `Core/Text`、`Core/Pooling`）。新建目录前先确认名字与父目录、所在层不同义。
+
 已有 `Core.Jobs.Unity` 等历史例外在专门重构之前保持兼容，不作为新增模块另起根目录的依据。本文不批量搬迁这些既有模块。
 
 ## 类型与文件命名
@@ -58,3 +60,5 @@ ECS 内核的独立程序集保证其不引用 Unity 或其他框架模块。Uni
 2026-09-13 的目录前缀重构统一调整了 12 个层目录。映射前后 1,236 个 `.meta`、asmdef、asmref 文件的 SHA-256 一致；ECS 独立 .NET 测试 32 项通过。编辑器和 Core EditMode 测试对本机 Unity 6000.4.8f1 程序集的静态编译通过，保留原有 9 / 12 项警告。证据位于本地忽略目录 `Tools~/Ecs/TestResults/DirectoryNaming/`。
 
 本次不声明 Unity 运行验证通过：unity-cli 当前没有可连接的 Editor，最近一次独立工程测试在许可证检查阶段以 198 退出。后续使用 `unity-cli test Tests~/Unity` 补齐验证。
+
+2026-09-25 的 R1 重构取消了 `Runtime/Core/Base`、`Runtime/Core.Unity/Base`、`Editor/Core.Unity.Editor/Base`：130 个条目以 git 重命名上移到层根，`.meta` GUID 全部保留，仅删除 3 个无引用的文件夹 `.meta`；两个编辑器类型的命名空间由 `EjoyFramework.Core.Unity.Editor.Base` 改为层根 `EjoyFramework.Core.Unity.Editor`。unity-cli 全量 EditMode 2544/2545、PlayMode 41/41，与搬迁前一致。

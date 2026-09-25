@@ -118,7 +118,7 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       Despawn 走 GetComponent 定位；首加载委托缓存、等待者双列表交换；Debugger 新增 SpawnPool 页。
       旧实现每次 Spawn/Despawn 的 `GetComponentsInChildren` 数组分配与每次 Despawn 全表扫描已消除。
       PlayMode 测试 +14（含 Spawn/Despawn 零分配断言），全量 PlayMode 39/39 绿。
-- [x] **WS1-M3 CollectionPool / BufferPool**（2026-09-21）：`Core/Base/Pooling/` —— `CollectionPool<TColl,TItem>`
+- [x] **WS1-M3 CollectionPool / BufferPool**（2026-09-21）：`Core/Pooling/`（R1 前在 `Core/Base/`）—— `CollectionPool<TColl,TItem>`
       （ListPool/HashSetPool/DictionaryPool 便利入口，ThreadStatic 无锁、using 作用域、每线程保留上限、
       编辑器下重复归还检测、Interlocked 指标）、`StringBuilderPool`（超容量不回池）、`BufferPool<T>`
       （2 的幂分桶 ArrayPool 语义、每桶一锁、跨线程租还、clearArray 选项、超 16M 直分配）。
@@ -138,7 +138,7 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       `MaxConcurrentRequests`（默认 16）内同步派发（行为不变），超出按 `BinaryHeap` 优先级（高者先、同级 FIFO）排队，
       完成一个补派一个；排队中取消零 IO；`IAssetLoadHandle.SetPriority` 在队内重排；共享回调 + userData 携带请求
       → 每次加载不再分配闭包；同步完成 loader 下 5000 深队列无递归；Shutdown 排队句柄 → Cancelled、回调 → NotReady。
-      新增 `BinaryHeap<T>`（Core/Base，零分配，DecreaseKey/IncreaseKey/RemoveAt）。测试 +17。
+      新增 `BinaryHeap<T>`（Core 根，零分配，DecreaseKey/IncreaseKey/RemoveAt）。测试 +17。
       未做：主线程完成回调的帧预算（loader 协程内派发，需 WS2-M2 一并改 loader）。
 - [x] **WS2-M2 内存预算与淘汰**（2026-09-22）：`ResidentBudget`（Core，纯 C#）——bundle 引用归零后进入温缓存而非立即卸载，
       常驻超预算才按 LRU 淘汰（开放世界来回走动时"刚离开的区块"直接命中）；主动收缩 `TrimResident(targetBytes)`；
@@ -201,7 +201,7 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       `FrameworkBenchmarks` 9 项热路径（全部实测 0 分配并硬断言）+ `Tools~/Benchmarks/RunBenchmarks.ps1`（结果写工程内
       `TestResults/Benchmarks`，基线保存与对比）。测试：BenchmarkInfraTests 9 + FrameworkBenchmarks 9 + PerfCapturePlayModeTests 1；
       全量 2455/2456 + PlayMode 41/41。**WS4 完成。**
-- [x] **WS5-M1 零分配格式化/StringHash/Span 解析**（2026-09-25）：`Core/Base/Text/`——`TempText.AppendFormat/TryAppendFormat`
+- [x] **WS5-M1 零分配格式化/StringHash/Span 解析**（2026-09-25）：`Core/Text/`——`TempText.AppendFormat/TryAppendFormat`
       （`string.Format` 语法、与 InvariantCulture 输出逐字一致、值类型不装箱；非法格式串回滚，前者抛 FrameworkException、后者返回 false）、
       `TextFormatter`（静态泛型缓存分派 + 可注册 `ITextFormatter<T>`、枚举名字表缓存）、`TextFormat`（紧凑数字截断不进位、时长四式、
       百分比 <1 绝不显示 100% 且无 "-0%"）、`NumberStrings`、`StringHash`（FNV-1a-32 over UTF-8，与服务端 / StableHash 同值，0 保留）+
@@ -211,8 +211,10 @@ WS1 与 WS4 可并行；WS3 依赖 WS1/WS2。每个 WS 拆里程碑（M），见
       DataNode、RedDot、BindableText（泛型 SetValue）、ConfigBlobHash / StableHash 改为委托 StringHash。Unity：`UnityTextFormatters`；
       编辑器：`StringHashValidator` 菜单扫描字面量碰撞。文档 `docs/Text.md`。基准 +4（全部硬断言 0 分配）。
       **坑**：基准 sink 不能对同一值反复异或——偶数次归零，断言随采样次数奇偶随机失败，改为计数。测试 +89；全量 2544/2545 + PlayMode 41/41。
-- [ ] **R1 目录重构：取消与层同义的 `Base` 目录**（`Runtime/Core/Base`、`Runtime/Core.Unity/Base`、`Editor/Core.Unity.Editor/Base`
-      上移到层根，保留 GUID；WS5-M1 提交后单独提交）
+- [x] **R1 目录重构：取消与层同义的 `Base` 目录**（2026-09-25）：`Runtime/Core/Base`、`Runtime/Core.Unity/Base`、
+      `Editor/Core.Unity.Editor/Base` 的 130 个条目上移到层根（git 重命名，`.meta` GUID 全部保留，仅删 3 个无引用的文件夹 `.meta`）；
+      两个编辑器类型命名空间 `EjoyFramework.Core.Unity.Editor.Base` → 层根 `EjoyFramework.Core.Unity.Editor`（无外部引用、无序列化资产）。
+      规则写入 `DirectoryConventions.md`。全量 2544/2545 + PlayMode 41/41，与搬迁前一致。
 - [ ] **WS5-M2 Struct 事件与无 GC 集合**（RingBuffer/Deque/BitSet/SlotMap——M3/M4 的前置）
 - [ ] **WS5-M3 ECS 深化**（用户 2026-09-24 指定重点：先分析 FPSSample，再按框架风格吸收；ECS 内核仍自研）：
       ① 按游戏循环阶段显式排序的系统组（服务端模拟 / 客户端预测 / 插值 / 表现，对应 FPSSample

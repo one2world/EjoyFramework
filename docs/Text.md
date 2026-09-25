@@ -1,6 +1,6 @@
 # Text — 零分配文本基建
 
-> WS5-M1（2026-09-25）。Core：`Runtime/Core/Base/Text/`（R1 目录重构后随 Base 一起上移），
+> WS5-M1（2026-09-25）。Core：`Runtime/Core/Text/`，
 > Unity：`Runtime/Core.Unity/Text/UnityTextFormatters.cs`，编辑器：`Editor/Core.Unity.Editor/Text/StringHashValidator.cs`。
 
 ## 选哪个（一张表）

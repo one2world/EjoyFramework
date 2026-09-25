@@ -115,7 +115,7 @@ EjoyFramework.GamePlay.Unity  玩法 Unity 驱动壳（18 个 MonoBehaviour）
 ByteBuffer、FrameworkLog（免装箱重载）、Jobs 封装。缺口按优先级：
 
 > **实施进展（2026-08-10，四线并行开发 + 交叉审查，全部 PASS）**
-> - `Core/Base/Text/`：**TempText**（readonly ref struct 构建器 + [ThreadStatic] 分级 CharBufferPool，
+> - `Core/Text/`（R1 前为 `Core/Base/Text/`）：**TempText**（readonly ref struct 构建器 + [ThreadStatic] 分级 CharBufferPool，
 >   版本号校验常编译，稳态实测 0 分配，26 用例）；**MutableString**（unsafe 可变 string，
 >   `EJOY_UNSAFE_STRING && (ENABLE_MONO || ENABLE_IL2CPP)` 双重闸门——压缩式 GC（CoreCLR）下改写
 >   length 会崩堆已实测确认，仅 Unity Boehm 获准启用，CoreCLR/未定义时自动退化为分配实现）。
