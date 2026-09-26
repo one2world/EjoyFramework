@@ -9,7 +9,7 @@ using EjoyFramework.Core.Unity.Editor.CodeGen;
 using UnityEditor;
 using UnityEngine;
 
-namespace EjoyFramework.Core.Unity.Editor.Base
+namespace EjoyFramework.Core.Unity.Editor
 {
     /// <summary>
     /// EjoyFramework.Core 项目级配置面板，集成到 Project Settings → EjoyFramework.Core。

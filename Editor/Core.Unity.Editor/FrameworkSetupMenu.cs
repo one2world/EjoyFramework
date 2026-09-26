@@ -11,7 +11,7 @@ using EjoyFramework.Core.Unity;
 using UnityEditor;
 using UnityEngine;
 
-namespace EjoyFramework.Core.Unity.Editor.Base
+namespace EjoyFramework.Core.Unity.Editor
 {
     /// <summary>
     /// Framework 根 GameObject 一键生成器。
