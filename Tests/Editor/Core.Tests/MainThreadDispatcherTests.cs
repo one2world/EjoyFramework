@@ -104,7 +104,15 @@ namespace EjoyFramework.Tests
             int executed = 0;
             for (int i = 0; i < 20; i++)
             {
-                m_Dispatcher.Post(() => { executed++; Thread.SpinWait(200000); });   // 每项 ≈ 若干百微秒
+                m_Dispatcher.Post(() =>
+                {
+                    executed++;
+                    // SpinWait iteration cost differs across Mono runtimes and CPUs.
+                    // Hold each item past the budget using the dispatcher's monotonic clock.
+                    long end = System.Diagnostics.Stopwatch.GetTimestamp() +
+                        System.Diagnostics.Stopwatch.Frequency / 500;
+                    while (System.Diagnostics.Stopwatch.GetTimestamp() < end) Thread.SpinWait(10);
+                });
             }
 
             m_Dispatcher.Update(0f, 0f);

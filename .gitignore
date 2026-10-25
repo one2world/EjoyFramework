@@ -9,6 +9,11 @@ Builds/
 BuildArtifacts/
 AssetBundles/
 TestResults/
+# The minimal Unity regression host regenerates editor/platform defaults locally.
+/Tests~/Unity/ProjectSettings/*
+!/Tests~/Unity/ProjectSettings/ProjectVersion.txt
+/Tests~/Unity/Assets/InitTestScene*.unity
+/Tests~/Unity/Assets/InitTestScene*.unity.meta
 bin/
 obj/
 *.csproj

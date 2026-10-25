@@ -12,6 +12,8 @@ namespace EjoyFramework.GamePlay.Unity.Combat
     /// Non-convex meshes are queried as surfaces, not solid-volume interiors. Unknown colliders
     /// are rejected when Unity reports a cast hit or initial overlap, not by scanning all layer occupants.
     /// Zero-radius containment is checked against registered solid primitives and convex meshes.
+    /// Initial overlaps on readable non-convex meshes use cached triangles for their contact point;
+    /// unreadable meshes report the sweep origin and opposite travel normal (no unique penetration contact).
     /// All buffers are allocated at construction; sweeps do not mutate live physics or allocate.</summary>
     public sealed class StaticPhysicsHistoricalQuery : IHistoricalSweepQuery
     {
@@ -19,6 +21,8 @@ namespace EjoyFramework.GamePlay.Unity.Combat
         private readonly PhysicsScene scene;
         private readonly Collider[] geometry,overlaps;
         private readonly Matrix4x4[] poses;
+        private readonly Vector3[][] meshVertices;
+        private readonly int[][] meshTriangles;
         // Keep Unity object identity as the key; shape IDs are explicit registration indices.
         // GetInstanceID is unavailable in Unity 6000.6+, and no EntityId conversion is needed.
         private readonly Dictionary<Collider,ushort> ids;
@@ -35,11 +39,18 @@ namespace EjoyFramework.GamePlay.Unity.Combat
             // Registration and pose checks establish runtime immutability. GameObject.isStatic is a bake/editor flag, not a player contract.
             this.scene=scene;this.owner=owner;mask=categoryMask;layers=layerMask;
             geometry=(Collider[])staticGeometry.Clone();overlaps=new Collider[geometry.Length+1];poses=new Matrix4x4[geometry.Length];ids=new Dictionary<Collider,ushort>(geometry.Length);
+            meshVertices=new Vector3[geometry.Length][];meshTriangles=new int[geometry.Length][];
             for(int i=0;i<geometry.Length;i++)
             {
                 var c=geometry[i];
                 if(!c||!c.enabled||!c.gameObject.activeInHierarchy||c.isTrigger||(layers&(1<<c.gameObject.layer))==0||c.gameObject.scene.GetPhysicsScene()!=scene)throw new ArgumentException("Geometry must be enabled, non-trigger and in the specified scene/layer.");
                 ids.Add(c,(ushort)i);poses[i]=c.transform.localToWorldMatrix;
+                if(c is MeshCollider mesh&&!mesh.convex&&mesh.sharedMesh&&mesh.sharedMesh.isReadable)
+                {
+                    var vertices=mesh.sharedMesh.vertices;
+                    for(int v=0;v<vertices.Length;v++)vertices[v]=poses[i].MultiplyPoint3x4(vertices[v]);
+                    meshVertices[i]=vertices;meshTriangles[i]=mesh.sharedMesh.triangles;
+                }
             }
         }
         public HistoricalQueryStatus Sweep(ulong epoch,uint tick,V origin,V direction,float distance,float radius,uint queryMask,ulong excludedOwner,out HistoricalHit hit)
@@ -75,7 +86,7 @@ namespace EjoyFramework.GamePlay.Unity.Combat
                 {
                     ushort best=ushort.MaxValue;Collider selected=null;
                     for(int i=0;i<count;i++){ushort id=Identity(overlaps[i]);if(id<best){best=id;selected=overlaps[i];}}
-                    var point=selected.ClosestPoint(start);var normal=start-point;if(normal.sqrMagnitude<.000001f)normal=-dir;
+                    var point=ClosestPoint(best,selected,start);var normal=start-point;if(normal.sqrMagnitude<.000001f)normal=-dir;
                     hit=HistoricalHit.StaticGeometry(owner,1,best,mask,0,0,N(point),N(normal));return HistoricalQueryStatus.Hit;
                 }
             }
@@ -90,6 +101,38 @@ namespace EjoyFramework.GamePlay.Unity.Combat
             return result;
         }
         private ushort Identity(Collider c)=>ids.TryGetValue(c,out var id)?id:throw new InvalidOperationException("Unexpected collider in the static query layer.");
+        private Vector3 ClosestPoint(ushort id,Collider collider,Vector3 point)
+        {
+            var vertices=meshVertices[id];
+            if(vertices==null)return collider is MeshCollider mesh&&!mesh.convex?point:collider.ClosestPoint(point);
+            var triangles=meshTriangles[id];var best=point;float distance=float.PositiveInfinity;
+            for(int i=0;i<triangles.Length;i+=3)
+            {
+                if(Vector3.Cross(vertices[triangles[i+1]]-vertices[triangles[i]],vertices[triangles[i+2]]-vertices[triangles[i]]).sqrMagnitude==0)continue;
+                var candidate=ClosestTrianglePoint(point,vertices[triangles[i]],vertices[triangles[i+1]],vertices[triangles[i+2]]);
+                float squared=(point-candidate).sqrMagnitude;
+                if(squared<distance){distance=squared;best=candidate;}
+            }
+            return best;
+        }
+        private static Vector3 ClosestTrianglePoint(Vector3 p,Vector3 a,Vector3 b,Vector3 c)
+        {
+            var ab=b-a;var ac=c-a;var ap=p-a;
+            float d1=Vector3.Dot(ab,ap),d2=Vector3.Dot(ac,ap);
+            if(d1<=0&&d2<=0)return a;
+            var bp=p-b;float d3=Vector3.Dot(ab,bp),d4=Vector3.Dot(ac,bp);
+            if(d3>=0&&d4<=d3)return b;
+            float vc=d1*d4-d3*d2;
+            if(vc<=0&&d1>=0&&d3<=0)return a+ab*(d1/(d1-d3));
+            var cp=p-c;float d5=Vector3.Dot(ab,cp),d6=Vector3.Dot(ac,cp);
+            if(d6>=0&&d5<=d6)return c;
+            float vb=d5*d2-d1*d6;
+            if(vb<=0&&d2>=0&&d6<=0)return a+ac*(d2/(d2-d6));
+            float va=d3*d6-d5*d4;
+            if(va<=0&&(d4-d3)>=0&&(d5-d6)>=0)return b+(c-b)*((d4-d3)/((d4-d3)+(d5-d6)));
+            float inverse=1/(va+vb+vc);
+            return a+ab*(vb*inverse)+ac*(vc*inverse);
+        }
         private static Vector3 U(V value)=>new Vector3(value.X,value.Y,value.Z);
         private static V N(Vector3 value)=>new V(value.x,value.y,value.z);
     }

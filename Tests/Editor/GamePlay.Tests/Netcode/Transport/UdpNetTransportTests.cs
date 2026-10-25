@@ -45,6 +45,13 @@ namespace EjoyFramework.GamePlay.Tests.Netcode
             int count = 0;
             server.OnData += (id, data) => { count++; Assert.Throws<InvalidOperationException>(() => server.Poll(0, 0)); };
             for (int i = 0; i < 4; i++) client.Send(0, new ArraySegment<byte>(new byte[10]), NetDeliveryMethod.UnreliableSequenced);
+            // Socket delivery can lag Send even on loopback. Stage all four events with
+            // dispatch disabled before measuring the callback/byte budgets.
+            var events=(System.Collections.ICollection)typeof(UdpNetTransport)
+                .GetField("m_Events",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).GetValue(server);
+            var wait=Stopwatch.StartNew();
+            while(events.Count<4&&wait.Elapsed.TotalSeconds<4){server.Poll(0,0);Thread.Sleep(1);}
+            Assert.That(events.Count,Is.EqualTo(4),"UDP loopback input did not reach the deferred queue.");
             server.Poll(0, 0); Assert.That(count, Is.Zero);
             server.Poll(2, 10); Assert.That(count, Is.EqualTo(1));
             server.Poll(2, 0); Assert.That(count, Is.EqualTo(1));

@@ -25,6 +25,12 @@ namespace EjoyFramework.GamePlay.Unity.ThreeC
 
         private void Awake()
         {
+            EnsureInitialized();
+        }
+
+        private void EnsureInitialized()
+        {
+            if (m_Motor != null) return;
             m_Controller = GetComponent<CharacterController>();
             m_Stepper = new CharacterControllerStepper(m_Controller);
             if (m_Input == null) m_Input = GetComponent<ThirdPersonInputSource>();
@@ -58,6 +64,8 @@ namespace EjoyFramework.GamePlay.Unity.ThreeC
                 float.IsNaN(position.y) || float.IsInfinity(position.y) ||
                 float.IsNaN(position.z) || float.IsInfinity(position.z))
                 throw new ArgumentOutOfRangeException(nameof(position));
+            // Inactive pooled instances can be positioned before Unity invokes Awake.
+            EnsureInitialized();
             // Pool preparation may teleport an inactive or disabled controller. Tick movement
             // still requires an active controller; preserve the caller's enabled/active state here.
             bool wasEnabled = m_Controller.enabled;

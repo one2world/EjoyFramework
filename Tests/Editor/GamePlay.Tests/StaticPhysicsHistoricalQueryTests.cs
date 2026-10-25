@@ -36,8 +36,27 @@ namespace EjoyFramework.GamePlay.Tests
         [Test] public void InitialOverlapIsVisibleAndMovedStaticGeometryIsRejected()
         {
             Assert.That(query.Sweep(1,1,new V(0,0,4.4f),V.UnitZ,10,.2f,uint.MaxValue,0,out var hit),Is.EqualTo(HistoricalQueryStatus.Hit));Assert.That(hit.Distance,Is.Zero);
+            Assert.That(hit.Point.Z,Is.EqualTo(4.5f).Within(.0001f));
+            Assert.That(hit.Normal.Z,Is.EqualTo(-1).Within(.0001f));
+            UnityEngine.TestTools.LogAssert.NoUnexpectedReceived();
             wall.transform.position=Vector3.right;Physics.SyncTransforms();history.Capture(2,Array.Empty<HistoricalCollider>());
             Assert.Throws<InvalidOperationException>(()=>query.Sweep(1,2,V.Zero,V.UnitZ,20,.1f,uint.MaxValue,0,out _));
+        }
+
+        [Test] public void UnreadableNonConvexMeshOverlapUsesOriginContactWithoutUnsupportedClosestPoint()
+        {
+            var mesh=UnityEngine.Object.Instantiate(collider.sharedMesh);
+            try
+            {
+                collider.sharedMesh=mesh;mesh.UploadMeshData(true);Physics.SyncTransforms();
+                query=new StaticPhysicsHistoricalQuery(history,Physics.defaultPhysicsScene,new Collider[]{collider},1<<29,7,0x80000000);
+                var origin=new V(0,0,4.4f);
+                Assert.That(query.Sweep(1,1,origin,V.UnitZ,10,.2f,uint.MaxValue,0,out var hit),Is.EqualTo(HistoricalQueryStatus.Hit));
+                Assert.That(hit.Distance,Is.Zero);Assert.That(hit.Point,Is.EqualTo(origin));
+                Assert.That(hit.Normal,Is.EqualTo(-V.UnitZ));
+                UnityEngine.TestTools.LogAssert.NoUnexpectedReceived();
+            }
+            finally { collider.sharedMesh=null;UnityEngine.Object.DestroyImmediate(mesh); }
         }
 
         [Test] public void ColliderKeysPreserveDistinctRegistrationIdsForSameNamedObjects()
