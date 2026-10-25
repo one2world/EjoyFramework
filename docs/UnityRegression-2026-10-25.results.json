@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-25T08:58:29.425845+00:00",
+  "baseline_commit": "4626f9069bbb41a55eb56703fc31e8db2e7eb1cd",
+  "production_fix_commit": "8f58ec5826e01738c1566749789940d524bbc45e",
+  "environment": {
+    "platform": "macOS arm64",
+    "gpu": "Apple M5",
+    "unity_cli": "1.0.0-beta.14",
+    "editor_versions": [
+      "6000.4.8f1 (f8b72d3d7343)",
+      "6000.6.5f1 (3ff58d469c8a)"
+    ],
+    "player_execution": "arch -arm64; diagnostic runtime-created UTF 1.6 controller; normal default Player launcher remains blocked",
+    "final_editor_playmode": "Domain Reload disabled; 6000.4 Metal enabled; 6000.6 -nographics"
+  },
+  "runs": [
+    {
+      "name": "Focused-01",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/Focused-01.xml",
+      "xml_sha256": "f2b47ad5bd71c388782a0c0af6ef43008dd50ff8bafc88060195ed14ab8c1618",
+      "root_element": "test-run",
+      "result": "Failed(Child)",
+      "total": 111,
+      "passed": 107,
+      "failed": 4,
+      "skipped": 0,
+      "duration_seconds": 0.4307882,
+      "failed_tests": [
+        "EjoyFramework.GamePlay.Tests.CharacterControllerStepperTests.MotorTeleportPreservesPooledCharacterActivationAndControllerState(True,True)",
+        "EjoyFramework.GamePlay.Tests.CharacterControllerStepperTests.MotorTeleportPreservesPooledCharacterActivationAndControllerState(True,False)",
+        "EjoyFramework.GamePlay.Tests.CharacterControllerStepperTests.MotorTeleportPreservesPooledCharacterActivationAndControllerState(False,True)",
+        "EjoyFramework.GamePlay.Tests.CharacterControllerStepperTests.MotorTeleportPreservesPooledCharacterActivationAndControllerState(False,False)"
+      ]
+    },
+    {
+      "name": "EditMode-02",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/EditMode-02.xml",
+      "xml_sha256": "380ee10c19ddbb29ad38cc6edab49097a212c097d67aa56855a81b2d5d15c78b",
+      "root_element": "test-run",
+      "result": "Failed(Child)",
+      "total": 3590,
+      "passed": 3580,
+      "failed": 2,
+      "skipped": 8,
+      "duration_seconds": 23.3925501,
+      "failed_tests": [
+        "EjoyFramework.Tests.AssetImportApplyIntegrationTests.ApplyToPaths_AppliesTexturePreset",
+        "EjoyFramework.Tests.MainThreadDispatcherTests.MaxDrainMilliseconds_SpreadsBurstAcrossFrames"
+      ]
+    },
+    {
+      "name": "EditMode-03",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/EditMode-03.xml",
+      "xml_sha256": "127255e539380c887f6f3ee37ffa4e314a9bdb66ae339cddd3ebf79875daeb82",
+      "root_element": "test-run",
+      "result": "Skipped:Ignored",
+      "total": 3590,
+      "passed": 3582,
+      "failed": 0,
+      "skipped": 8,
+      "duration_seconds": 22.9215235,
+      "failed_tests": []
+    },
+    {
+      "name": "EditMode-Final",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/EditMode-Final.xml",
+      "xml_sha256": "e8e7beb6484e0ddae142e6e48dfcd92803177c1d83ddbb8593586496a7779826",
+      "root_element": "test-run",
+      "result": "Failed(Child)",
+      "total": 3591,
+      "passed": 3582,
+      "failed": 1,
+      "skipped": 8,
+      "duration_seconds": 23.1857078,
+      "failed_tests": [
+        "EjoyFramework.GamePlay.Tests.Netcode.UdpNetTransportTests.BoundedPumpDefersDataAndRejectsReentry"
+      ]
+    },
+    {
+      "name": "EditMode-Default-Final",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/EditMode-Default-Final.xml",
+      "xml_sha256": "c3c2fe3fcf22646cdd41743dd472a3f7c21e0938e58e91e621f974a3dbeb6af4",
+      "root_element": "test-run",
+      "result": "Skipped:Ignored",
+      "total": 3591,
+      "passed": 3583,
+      "failed": 0,
+      "skipped": 8,
+      "duration_seconds": 26.0154249,
+      "failed_tests": []
+    },
+    {
+      "name": "EditMode-Unsafe",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/EditMode-Unsafe.xml",
+      "xml_sha256": "ebd45eb7dd3dab81a47eeebbb779c9fb7b633d1286495697804ebbc59001b6fd",
+      "root_element": "test-run",
+      "result": "Skipped:Ignored",
+      "total": 3591,
+      "passed": 3589,
+      "failed": 0,
+      "skipped": 2,
+      "duration_seconds": 24.2377742,
+      "failed_tests": []
+    },
+    {
+      "name": "UnsafeAndFocused-05",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/UnsafeAndFocused-05.xml",
+      "xml_sha256": "bc42ec65796bb5b478efecfdda67eb953bc3401ff86a86fc1f7e3919d8daef88",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 54,
+      "passed": 54,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 1.5474065,
+      "failed_tests": []
+    },
+    {
+      "name": "PlayMode-01",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/PlayMode-01.xml",
+      "xml_sha256": "2930e81b8e2f3f4fca9545f216a20f83c6526a015ee3c40663d8c55f604d02e0",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 43,
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.943657,
+      "failed_tests": []
+    },
+    {
+      "name": "PlayMode-NoDomainReload-Final",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/PlayMode-NoDomainReload-Final.xml",
+      "xml_sha256": "4b96e337adfe622318c1de4e86d0c21e046bb7c24b3e6a396afed094e31ccebb",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 43,
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.6246558,
+      "failed_tests": []
+    },
+    {
+      "name": "GitConsumer-EditMode",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/GitConsumer-EditMode.xml",
+      "xml_sha256": "4c9909e3a7316d2e76534aecb0f22c3802a6efe7ad34a32166de3d1fbe91e501",
+      "root_element": "test-run",
+      "result": "Failed(Child)",
+      "total": 3591,
+      "passed": 3579,
+      "failed": 4,
+      "skipped": 8,
+      "duration_seconds": 26.3350889,
+      "failed_tests": [
+        "EjoyFramework.Tests.GamePlay.Units.UnitRaycastQueryTests.WarmedQueriesDoNotAllocate",
+        "EjoyFramework.Tests.AllocProbeTests.Probe_StackPushPopForeach_WarmLambda_DoesNotAllocate",
+        "EjoyFramework.Tests.BenchmarkInfraTests.PerfCapture_AddFrame_DoesNotAllocate",
+        "EjoyFramework.Tests.BufferPoolTests.ByteBuffer_WriteWithinCapacity_DoesNotAllocate"
+      ]
+    },
+    {
+      "name": "GitConsumer-AllocationRepeat",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/GitConsumer-AllocationRepeat.xml",
+      "xml_sha256": "462220e269c4c5e28b05d6c86a5e27df767729e9872732d16f3aa9913169f373",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.1546053,
+      "failed_tests": []
+    },
+    {
+      "name": "GitConsumer-EditMode-02",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/GitConsumer-EditMode-02.xml",
+      "xml_sha256": "ad8845e3aedc9175d2e17861386441db13e51b7bdb8cb0e5910941db1f051865",
+      "root_element": "test-run",
+      "result": "Skipped:Ignored",
+      "total": 3591,
+      "passed": 3583,
+      "failed": 0,
+      "skipped": 8,
+      "duration_seconds": 23.4122032,
+      "failed_tests": []
+    },
+    {
+      "name": "GitConsumer-PlayMode",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/GitConsumer-PlayMode.xml",
+      "xml_sha256": "4283c0a0b0b54618d123c01ccae7253493ca61694640fbdecfab9555f7df3e04",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 43,
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.7358074,
+      "failed_tests": []
+    },
+    {
+      "name": "6000.6-EditMode-01",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/6000.6-EditMode-01.xml",
+      "xml_sha256": "a420249fd7848705f9c8cc5abb2be5dd897175af72dbb0602a372d5f8377ff45",
+      "root_element": "test-run",
+      "result": "Skipped:Ignored",
+      "total": 3591,
+      "passed": 3583,
+      "failed": 0,
+      "skipped": 8,
+      "duration_seconds": 23.1178511,
+      "failed_tests": []
+    },
+    {
+      "name": "6000.6-PlayMode-NoDomainReload",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/6000.6-PlayMode-NoDomainReload.xml",
+      "xml_sha256": "7d2f2adbb5b29f60145acefbbf1d0685562bfb7468982acd8d5e66191c032b19",
+      "root_element": "test-run",
+      "result": "Failed(Child)",
+      "total": 43,
+      "passed": 39,
+      "failed": 4,
+      "skipped": 0,
+      "duration_seconds": 0.8827045,
+      "failed_tests": [
+        "EjoyFramework.Tests.PlayMode.ComponentRegistryLifecycleTests.DestroyedComponent_IsEvicted_AndGetComponentReturnsNull",
+        "EjoyFramework.Tests.PlayMode.ComponentRegistryLifecycleTests.GetComponentByTypeName_SkipsDestroyedInstance",
+        "EjoyFramework.Tests.PlayMode.ComponentRegistryLifecycleTests.OptionalAndRequiredAccess_HaveExplicitMissingSemantics",
+        "EjoyFramework.Tests.PlayMode.FrameworkBootstrapTests.EventComponent_OnGameObject_RegistersIntoFramework"
+      ]
+    },
+    {
+      "name": "6000.6-PlayMode-Final",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/6000.6-PlayMode-Final.xml",
+      "xml_sha256": "59a1154d42829aa7fc31c75518c301bca0b2960e9f4b5ced5e18e441df5ab7e6",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 43,
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 1.1550485,
+      "failed_tests": []
+    },
+    {
+      "name": "Player-Control-01",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/Player-Control-01.xml",
+      "xml_sha256": "9c0c1d39336d760ca66a8c1d037a4e8517a966ba952af17ad411eb9cc4caa8ea",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.1160482,
+      "failed_tests": []
+    },
+    {
+      "name": "Player-Control-Dependencies",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/Player-Control-Dependencies.xml",
+      "xml_sha256": "325a86a9cc59f9b234fb414c429a9ea5504df6da3d276d2db94a03a27a1cf0a4",
+      "root_element": "test-run",
+      "result": "Passed",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 0.0533576,
+      "failed_tests": []
+    },
+    {
+      "name": "RuntimeRunner-Mono",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/RuntimeRunner-Mono.xml",
+      "xml_sha256": "fca10d420c25c63e3ebbdd5eb03653ff9917062856dec5d258608bc9b0825110",
+      "root_element": "test-suite",
+      "result": "Failed",
+      "total": 43,
+      "passed": 37,
+      "failed": 6,
+      "skipped": 0,
+      "duration_seconds": 2.718769,
+      "failed_tests": [
+        "EjoyFramework.Tests.PlayMode.MvvmBinderTests.Binder_OnDisableOnEnable_BindingSurvives",
+        "EjoyFramework.Tests.PlayMode.MvvmBinderTests.ButtonBinder_Click_ExecutesCommand_AndMirrorsCanExecute",
+        "EjoyFramework.Tests.PlayMode.MvvmBinderTests.ListBinder_AddRemove_UpdatesChildren",
+        "EjoyFramework.Tests.PlayMode.MvvmBinderTests.ListBinder_ReplaceMove_ReusesChildrenAndUpdatesOrder",
+        "EjoyFramework.Tests.PlayMode.MvvmBinderTests.TextBinder_VMChange_UpdatesTextWidget",
+        "EjoyFramework.Tests.PlayMode.MvvmBinderTests.ToggleBinder_TwoWay_NoInfiniteLoop"
+      ]
+    },
+    {
+      "name": "RuntimeRunner-Mono-Final",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/RuntimeRunner-Mono-Final.xml",
+      "xml_sha256": "a46ecbe9ac963a12b2a30532a66376b6df1f0292ac22228f35a08730175b8fd2",
+      "root_element": "test-suite",
+      "result": "Passed",
+      "total": 43,
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.952429,
+      "failed_tests": []
+    },
+    {
+      "name": "RuntimeRunner-Mono-Complete",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/RuntimeRunner-Mono-Complete.xml",
+      "xml_sha256": "d1d42a78fd74549698cf41c47f2020865084765c485894e1937b20d01bd1a427",
+      "root_element": "test-suite",
+      "result": "Passed",
+      "total": 43,
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.720524,
+      "failed_tests": []
+    },
+    {
+      "name": "RuntimeRunner-IL2CPP-Final",
+      "xml_path": "Tests~/Unity/TestResults/unity-cli/2026-10-25/RuntimeRunner-IL2CPP-Final.xml",
+      "xml_sha256": "555511bce3aca2d481229700e5b7cd4c290e1d8abb644e1472d307960fdc82b2",
+      "root_element": "test-suite",
+      "result": "Passed",
+      "total": 43,
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.671126,
+      "failed_tests": []
+    }
+  ],
+  "source_sha256": {
+    "Runtime/GamePlay.Unity/Combat/StaticPhysicsHistoricalQuery.cs": "8c68246872685e7c1e24c5804e839d902586b11888ca2e41476fb1eff1192747",
+    "Runtime/GamePlay.Unity/ThreeC/ThirdPersonCharacterMotor.cs": "5c096749808f3f7d5d638fc3a2279c93c83e22e603f01b0cff73452bb7bdd0b1",
+    "Tests/Editor/Core.Tests/MainThreadDispatcherTests.cs": "e746b6de97857f3a053332eb26ac8c3f4b18bc24a8e0913a7d327b8579e28a9d",
+    "Tests/Editor/GamePlay.Tests/Netcode/Transport/UdpNetTransportTests.cs": "7f53009283a898ef3960aac5be3444a6efb6945df49a055a8172979eeaad174a",
+    "Tests/Editor/GamePlay.Tests/StaticPhysicsHistoricalQueryTests.cs": "9139016f60c126c32dffe76af8401c0cf06a7f2cec5d4c740b536b021bea3b98",
+    "Tests/Runtime/Core.Tests.PlayMode/MvvmBinderTests.cs": "53fb3d20d17c33c03e963294436b2d1f4d65d71560e1544598553da97fcf9166",
+    "Tests/Runtime/Core.Tests.PlayMode/PlayModeTestBase.cs": "dbfe5cd37024b51178b577c3b3ee7c3e8913430df70b228d9ecb6c7c7cd594c9",
+    "Tests~/Unity/Packages/packages-lock.json": "367cbdefa639ba1a0a6391cae37db54134dd69b60e38df6ea31878ad8d062932",
+    "Tools~/Unity/RuntimeRunner/link.xml": "a3853d1b7bd3ae7408337b0414dd7c16eafb37ffc68f8efffff5877494d4558b",
+    "Tools~/Unity/RuntimeRunner/RuntimeRunner.asmdef": "99763dede724dce77b80958a2f4e57a89f6bf1f5a39cfcc4db6300efde4693c3",
+    "Tools~/Unity/RuntimeRunner/RegressionBuild.cs": "c09cd7c2e38da8c0c6874c9ab0c7bfa9a563e88ce3ee7fb7147bc506e04c8153",
+    "Tools~/Unity/RuntimeRunner/README.md": "99857365834246309589889827460866718b7ec57ecbe16e9d58e318e8d4d325",
+    "Tools~/Unity/RuntimeRunner/RegressionBootstrap.cs": "96f0113e347601fe11dd70cf03e4bd90bfb1f09638e00e90ac3c983ecb55d5b3",
+    "Tools~/Unity/LocalPlayModeConfiguration.cs": "b9cfaeae501d831b95458d95adf621ad8f1f0c8b8f6242a9957307330f5c9f71"
+  },
+  "remaining_issues": [
+    "https://github.com/one2world/EjoyFramework/issues/22",
+    "https://github.com/one2world/EjoyFramework/issues/23"
+  ],
+  "unverified": [
+    "Windows mandatory file-lock test",
+    "MutableString EJOY_UNSAFE_STRING in IL2CPP Player",
+    "iOS/Android devices and mobile GPU performance",
+    "external full consumer game flow / visual / animation / manual feel acceptance",
+    "Unity 6000.6.5f1 standalone Player/AOT"
+  ],
+  "notes": [
+    "Overlapping suites and repeated runs must not be added as independent coverage.",
+    "GitConsumer runs pin published production source 8f58ec5; final Player fixtures additionally include the source hashes recorded here.",
+    "Unsafe Editor run separately enables the opt-in symbol; default runs intentionally skip its six cases.",
+    "Default Player failures have no completed XML and are not counted as passing tests."
+  ]
+}

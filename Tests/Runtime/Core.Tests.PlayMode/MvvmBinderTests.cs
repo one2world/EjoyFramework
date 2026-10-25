@@ -26,6 +26,22 @@ namespace EjoyFramework.Tests.PlayMode
     /// </summary>
     public sealed class MvvmBinderTests : PlayModeTestBase
     {
+        [SetUp]
+        public void RegisterPlayerAccessors()
+        {
+            // These private fixture types cannot participate in generated public VM
+            // registrations. Match the player contract instead of relying on the
+            // Editor-only reflection fallback, which hid missing setup in player runs.
+            PropertyAccessor.Register(typeof(TestVM), nameof(TestVM.Text),
+                static o => ((TestVM)o).Text, static (o, v) => ((TestVM)o).Text = (string)v);
+            PropertyAccessor.Register(typeof(TestVM), nameof(TestVM.Flag),
+                static o => ((TestVM)o).Flag, static (o, v) => ((TestVM)o).Flag = (bool)v);
+            PropertyAccessor.Register(typeof(TestVM), nameof(TestVM.DoCommand),
+                static o => ((TestVM)o).DoCommand, static (o, v) => ((TestVM)o).DoCommand = (ICommand)v);
+            PropertyAccessor.Register(typeof(ListVM), nameof(ListVM.Items),
+                static o => ((ListVM)o).Items, static (o, v) => ((ListVM)o).Items = (ObservableList<int>)v);
+        }
+
         private sealed class TestVM : BindableObject
         {
             private string m_Text = "init";

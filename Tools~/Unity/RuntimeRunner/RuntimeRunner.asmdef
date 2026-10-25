@@ -1,0 +1,1 @@
+{"name": "EjoyFramework.RegressionRunner", "references": ["UnityEngine.TestRunner", "EjoyFramework.Tests.PlayMode"], "overrideReferences": true, "precompiledReferences": ["nunit.framework.dll"], "defineConstraints": ["UNITY_INCLUDE_TESTS"]}

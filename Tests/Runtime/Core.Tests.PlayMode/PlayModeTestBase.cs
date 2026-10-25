@@ -58,6 +58,11 @@ namespace EjoyFramework.Tests.PlayMode
             // 卸载临时场景；framework 模块顺势 Shutdown
             try { Framework.Shutdown(); } catch { }
 
+            // UnloadSceneAsync can finish after the next fixture's SetUp, especially
+            // without domain reload or graphics. Remove this test's components now
+            // so ComponentRegistry cannot reject the next test's live instances.
+            if (m_Root != null) Object.DestroyImmediate(m_Root);
+
             if (m_TestScene.IsValid())
             {
                 var op = SceneManager.UnloadSceneAsync(m_TestScene);

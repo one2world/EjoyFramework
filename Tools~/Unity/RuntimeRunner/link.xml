@@ -1,0 +1,1 @@
+<linker><assembly fullname="UnityEngine.TestRunner" preserve="all"/><assembly fullname="EjoyFramework.Tests.PlayMode" preserve="all"/></linker>

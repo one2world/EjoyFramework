@@ -1,5 +1,7 @@
 # 自研 ECS 验证记录
 
+2026-10-25 本机真实 Unity 回归、修复、跳过原因和剩余问题统一记录在 [Unity 回归实测记录](../../docs/UnityRegression-2026-10-25.md)。下文按日期保留的未安装 Editor、未编译/测试及历史测试计数均为当时状态，不能覆盖最新实测结论。
+
 本文区分当前待验证改动与历史基线。历史报告路径属于 Game 仓库，不作为本轮独立包测试结果；迁移记录及 unity-cli 命令见 [PackageMigration](../../docs/PackageMigration.md)。
 
 ## GitHub 问题与真实资源消费回归（2026-10-13）
