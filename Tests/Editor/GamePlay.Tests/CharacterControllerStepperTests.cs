@@ -83,5 +83,29 @@ namespace EjoyFramework.GamePlay.Tests
             Assert.Throws<InvalidOperationException>(() => stepper.RestorePosition(Vector3.one));
             Assert.That(controller.enabled, Is.False);
         }
+
+        [TestCase(true, true)] [TestCase(true, false)]
+        [TestCase(false, true)] [TestCase(false, false)]
+        public void MotorTeleportPreservesPooledCharacterActivationAndControllerState(bool active, bool enabled)
+        {
+            var motor = body.AddComponent<ThirdPersonCharacterMotor>();
+            body.SetActive(active); controller.enabled = enabled;
+            var target = new Vector3(4, 2, -3); var rotation = Quaternion.Euler(0, 90, 0);
+            Assert.DoesNotThrow(() => motor.Teleport(target, rotation));
+            Assert.That(body.transform.position, Is.EqualTo(target));
+            Assert.That(Quaternion.Angle(body.transform.rotation, rotation), Is.LessThan(.001f));
+            Assert.That(body.activeSelf, Is.EqualTo(active));
+            Assert.That(controller.enabled, Is.EqualTo(enabled));
+            if (!active || !enabled)
+                Assert.Throws<InvalidOperationException>(() => stepper.Move(target, Vector3.zero, .1f));
+        }
+
+        [Test] public void MotorTeleportRejectsInvalidPositionBeforeChangingPooledState()
+        {
+            var motor = body.AddComponent<ThirdPersonCharacterMotor>(); body.SetActive(false);
+            Assert.Throws<ArgumentOutOfRangeException>(() => motor.Teleport(new Vector3(float.NaN, 0, 0), Quaternion.identity));
+            Assert.That(body.transform.position, Is.EqualTo(Vector3.zero));
+            Assert.That(body.activeSelf, Is.False); Assert.That(controller.enabled, Is.True);
+        }
     }
 }

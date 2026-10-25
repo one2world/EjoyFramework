@@ -100,5 +100,31 @@ namespace EjoyFramework.GamePlay.Tests
             }
             finally { UnityEngine.Object.DestroyImmediate(other); }
         }
+
+        [TestCase(false)] [TestCase(true)]
+        public void ZeroRadiusPointInsideRegisteredSolidHasDistanceZeroHit(bool convexMesh)
+        {
+            Collider solid;
+            if(convexMesh){collider.convex=true;solid=collider;}
+            else{UnityEngine.Object.DestroyImmediate(collider);solid=wall.AddComponent<BoxCollider>();}
+            Physics.SyncTransforms();
+            query=new StaticPhysicsHistoricalQuery(history,Physics.defaultPhysicsScene,new[]{solid},1<<29,7,0x80000000);
+            Assert.That(query.Sweep(1,1,new V(0,0,5),V.UnitZ,0,0,uint.MaxValue,0,out var hit),Is.EqualTo(HistoricalQueryStatus.Hit));
+            Assert.That(hit.Distance,Is.Zero);Assert.That(hit.Collider.Owner,Is.EqualTo(7));
+            Assert.That(query.Sweep(1,1,new V(0,0,4.4999f),-V.UnitZ,0,0,uint.MaxValue,0,out _),Is.EqualTo(HistoricalQueryStatus.Miss),"Point containment must not inflate nearby surfaces.");
+        }
+
+        [Test] public void ZeroRadiusPointInsideNonConvexSurfaceDoesNotBecomeSolidContainment()
+        {
+            Assert.That(query.Sweep(1,1,new V(0,0,5),V.UnitZ,0,0,uint.MaxValue,0,out _),Is.EqualTo(HistoricalQueryStatus.Miss));
+        }
+
+        [Test] public void NewEpochRevalidatesGeometryEvenWhenLatestTickRepeats()
+        {
+            query.Sweep(1,1,V.Zero,V.UnitZ,20,.1f,uint.MaxValue,0,out _);
+            wall.transform.position=Vector3.right;Physics.SyncTransforms();
+            history.Reset(2);history.Capture(1,Array.Empty<HistoricalCollider>());
+            Assert.Throws<InvalidOperationException>(()=>query.Sweep(2,1,V.Zero,V.UnitZ,20,.1f,uint.MaxValue,0,out _));
+        }
     }
 }

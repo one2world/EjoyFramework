@@ -11,6 +11,7 @@ namespace EjoyFramework.GamePlay.Unity.Combat
     /// in history. Checks transforms/enabled state once per captured tick and fails on mutation.
     /// Non-convex meshes are queried as surfaces, not solid-volume interiors. Unknown colliders
     /// are rejected when Unity reports a cast hit or initial overlap, not by scanning all layer occupants.
+    /// Zero-radius containment is checked against registered solid primitives and convex meshes.
     /// All buffers are allocated at construction; sweeps do not mutate live physics or allocate.</summary>
     public sealed class StaticPhysicsHistoricalQuery : IHistoricalSweepQuery
     {
@@ -25,6 +26,7 @@ namespace EjoyFramework.GamePlay.Unity.Combat
         private readonly uint mask;
         private readonly int layers;
         private uint validatedTick;
+        private ulong validatedEpoch;
         public uint LatestTick=>history.LatestTick;
         public StaticPhysicsHistoricalQuery(HistoricalHitWorld history,PhysicsScene scene,Collider[] staticGeometry,int layerMask,ulong owner,uint categoryMask)
         {
@@ -44,14 +46,27 @@ namespace EjoyFramework.GamePlay.Unity.Combat
         {
             var result=history.Sweep(epoch,tick,origin,direction,distance,radius,queryMask,excludedOwner,out hit);
             if(result==HistoricalQueryStatus.WrongEpoch||result==HistoricalQueryStatus.HistoryUnavailable)return result;
-            if(validatedTick!=history.LatestTick)
+            if(validatedEpoch!=epoch||validatedTick!=history.LatestTick)
             {
                 for(int i=0;i<geometry.Length;i++)if(!geometry[i]||!geometry[i].enabled||!geometry[i].gameObject.activeInHierarchy||geometry[i].isTrigger||(layers&(1<<geometry[i].gameObject.layer))==0||geometry[i].transform.localToWorldMatrix!=poses[i])throw new InvalidOperationException("Static collision geometry changed; rebuild the scene query explicitly.");
-                validatedTick=history.LatestTick;
+                validatedEpoch=epoch;validatedTick=history.LatestTick;
             }
             if((queryMask&mask)==0||excludedOwner==owner)return result;
             var start=U(origin);var dir=U(V.Normalize(direction));
             // Unity casts omit initial overlaps. Resolve these explicitly and reject unknown layer occupants.
+            if(radius==0)
+            {
+                // A point has no volume for OverlapSphere. Test exact containment without an
+                // epsilon sphere that could turn a nearby surface into a false initial hit.
+                for(int i=0;i<geometry.Length;i++)
+                {
+                    var c=geometry[i];
+                    if(!(c is BoxCollider)&&!(c is SphereCollider)&&!(c is CapsuleCollider)&&!(c is MeshCollider mesh&&mesh.convex))continue;
+                    var closest=c.ClosestPoint(start);
+                    if(closest.x==start.x&&closest.y==start.y&&closest.z==start.z)
+                    {hit=HistoricalHit.StaticGeometry(owner,1,(ushort)i,mask,0,0,N(start),N(-dir));return HistoricalQueryStatus.Hit;}
+                }
+            }
             if(radius>0)
             {
                 int count=scene.OverlapSphere(start,radius,overlaps,layers,QueryTriggerInteraction.Ignore);

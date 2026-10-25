@@ -30,7 +30,7 @@ namespace EjoyFramework.GamePlay.Combat
             HistoricalCollider.Finite(Speed)&&Speed>0&&Speed<=1000000&&HistoricalCollider.Finite(Radius)&&Radius>=0&&Radius<=1000000&&
             HistoricalCollider.Finite(MaxAgeSeconds)&&MaxAgeSeconds>0&&MaxAgeSeconds<=3600&&HistoricalCollider.Finite(ImpactRetentionSeconds)&&ImpactRetentionSeconds>=0&&ImpactRetentionSeconds<=3600&&
             Finite(Start)&&Finite(End)&&Finite(Position)&&Finite(ImpactNormal)&&(End-Start).LengthSquared()>.000001f;
-        private static bool Finite(Vector3 p)=>HistoricalCollider.Finite(p.X)&&HistoricalCollider.Finite(p.Y)&&HistoricalCollider.Finite(p.Z)&&Math.Abs(p.X)<=1000000&&Math.Abs(p.Y)<=1000000&&Math.Abs(p.Z)<=1000000;
+        internal static bool Finite(Vector3 p)=>HistoricalCollider.Finite(p.X)&&HistoricalCollider.Finite(p.Y)&&HistoricalCollider.Finite(p.Z)&&Math.Abs(p.X)<=1000000&&Math.Abs(p.Y)<=1000000&&Math.Abs(p.Z)<=1000000;
         public Vector3 PositionAt(double tick, int rate)=>ImpactTick!=0?Position:Ballistic?Position+Velocity*(float)(Math.Max(0,tick-LastTick)/rate)-Vector3.UnitY*(float)(.5*Gravity*Math.Pow(Math.Max(0,tick-LastTick)/rate,2)):Start+Vector3.Normalize(End-Start)*(float)(Math.Max(0,tick-Key.StartTick)/rate*Speed);
     }
     public readonly struct ProjectileImpact
@@ -47,7 +47,9 @@ namespace EjoyFramework.GamePlay.Combat
         internal ProjectileAdvanceResult(int impacts,int expired,int missing,int fallbacks,int futureFallbacks,int pastFallbacks){Impacts=impacts;Expired=expired;MissingHistory=missing;Fallbacks=fallbacks;FutureFallbacks=futureFallbacks;PastFallbacks=pastFallbacks;}
     }
     /// <summary>Bounded owner-thread linear or optional ballistic simulation (legacy class name retained). Damage, teams, history fallback policy and tuning belong to the caller.
-    /// Sweeps the whole movement segment, emits an impact once, retains it, then expires. No live physics mutation or callbacks.</summary>
+    /// Sweeps the whole movement segment, emits an impact once, retains it, then expires. Fresh positions
+    /// must equal Start. Flight beyond the supported coordinate/velocity or sweep-distance range expires
+    /// before querying or publishing an invalid state. No live physics mutation or callbacks.</summary>
     public sealed class LinearProjectileWorld
     {
         private readonly int m_Owner=Environment.CurrentManagedThreadId, m_Rate;
@@ -62,7 +64,7 @@ namespace EjoyFramework.GamePlay.Combat
         public void Reset(ulong epoch){Owner();if(epoch==0)throw new ArgumentOutOfRangeException();m_Epoch=epoch;m_Count=0;m_Tick=0;m_NextId=0;}
         public bool Spawn(in LinearProjectileState state)
         {
-            Owner();if(m_Epoch==0||!state.Valid||state.ImpactTick!=0||state.LastTick!=state.Key.StartTick-1||state.Key.StartTick<=m_Tick)throw new ArgumentException("Fresh next-tick projectile required.");
+            Owner();if(m_Epoch==0||!state.Valid||state.Position!=state.Start||state.ImpactTick!=0||state.LastTick!=state.Key.StartTick-1||state.Key.StartTick<=m_Tick)throw new ArgumentException("Fresh next-tick projectile at its launch start required.");
             for(int i=0;i<m_Count;i++)if(m_Items[i].Key.Equals(state.Key))return false;
             if(m_Count==m_Items.Length)throw new InvalidOperationException("Projectile capacity exhausted.");var assigned=state;assigned.Id=checked(++m_NextId);m_Items[m_Count++]=assigned;return true;
         }
@@ -89,6 +91,8 @@ namespace EjoyFramework.GamePlay.Combat
                     next=p.Position+velocity*elapsed;
                 }
                 var delta=next-p.Position;float travel=delta.Length();
+                if(!LinearProjectileState.Finite(next)||(p.Ballistic&&!LinearProjectileState.Finite(velocity))||!HistoricalCollider.Finite(travel)||travel>1000000)
+                {m_Items[i]=m_Items[--m_Count];expired++;continue;}
                 var direction=travel>.000001f?delta/travel:Vector3.Normalize(p.End-p.Start);
                 HistoricalHit hit;var result=Sweep(history,in p,tick,queryTick,direction,travel,out hit);
                 if(result==HistoricalQueryStatus.WrongEpoch)throw new InvalidOperationException("Projectile/history epoch mismatch.");
@@ -103,13 +107,17 @@ namespace EjoyFramework.GamePlay.Combat
                     {if(overAge){m_Items[i]=m_Items[--m_Count];expired++;}else i++;continue;}
                 }
                 p.LastTick=tick;p.Position=next;if(p.Ballistic)p.Velocity=velocity;
+                bool contactImpact=false;
                 if(result==HistoricalQueryStatus.Hit)
                 {
                     p.Position=hit.Point;p.ImpactNormal=hit.Normal;
                     if(p.Ballistic&&(hit.Collider.Mask&p.BounceMask)!=0)
                     {p.Position+=hit.Normal*p.Radius;p.Velocity=Vector3.Reflect(velocity,hit.Normal)*p.Restitution;p.BounceTick=tick;}
-                    else {p.ImpactTick=tick;impacts[hits++]=new ProjectileImpact(in p,in hit,queryTick,requestedQueryTick);}
+                    else {p.ImpactTick=tick;contactImpact=true;}
                 }
+                // Contact offsets and reflected velocity must obey the same replica bounds.
+                if(!p.Valid){m_Items[i]=m_Items[--m_Count];expired++;continue;}
+                if(contactImpact)impacts[hits++]=new ProjectileImpact(in p,in hit,queryTick,requestedQueryTick);
                 if(p.Ballistic&&p.ImpactTick==0&&overAge){p.ImpactTick=tick;impacts[hits++]=new ProjectileImpact(in p,default,queryTick,requestedQueryTick);}
                 // Resolve the final movement query before age-based despawn. An impact on
                 // that last update enters retained impact state instead of vanishing.

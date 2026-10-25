@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - Outstanding movement and collision review findings
+
+- Preserve inactive/disabled character state when teleporting pooled characters; tick movement
+  retains its active-controller requirement (PR #7).
+- Require fresh projectile positions to match their launch start. Retire flight before coordinates,
+  velocity or sweep distance exceed the supported range, without publishing invalid replica state (PR #13).
+- Detect zero-radius containment in registered solid primitives/convex meshes and include epoch
+  in static geometry validation caching (PR #15). Non-convex mesh interiors remain surface-only.
+- Unity regression tests for teleport, point containment and epoch resets are added but have not
+  been executed on this host; CoreCLR checks do not establish Unity physics or Player acceptance.
+
 ### Fixed - Consumer resource, entity and Unity compatibility issues
 
 - Entity groups use exclusive instance pools: simultaneous entities using the same prefab own

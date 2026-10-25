@@ -1,3 +1,4 @@
+using System;
 using EjoyFramework.GamePlay.ThreeC;
 using UnityEngine;
 
@@ -53,8 +54,17 @@ namespace EjoyFramework.GamePlay.Unity.ThreeC
 
         public void Teleport(Vector3 position, Quaternion rotation)
         {
-            m_Stepper.RestorePosition(position);
-            transform.rotation = rotation;
+            if (float.IsNaN(position.x) || float.IsInfinity(position.x) ||
+                float.IsNaN(position.y) || float.IsInfinity(position.y) ||
+                float.IsNaN(position.z) || float.IsInfinity(position.z))
+                throw new ArgumentOutOfRangeException(nameof(position));
+            // Pool preparation may teleport an inactive or disabled controller. Tick movement
+            // still requires an active controller; preserve the caller's enabled/active state here.
+            bool wasEnabled = m_Controller.enabled;
+            m_Controller.enabled = false;
+            try { transform.SetPositionAndRotation(position, rotation); }
+            finally { m_Controller.enabled = wasEnabled; }
+            Physics.SyncTransforms();
             m_Motor.Reset();
         }
     }

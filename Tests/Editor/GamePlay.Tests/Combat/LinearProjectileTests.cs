@@ -94,5 +94,64 @@ namespace EjoyFramework.GamePlay.Tests.Combat
             for(int i=0;i<100;i++){world.Reset(1);history.Reset(1);history.Capture(1,empty);var p=Shot();world.Spawn(in p);world.Advance(1,history,false,events);history.OverlapSphere(1,1,Vector3.Zero,1,2,0,0,output,out _);}
             Assert.That(GC.GetAllocatedBytesForCurrentThread()-before,Is.Zero);
         }
+
+        [TestCase(false)] [TestCase(true)]
+        public void FreshOffsetPositionIsRejectedBeforeRegistration(bool ballistic)
+        {
+            var world=new LinearProjectileWorld(1);world.Reset(1);var p=Shot();
+            p.Ballistic=ballistic;p.Position=Vector3.UnitY;
+            Assert.Throws<ArgumentException>(()=>world.Spawn(in p));Assert.That(world.Count,Is.Zero);
+            p.Position=p.Start;Assert.That(world.Spawn(in p),Is.True);
+        }
+
+        [TestCase(1f,false)] [TestCase(-1f,false)]
+        [TestCase(1f,true)] [TestCase(-1f,true)]
+        public void FlightLeavingCoordinateRangeExpiresBeforePublishingInvalidState(float sign,bool ballistic)
+        {
+            var history=new HistoricalHitWorld(4,1);history.Reset(1);history.Capture(2,Array.Empty<HistoricalCollider>());
+            var world=new LinearProjectileWorld(1);world.Reset(1);var p=Shot();
+            p.Start=p.Position=new Vector3(sign*999999,0,0);p.End=new Vector3(sign*1000000,0,0);
+            p.Speed=120;p.Ballistic=ballistic;p.Velocity=Vector3.UnitX*(sign*120);world.Spawn(in p);
+            var impacts=new ProjectileImpact[1];var result=world.Advance(2,history,false,impacts);
+            Assert.That(result.Expired,Is.EqualTo(1));Assert.That(result.Impacts,Is.Zero);
+            Assert.That(world.Count,Is.Zero);Assert.That(world.CopyTo(new LinearProjectileState[1]),Is.Zero);
+            Assert.DoesNotThrow(()=>world.Advance(3,history,false,impacts));
+        }
+
+        [Test] public void OversizedSweepExpiresEvenWhenBothEndpointsAreSupported()
+        {
+            var history=new HistoricalHitWorld(4,1);history.Reset(1);history.Capture(3,Array.Empty<HistoricalCollider>());
+            var world=new LinearProjectileWorld(1,1);world.Reset(1);var p=Shot();
+            p.Start=p.Position=new Vector3(-999999,0,0);p.End=new Vector3(999999,0,0);p.Speed=600000;world.Spawn(in p);
+            var result=world.Advance(3,history,false,new ProjectileImpact[1]);
+            Assert.That(result.Expired,Is.EqualTo(1));Assert.That(world.Count,Is.Zero);
+        }
+
+        [Test] public void BallisticAccelerationOutsideValidVelocityRangeExpires()
+        {
+            var history=new HistoricalHitWorld(4,1);history.Reset(1);history.Capture(2,Array.Empty<HistoricalCollider>());
+            var world=new LinearProjectileWorld(1,1000);world.Reset(1);var p=Shot();
+            p.Ballistic=true;p.Velocity=new Vector3(0,-999999,0);p.Gravity=1000000;world.Spawn(in p);
+            var result=world.Advance(2,history,false,new ProjectileImpact[1]);
+            Assert.That(result.Expired,Is.EqualTo(1));Assert.That(world.Count,Is.Zero);
+        }
+
+        private sealed class EdgeContactQuery : IHistoricalSweepQuery
+        {
+            public uint LatestTick=>1;
+            public HistoricalQueryStatus Sweep(ulong epoch,uint tick,Vector3 origin,Vector3 direction,float distance,float radius,uint mask,ulong excludedOwner,out HistoricalHit hit)
+            {
+                hit=HistoricalHit.StaticGeometry(3,1,0,8,0,0,new Vector3(1000000,0,0),Vector3.UnitX);
+                return HistoricalQueryStatus.Hit;
+            }
+        }
+        [Test] public void BounceOffsetCannotPublishAnOutOfRangeReplica()
+        {
+            var world=new LinearProjectileWorld(1);world.Reset(1);var p=Shot();
+            p.Start=p.Position=new Vector3(999999.875f,0,0);p.End=new Vector3(1000000,0,0);
+            p.Ballistic=true;p.Mask=p.BounceMask=8;world.Spawn(in p);
+            var result=world.Advance(1,new EdgeContactQuery(),false,new ProjectileImpact[1]);
+            Assert.That(result.Expired,Is.EqualTo(1));Assert.That(result.Impacts,Is.Zero);Assert.That(world.Count,Is.Zero);
+        }
     }
 }
