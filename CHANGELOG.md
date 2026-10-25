@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `EventPool` now locks its subscription table, so `Subscribe`, `Unsubscribe`, `TryUnsubscribe`, `Check`,
   `Count` and `SetDefaultHandler` are safe from any thread. `Update` rejects concurrent and re-entrant calls.
   After shutdown, `Fire` releases its arguments immediately and `Unsubscribe` no longer throws.
+  `Subscribe` and `SetDefaultHandler` ignore late registrations under the subscription lock, including
+  workers waiting across shutdown; `Subscribe(null)` still throws.
+- `RingBuffer` and `Deque` physical indexing avoids integer overflow at large valid capacities.
 - `IEventManager` gained the `GetChannel<T>()` member. Custom implementations of the interface must add it.
 - Moved `BinaryHeap`, `NoAllocSort`, `GameLinkedList` and `MultiDictionary` into `Runtime/Core/Collections/`.
   Their namespace and Unity GUIDs are unchanged.
