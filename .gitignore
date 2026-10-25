@@ -28,6 +28,7 @@ obj/
 !Tools~/Ecs/Directory.Build.props
 !Tools~/Ecs/*.cs
 !Tools~/Ecs/*.md
+!Tools~/Netcode/EjoyFramework.GamePlay.Netcode.Codec.Tests.csproj
 
 # Local editor state, downloaded archives and credentials are not package inputs.
 .vs/
